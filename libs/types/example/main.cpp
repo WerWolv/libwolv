@@ -1,4 +1,5 @@
 #include <wolv/types.hpp>
+#include <wolv/literals.hpp>
 
 int main() {
 
@@ -16,5 +17,11 @@ int main() {
 
     static_assert(sizeof(wolv::f32)  == 4);
     static_assert(sizeof(wolv::f64)  == 8);
+
+    using namespace wolv::literals;
+    static_assert(5_bytes == 5ULL);
+    static_assert(5_kiB   == 5ULL * 1024);
+    static_assert(5_MiB   == 5ULL * 1024 * 1024);
+    static_assert(5_GiB   == 5ULL * 1024 * 1024 * 1024);
 
 }
