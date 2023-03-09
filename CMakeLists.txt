@@ -7,3 +7,4 @@ add_subdirectory(libs/types)
 add_subdirectory(libs/utils)
 
 add_subdirectory(libs/io)
+add_subdirectory(libs/hash)
