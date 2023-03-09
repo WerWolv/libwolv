@@ -3,6 +3,7 @@ project(libwolv-utils)
 # Add library
 add_library(libwolv-utils STATIC
         source/utils/string.cpp
+        source/utils/socket.cpp
 )
 target_include_directories(libwolv-utils PUBLIC include)
 target_link_libraries(libwolv-utils PUBLIC libwolv-types)

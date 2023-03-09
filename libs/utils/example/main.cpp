@@ -2,6 +2,7 @@
 #include <wolv/utils/guards.hpp>
 #include <wolv/utils/preproc.hpp>
 #include <wolv/utils/string.hpp>
+#include <wolv/utils/socket.hpp>
 
 int main() {
     puts("Start");
