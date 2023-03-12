@@ -37,9 +37,7 @@ namespace wolv::io::fs {
             if (readlink("/proc/self/exe", exePath.data(), PATH_MAX) < 0)
                 return std::nullopt;
 
-            util::trim(exePath);
-
-            return exePath;
+            return util::trim(exePath);
 
         #elif defined(OS_MACOS)
             std::string exePath;
@@ -50,9 +48,7 @@ namespace wolv::io::fs {
                 macFree(string);
             }
 
-            util::trim(exePath);
-
-            return exePath;
+            return util::trim(exePath);
 
         #else
 
