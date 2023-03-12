@@ -69,15 +69,7 @@ namespace wolv::io::fs {
         return relative.size() == 1 || (relative[0] != '.' && relative[1] != '.');
     }
 
-    bool isPathWritable(const std::fs::path &path);
-
     std::fs::path toShortPath(const std::fs::path &path);
-
-    enum class DialogMode {
-        Open,
-        Save,
-        Folder
-    };
 
     std::optional<std::fs::path> getExecutablePath();
 
