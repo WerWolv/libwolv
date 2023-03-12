@@ -183,7 +183,7 @@ namespace wolv::io {
 
         #else
 
-            if (stat(hex::toUTF8String(this->m_path).c_str(), &fileInfo) != 0)
+            if (stat(wolv::util::toUTF8String(this->m_path).c_str(), &fileInfo) != 0)
                 return std::nullopt;
 
         #endif
