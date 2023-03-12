@@ -20,7 +20,7 @@ namespace wolv::util {
 
 
     template<typename T>
-    std::array<u8, sizeof(T)> toBytes(T value) {
+    std::array<u8, sizeof(T)> toBytes(const T &value) {
         std::array<u8, sizeof(T)> bytes;
         std::memcpy(bytes.data(), &value, sizeof(T));
 
