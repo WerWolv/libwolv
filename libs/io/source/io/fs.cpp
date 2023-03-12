@@ -8,6 +8,10 @@
 
     #include <windows.h>
 
+#elif defined(OS_MACOS)
+
+    #include <wolv/io/fs_macos.hpp>
+
 #elif defined(OS_LINUX)
 
     #include <linux/limits.h>
