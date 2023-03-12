@@ -2,6 +2,8 @@
 #include <wolv/io/fs.hpp>
 #include <wolv/io/buffered_reader.hpp>
 
+#include <cstring>
+
 void StringReader(std::string *userData, void *buffer, wolv::u64 address, size_t size) {
     memcpy(buffer, &(*userData)[address], size);
 }

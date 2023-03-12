@@ -14,6 +14,6 @@ elseif (APPLE)
 endif ()
 
 # Add example project
-add_executable(${PROJECT_NAME}-test example/main.cpp)
+add_executable(${PROJECT_NAME}-test EXCLUDE_FROM_ALL example/main.cpp)
 target_include_directories(${PROJECT_NAME}-test PRIVATE example)
 target_link_libraries(${PROJECT_NAME}-test PRIVATE ${PROJECT_NAME})
