@@ -26,4 +26,9 @@ namespace wolv::util {
 
         return bytes;
     }
+
+    template<typename Out>
+    Out toContainer(const auto &value) {
+        return { value.begin(), value.end() };
+    }
 }
