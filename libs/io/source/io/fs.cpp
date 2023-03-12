@@ -14,6 +14,7 @@
 
 #elif defined(OS_LINUX)
 
+    #include <unistd.h>
     #include <linux/limits.h>
 
 #endif
