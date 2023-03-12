@@ -10,7 +10,6 @@
 
 #elif defined(OS_LINUX)
 
-    #include <xdg.hpp>
     #include <linux/limits.h>
 
 #endif
@@ -34,7 +33,7 @@ namespace wolv::io::fs {
             if (readlink("/proc/self/exe", exePath.data(), PATH_MAX) < 0)
                 return std::nullopt;
 
-            hex::trim(exePath);
+            util::trim(exePath);
 
             return exePath;
 
@@ -47,7 +46,7 @@ namespace wolv::io::fs {
                 macFree(string);
             }
 
-            hex::trim(exePath);
+            util::trim(exePath);
 
             return exePath;
 
