@@ -7,6 +7,8 @@ set(SOURCE
 )
 
 if (APPLE)
+    enable_language(OBJC)
+    enable_language(OBJCXX)
     set(SOURCE ${SOURCE} source/io/fs_macos.m)
 endif ()
 
