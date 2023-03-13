@@ -73,4 +73,10 @@ namespace wolv::io::fs {
 
     std::optional<std::fs::path> getExecutablePath();
 
+    #if defined(OS_MACOS)
+
+    std::fs::path getApplicationSupportDirectoryPath();
+
+    #endif
+
 }

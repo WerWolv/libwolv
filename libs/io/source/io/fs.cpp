@@ -78,5 +78,21 @@ namespace wolv::io::fs {
         #endif
     }
 
+    #if defined(OS_MACOS)
+
+        std::fs::path getApplicationSupportDirectoryPath() {
+            std::string exePath;
+
+            {
+                auto string = getMacApplicationSupportDirectoryPath();
+                exePath = string;
+                macFree(string);
+            }
+
+            return util::trim(exePath);
+        }
+
+    #endif
+
 
 }
