@@ -50,7 +50,7 @@ namespace wolv::io {
 
 
         [[nodiscard]] bool isValid() const {
-            return this->m_file != nullptr && fs::exists(this->m_path) && !fs::isDirectory(this->m_path);
+            return this->m_file != nullptr;
         }
 
         void seek(u64 offset);
