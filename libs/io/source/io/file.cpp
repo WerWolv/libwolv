@@ -7,7 +7,7 @@
 
 namespace wolv::io {
 
-    File::File(const std::fs::path &path, Mode mode) noexcept : m_path(path) {
+    File::File(const std::fs::path &path, Mode mode) noexcept : m_path(path), m_mode(mode) {
         #if defined(OS_WINDOWS)
 
             if (mode == File::Mode::Read)
@@ -53,6 +53,10 @@ namespace wolv::io {
         return *this;
     }
 
+
+    File File::clone() {
+        return File(this->m_path, this->m_mode);
+    }
 
     void File::seek(u64 offset) {
         fseeko64(this->m_file, offset, SEEK_SET);

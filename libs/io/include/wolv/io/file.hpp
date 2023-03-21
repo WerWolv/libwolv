@@ -53,6 +53,8 @@ namespace wolv::io {
             return this->m_file != nullptr;
         }
 
+        File clone();
+
         void seek(u64 offset);
         void close();
 
@@ -82,6 +84,7 @@ namespace wolv::io {
     private:
         FILE *m_file;
         std::fs::path m_path;
+        Mode m_mode;
     };
 
 }
