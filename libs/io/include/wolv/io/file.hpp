@@ -59,12 +59,12 @@ namespace wolv::io {
         void close();
 
         size_t readBuffer(u8 *buffer, size_t size);
-        std::vector<u8> readBytes(size_t numBytes = 0);
+        std::vector<u8> readVector(size_t numBytes = 0);
         std::string readString(size_t numBytes = 0);
         std::u8string readU8String(size_t numBytes = 0);
 
         size_t writeBuffer(const u8 *buffer, size_t size);
-        size_t writeBytes(const std::vector<u8> &bytes);
+        size_t writeVector(const std::vector<u8> &bytes);
         size_t writeString(const std::string &string);
         size_t writeU8String(const std::u8string &string);
 

@@ -75,7 +75,7 @@ namespace wolv::io {
         return fread(buffer, size, 1, this->m_file);
     }
 
-    std::vector<u8> File::readBytes(size_t numBytes) {
+    std::vector<u8> File::readVector(size_t numBytes) {
         if (!isValid()) return {};
 
         auto size = numBytes == 0 ? getSize() : numBytes;
@@ -94,7 +94,7 @@ namespace wolv::io {
 
         if (getSize() == 0) return {};
 
-        auto bytes = readBytes(numBytes);
+        auto bytes = this->readVector(numBytes);
 
         if (bytes.empty())
             return "";
@@ -108,7 +108,7 @@ namespace wolv::io {
 
         if (getSize() == 0) return {};
 
-        auto bytes = readBytes(numBytes);
+        auto bytes = this->readVector(numBytes);
 
         if (bytes.empty())
             return u8"";
@@ -123,7 +123,7 @@ namespace wolv::io {
         return std::fwrite(buffer, size, 1, this->m_file);
     }
 
-    size_t File::writeBytes(const std::vector<u8> &bytes) {
+    size_t File::writeVector(const std::vector<u8> &bytes) {
         if (!isValid()) return 0;
 
         return std::fwrite(bytes.data(), 1, bytes.size(), this->m_file);
