@@ -63,10 +63,10 @@ namespace wolv::io {
         std::string readString(size_t numBytes = 0);
         std::u8string readU8String(size_t numBytes = 0);
 
-        void write(const u8 *buffer, size_t size);
-        void write(const std::vector<u8> &bytes);
-        void write(const std::string &string);
-        void write(const std::u8string &string);
+        size_t writeBuffer(const u8 *buffer, size_t size);
+        size_t writeBytes(const std::vector<u8> &bytes);
+        size_t writeString(const std::string &string);
+        size_t writeU8String(const std::u8string &string);
 
         [[nodiscard]] size_t getSize() const;
         void setSize(u64 size);

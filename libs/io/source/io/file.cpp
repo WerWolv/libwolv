@@ -117,28 +117,28 @@ namespace wolv::io {
         return { cString, util::strnlen(reinterpret_cast<const char*>(bytes.data()), bytes.size()) };
     }
 
-    void File::write(const u8 *buffer, size_t size) {
-        if (!isValid()) return;
+    size_t File::writeBuffer(const u8 *buffer, size_t size) {
+        if (!isValid()) return 0;
 
-        std::fwrite(buffer, size, 1, this->m_file);
+        return std::fwrite(buffer, size, 1, this->m_file);
     }
 
-    void File::write(const std::vector<u8> &bytes) {
-        if (!isValid()) return;
+    size_t File::writeBytes(const std::vector<u8> &bytes) {
+        if (!isValid()) return 0;
 
-        std::fwrite(bytes.data(), 1, bytes.size(), this->m_file);
+        return std::fwrite(bytes.data(), 1, bytes.size(), this->m_file);
     }
 
-    void File::write(const std::string &string) {
-        if (!isValid()) return;
+    size_t File::writeString(const std::string &string) {
+        if (!isValid()) return 0;
 
-        std::fwrite(string.data(), string.size(), 1, this->m_file);
+        return std::fwrite(string.data(), string.size(), 1, this->m_file);
     }
 
-    void File::write(const std::u8string &string) {
-        if (!isValid()) return;
+    size_t File::writeU8String(const std::u8string &string) {
+        if (!isValid()) return 0;
 
-        std::fwrite(string.data(), string.size(), 1, this->m_file);
+        return std::fwrite(string.data(), string.size(), 1, this->m_file);
     }
 
     size_t File::getSize() const {
