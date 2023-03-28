@@ -38,6 +38,9 @@ namespace wolv::io {
     File::File(File &&other) noexcept {
         this->m_file = other.m_file;
         other.m_file = nullptr;
+
+        this->m_path = std::move(other.m_path);
+        this->m_mode = other.m_mode;
     }
 
     File::~File() {
@@ -49,6 +52,7 @@ namespace wolv::io {
         other.m_file = nullptr;
 
         this->m_path = std::move(other.m_path);
+        this->m_mode = other.m_mode;
 
         return *this;
     }
