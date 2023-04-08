@@ -29,37 +29,45 @@ namespace wolv::io {
         }
 
         [[nodiscard]] std::vector<u8> read(u64 address, size_t size) {
+            std::vector<u8> result;
+            result.resize(size);
+            this->read(address, result.data(), result.size());
+
+            return result;
+        }
+
+        [[nodiscard]] std::vector<u8> readReverse(u64 address, size_t size) {
+            std::vector<u8> result;
+            result.resize(size);
+            this->readReverse(address, result.data(), result.size());
+
+            return result;
+        }
+
+        void read(u64 address, u8 *buffer, size_t size) {
             if (size > this->m_buffer.size()) {
-                std::vector<u8> result;
-                result.resize(size);
-
-                Reader(this->m_userData, result.data(), address, result.size());
-
-                return result;
+                Reader(this->m_userData, buffer, address, size);
+                return;
             }
 
             this->updateBuffer(address, size);
 
             auto result = &this->m_buffer[address -  this->m_bufferAddress];
 
-            return { result, result + std::min(size, this->m_buffer.size()) };
+            std::memcpy(buffer, result, std::min(size, this->m_buffer.size()));
         }
 
-        [[nodiscard]] std::vector<u8> readReverse(u64 address, size_t size) {
+        void readReverse(u64 address, u8 *buffer, size_t size) {
             if (size > this->m_buffer.size()) {
-                std::vector<u8> result;
-                result.resize(size);
-
-                Reader(this->m_userData, result.data(), address, result.size());
-
-                return result;
+                Reader(this->m_userData, buffer, address, size);
+                return;
             }
 
             this->updateBuffer(address - std::min<u64>(address, this->m_buffer.size()), size);
 
             auto result = &this->m_buffer[address - this->m_bufferAddress];
 
-            return { result, result + std::min(size, this->m_buffer.size()) };
+            std::memcpy(buffer, result, std::min(size, this->m_buffer.size()));
         }
 
         class Iterator {
