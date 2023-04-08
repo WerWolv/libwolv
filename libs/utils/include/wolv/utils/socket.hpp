@@ -25,12 +25,21 @@ namespace wolv::util {
 
     class Socket {
     public:
-        Socket()               = default;
+        enum class Type : u32 {
+            TCP = 0,
+            UDP = 1
+        };
+
+        Socket() = default;
+        Socket(Type type) : m_type(type) {}
         Socket(const Socket &) = delete;
         Socket(Socket &&other) noexcept;
 
-        Socket(const std::string &address, u16 port);
+        Socket(const std::string &address, u16 port, Type type);
         ~Socket();
+
+        Socket& operator=(const Socket &) = delete;
+        Socket& operator=(Socket &&other) noexcept;
 
         void connect(const std::string &address, u16 port);
         void disconnect();
@@ -45,6 +54,7 @@ namespace wolv::util {
 
     private:
         bool m_connected = false;
+        Type m_type = Type::TCP;
 
         #if defined(OS_WINDOWS)
 

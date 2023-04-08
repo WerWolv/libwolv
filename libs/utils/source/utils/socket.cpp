@@ -4,7 +4,7 @@
 
 namespace wolv::util {
 
-    Socket::Socket(const std::string &address, u16 port) {
+    Socket::Socket(const std::string &address, u16 port, Type type) : m_type(type) {
         #if defined(OS_WINDOWS)
 
             AT_FIRST_TIME {
@@ -30,6 +30,15 @@ namespace wolv::util {
 
     Socket::~Socket() {
         this->disconnect();
+    }
+
+    Socket& Socket::operator=(wolv::util::Socket &&other) noexcept {
+        this->m_socket    = other.m_socket;
+        this->m_connected = other.m_connected;
+
+        other.m_socket = SOCKET_NONE;
+
+        return *this;
     }
 
     void Socket::writeBytes(const std::vector<u8> &bytes) const {
@@ -72,7 +81,7 @@ namespace wolv::util {
     }
 
     void Socket::connect(const std::string &address, u16 port) {
-        this->m_socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        this->m_socket = ::socket(AF_INET, this->m_type == Type::TCP ? SOCK_STREAM : SOCK_DGRAM, 0);
         if (this->m_socket == SOCKET_NONE)
             return;
 
