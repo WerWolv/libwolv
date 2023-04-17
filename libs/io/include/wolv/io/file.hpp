@@ -82,7 +82,7 @@ namespace wolv::io {
         std::optional<struct stat> getFileInfo();
 
     private:
-        FILE *m_file;
+        FILE *m_file = nullptr;
         std::fs::path m_path;
         Mode m_mode;
     };
