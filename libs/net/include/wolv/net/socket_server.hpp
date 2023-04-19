@@ -13,7 +13,7 @@ namespace wolv::net {
 
     class SocketServer {
     public:
-        SocketServer(size_t bufferSize = 1024, i32 maxClientCount = 5);
+        explicit SocketServer(size_t bufferSize = 1024, i32 maxClientCount = 5);
 
         using Callback = std::function<std::vector<u8>(SocketHandle, const std::vector<u8>)>;
 
@@ -21,7 +21,7 @@ namespace wolv::net {
         void stop();
 
     private:
-        void handleClient(SocketHandle clientSocket, const std::atomic<bool> &shouldStop, const Callback &callback);
+        void handleClient(SocketHandle clientSocket, const std::atomic<bool> &shouldStop, const Callback &callback) const;
 
     private:
         size_t m_bufferSize = 1024;

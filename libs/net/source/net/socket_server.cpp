@@ -24,7 +24,7 @@ namespace wolv::net {
         #endif
     }
 
-    void SocketServer::handleClient(SocketHandle clientSocket, const std::atomic<bool> &shouldStop, const Callback &callback) {
+    void SocketServer::handleClient(SocketHandle clientSocket, const std::atomic<bool> &shouldStop, const Callback &callback) const {
         std::vector<u8> buffer(this->m_bufferSize);
         std::vector<u8> data;
 
@@ -86,6 +86,10 @@ namespace wolv::net {
                 closeSocket(clientSocket);
             });
         }
+    }
+
+    void SocketServer::stop() {
+        this->m_running = false;
     }
 
 }
