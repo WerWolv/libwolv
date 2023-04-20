@@ -2,6 +2,8 @@
 
 #include <wolv/utils/guards.hpp>
 
+#include <cstring>
+
 namespace wolv::net {
 
     SocketServer::SocketServer(u16 port, size_t bufferSize, i32 maxClientCount) : m_bufferSize(bufferSize), m_maxClientCount(maxClientCount), m_threadPool(maxClientCount) {
@@ -17,7 +19,7 @@ namespace wolv::net {
         };
 
         struct sockaddr_in serverAddr = {};
-        memset(&serverAddr, 0, sizeof(serverAddr));
+        std::memset(&serverAddr, 0, sizeof(serverAddr));
         serverAddr.sin_family       = AF_INET;
         serverAddr.sin_addr.s_addr  = INADDR_ANY;
         serverAddr.sin_port         = htons(port);
