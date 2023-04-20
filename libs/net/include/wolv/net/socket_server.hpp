@@ -13,12 +13,12 @@ namespace wolv::net {
 
     class SocketServer {
     public:
-        explicit SocketServer(size_t bufferSize = 1024, i32 maxClientCount = 5);
+        SocketServer() = default;
+        explicit SocketServer(u16 port, size_t bufferSize = 1024, i32 maxClientCount = 5);
 
         using Callback = std::function<std::vector<u8>(SocketHandle, const std::vector<u8>)>;
 
-        void listen(u16 port, const Callback &callback);
-        void stop();
+        void accept(const Callback &callback);
 
     private:
         void handleClient(SocketHandle clientSocket, const std::atomic<bool> &shouldStop, const Callback &callback) const;
@@ -28,9 +28,7 @@ namespace wolv::net {
         i32 m_maxClientCount = 5;
 
         SocketHandle m_socket = SocketNone;
-        util::ThreadPool m_threadPool;
-
-        std::atomic<bool> m_running = false;
+        util::ThreadPool m_threadPool = util::ThreadPool(0);
     };
 
 }
