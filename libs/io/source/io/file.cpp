@@ -29,10 +29,11 @@ namespace wolv::io {
                 this->m_file = fopen64(util::toUTF8String(path).c_str(), "w+b");
 
         #endif
+
+        this->updateSize();
     }
 
     File::File() noexcept {
-        this->m_file = nullptr;
     }
 
     File::File(File &&other) noexcept {
@@ -41,6 +42,7 @@ namespace wolv::io {
 
         this->m_path = std::move(other.m_path);
         this->m_mode = other.m_mode;
+        this->m_fileSize = other.m_fileSize;
     }
 
     File::~File() {
@@ -53,6 +55,7 @@ namespace wolv::io {
 
         this->m_path = std::move(other.m_path);
         this->m_mode = other.m_mode;
+        this->m_fileSize = other.m_fileSize;
 
         return *this;
     }
@@ -146,17 +149,7 @@ namespace wolv::io {
     }
 
     size_t File::getSize() const {
-        if (!isValid()) return 0;
-
-        auto startPos = ftello64(this->m_file);
-        fseeko64(this->m_file, 0, SEEK_END);
-        auto size = ftello64(this->m_file);
-        fseeko64(this->m_file, startPos, SEEK_SET);
-
-        if (size < 0)
-            return 0;
-
-        return size;
+        return this->m_fileSize;
     }
 
     void File::setSize(u64 size) {
@@ -164,6 +157,26 @@ namespace wolv::io {
 
         auto result = ftruncate64(fileno(this->m_file), size);
         util::unused(result);
+        this->updateSize();
+    }
+
+    void File::updateSize() {
+        if (!isValid()) {
+            this->m_fileSize = 0;
+            return;
+        }
+
+        auto startPos = ftello64(this->m_file);
+        fseeko64(this->m_file, 0, SEEK_END);
+        auto size = ftello64(this->m_file);
+        fseeko64(this->m_file, startPos, SEEK_SET);
+
+        if (size < 0) {
+            this->m_fileSize = 0;
+            return;
+        }
+
+        this->m_fileSize = size;
     }
 
     void File::flush() {

@@ -70,6 +70,7 @@ namespace wolv::io {
 
         [[nodiscard]] size_t getSize() const;
         void setSize(u64 size);
+        void updateSize();
 
         void flush();
         bool remove();
@@ -84,7 +85,9 @@ namespace wolv::io {
     private:
         FILE *m_file = nullptr;
         std::fs::path m_path;
-        Mode m_mode;
+        Mode m_mode = Mode::Read;
+
+        size_t m_fileSize = 0;
     };
 
 }
