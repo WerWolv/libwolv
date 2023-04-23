@@ -40,5 +40,13 @@ namespace wolv::util {
 
         return s;
     }
+    
+    template<typename T = char>
+    [[nodiscard]] std::basic_string_view<T> trim(std::basic_string_view<T> s) {
+        while (!s.empty() && std::isspace(s.front())) s.remove_prefix(1);
+        while (!s.empty() && std::isspace(s.back())) s.remove_suffix(1);
+
+        return s;
+    }
 
 }
