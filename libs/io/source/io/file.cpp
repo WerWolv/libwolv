@@ -111,7 +111,7 @@ namespace wolv::io {
 
         #else
 
-            munmap(this->m_map, size);
+            munmap(this->m_map, this->m_fileSize);
 
         #endif
     }
