@@ -32,15 +32,14 @@ namespace wolv::io {
 
     class File {
     public:
-        enum class Mode
-        {
+        enum class Mode {
             Read,
             Write,
             Create
         };
 
         explicit File(const std::fs::path &path, Mode mode) noexcept;
-        File() noexcept;
+        File() noexcept = default;
         File(const File &) = delete;
         File(File &&other) noexcept;
 
@@ -57,6 +56,10 @@ namespace wolv::io {
 
         void seek(u64 offset);
         void close();
+
+        void map();
+        void unmap();
+        [[nodiscard]] u8* getMapping() const { return this->m_map; }
 
         size_t readBuffer(u8 *buffer, size_t size);
         std::vector<u8> readVector(size_t numBytes = 0);
@@ -86,6 +89,7 @@ namespace wolv::io {
         FILE *m_file = nullptr;
         std::fs::path m_path;
         Mode m_mode = Mode::Read;
+        u8 *m_map = nullptr;
 
         size_t m_fileSize = 0;
     };

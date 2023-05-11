@@ -5,6 +5,10 @@
 
 #include <unistd.h>
 
+#if defined(OS_WINDOWS)
+    #include <Windows.h>
+#endif
+
 namespace wolv::io {
 
     File::File(const std::fs::path &path, Mode mode) noexcept : m_path(path), m_mode(mode) {
@@ -31,9 +35,6 @@ namespace wolv::io {
         #endif
 
         this->updateSize();
-    }
-
-    File::File() noexcept {
     }
 
     File::File(File &&other) noexcept {
@@ -74,6 +75,44 @@ namespace wolv::io {
             std::fclose(this->m_file);
             this->m_file = nullptr;
         }
+    }
+
+
+    void File::map() {
+        if (!isValid()) return;
+
+        #if defined(OS_WINDOWS)
+
+            auto fileHandle = (HANDLE)_get_osfhandle(_fileno(this->m_file));
+            auto fileMapping = CreateFileMapping(fileHandle, nullptr, SEC_RESERVE | (this->m_mode == Mode::Read ? PAGE_READONLY : PAGE_READWRITE), 0, 0, nullptr);
+
+            if (fileMapping == nullptr)
+                return;
+
+            this->m_map = reinterpret_cast<u8*>(MapViewOfFile(fileMapping, this->m_mode == Mode::Read ? FILE_MAP_READ : FILE_MAP_ALL_ACCESS, 0, 0, 0));
+
+        #else
+
+            auto fd = fileno(this->m_file);
+            auto size = getSize();
+
+            this->m_map = reinterpret_cast<u8*>(mmap(nullptr, size, this->m_mode == Mode::Read ? PROT_READ : PROT_WRITE, MAP_SHARED, fd, 0));
+
+        #endif
+    }
+
+    void File::unmap() {
+        if (!isValid()) return;
+
+        #if defined(OS_WINDOWS)
+
+            UnmapViewOfFile(this->m_map);
+
+        #else
+
+            munmap(this->m_map, size);
+
+        #endif
     }
 
     size_t File::readBuffer(u8 *buffer, size_t size) {
@@ -170,6 +209,11 @@ namespace wolv::io {
         fseeko64(this->m_file, 0, SEEK_END);
         auto size = ftello64(this->m_file);
         fseeko64(this->m_file, startPos, SEEK_SET);
+
+        if (this->m_map != nullptr && size != this->m_fileSize) {
+            this->unmap();
+            this->map();
+        }
 
         if (size < 0) {
             this->m_fileSize = 0;
