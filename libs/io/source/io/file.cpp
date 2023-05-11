@@ -7,8 +7,9 @@
 
 #if defined(OS_WINDOWS)
     #include <Windows.h>
+#else
+    #include <sys/mman.h>
 #endif
-
 namespace wolv::io {
 
     File::File(const std::fs::path &path, Mode mode) noexcept : m_path(path), m_mode(mode) {
