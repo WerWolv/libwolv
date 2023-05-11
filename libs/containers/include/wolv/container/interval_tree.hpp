@@ -8,11 +8,19 @@
 
 namespace wolv::container {
 
-    template<typename Type, typename Scalar = u64, bool Encompassing = true>
+    /**
+     * @brief A tree structure that allows for fast searching of intervals.
+     * @tparam Type The value type to be stored
+     * @tparam Scalar The scalar type to be used for the interval start and end values
+     * @tparam SearchRange The maximum range to search backwards to look for intervals that encompass other intervals
+     */
+    template<typename Type, std::integral Scalar = u64, u64 SearchRange = std::numeric_limits<u64>::max()>
     class IntervalTree {
     private:
         constexpr static bool TriviallyCopyable = std::is_trivially_copyable_v<Type>;
-        using FindType = std::remove_cvref_t<typename std::conditional<TriviallyCopyable, Type, Type*>::type>;
+        constexpr static bool HandleEncompassedIntervals = SearchRange != std::numeric_limits<u64>::max();
+
+        using FindType = std::remove_cvref_t<typename std::conditional<TriviallyCopyable, Type, const Type*>::type>;
 
     public:
         struct Interval {
@@ -21,6 +29,7 @@ namespace wolv::container {
             bool overlaps(const Interval& other) const {
                 return end >= other.start && start <= other.end;
             }
+
             bool operator<(const Interval& other) const {
                 return end < other.start;
             }
@@ -31,34 +40,65 @@ namespace wolv::container {
             Type value;
         };
 
+        struct Data {
+            Interval interval;
+            FindType value;
+        };
+
         constexpr IntervalTree() = default;
+
+        /**
+         * @brief Construct an interval tree from a list of interval/value pairs
+         * @param init List of interval/value pairs
+         */
         constexpr IntervalTree(std::initializer_list<InitType> &&init) {
             for (auto &item : init)
                 this->insert(item.interval, std::move(item.value));
         }
 
+        /**
+         * @brief Inserts a new interval/value pair into the tree, copying the value into the tree
+         * @param interval Interval of where to insert the value
+         * @param value Value to insert
+         */
         constexpr void insert(const Interval &interval, const Type &value) {
             this->m_intervals.insert({ interval.start, { interval.end, value } });
         }
 
+        /**
+         * @brief Inserts a new interval/value pair into the tree, moving the value into the tree
+         * @param interval Interval of where to insert the value
+         * @param value Value to insert
+         */
         constexpr void emplace(const Interval &interval, Type &&value) {
             this->m_intervals.insert({ interval.start, { interval.end, std::move(value) } });
         }
 
-        constexpr std::vector<FindType> overlapping(const Interval &interval) const {
-            std::vector<FindType> result;
+        /**
+         * @brief Finds all intervals that overlap with the given interval
+         * @note If T is not trivially copyable, the returned vector will contain pointers to the values in the tree
+         * @param interval Interval to search for
+         * @return Vector of all overlapping intervals and their values
+         */
+        constexpr std::vector<Data> overlapping(const Interval &interval) const {
+            if (this->m_intervals.empty())
+                return {};
+
+            std::vector<Data> result;
 
             // Find the first interval that starts after the given interval
             auto it = this->m_intervals.upper_bound(interval.start);
+            if (it == this->m_intervals.begin())
+                return {};
 
             it--;
 
             // Iterate through all intervals that overlap with the given interval
-            while (true) {
+            for (u64 i = 0; i < SearchRange; i++) {
                 const auto &[start, content] = *it;
                 const auto &[end, value] = content;
 
-                if constexpr (!Encompassing) {
+                if constexpr (!HandleEncompassedIntervals) {
                     // If we don't care about intervals that encompass smaller intervals, we can stop
                     if (end < interval.start)
                         break;
@@ -66,17 +106,18 @@ namespace wolv::container {
 
                 // If the interval overlaps with the given interval, add it to the result
                 // If we don't care about encompassing intervals, we can skip this check
-                if (!Encompassing || interval.overlaps({ start, end })) {
+                if (!HandleEncompassedIntervals || interval.overlaps({ start, end })) {
                     if constexpr (TriviallyCopyable)
-                        result.push_back(value);
+                        result.push_back({ { start, end }, value });
                     else
-                        result.push_back(std::addressof(value));
+                        result.push_back({ { start, end }, std::addressof(value) });
                 }
 
                 // If we've reached the start of the tree, we can stop
                 if (it == this->m_intervals.begin())
                     break;
 
+                // Move to the previous interval
                 --it;
             }
 
