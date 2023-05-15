@@ -63,7 +63,7 @@ namespace wolv::util {
                 this->m_condition.notify_all();
 
                 for (auto &thread : this->m_threads)
-                    thread.join();
+                    thread.detach();
             }
 
         private:
