@@ -14,7 +14,7 @@ namespace wolv::net {
     class SocketServer {
     public:
         SocketServer() = default;
-        explicit SocketServer(u16 port, size_t bufferSize = 1024, i32 maxClientCount = 5);
+        explicit SocketServer(u16 port, size_t bufferSize = 1024, i32 maxClientCount = 5, bool localOnly = true);
 
         using Callback = std::function<std::vector<u8>(SocketHandle, const std::vector<u8>)>;
 
@@ -26,6 +26,7 @@ namespace wolv::net {
     private:
         size_t m_bufferSize = 1024;
         i32 m_maxClientCount = 5;
+        bool m_localOnly = true;
 
         SocketHandle m_socket = SocketNone;
         util::ThreadPool m_threadPool = util::ThreadPool(0);

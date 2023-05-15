@@ -6,7 +6,8 @@
 
 namespace wolv::net {
 
-    SocketServer::SocketServer(u16 port, size_t bufferSize, i32 maxClientCount) : m_bufferSize(bufferSize), m_maxClientCount(maxClientCount), m_threadPool(maxClientCount) {
+    SocketServer::SocketServer(u16 port, size_t bufferSize, i32 maxClientCount, bool localOnly)
+        : m_bufferSize(bufferSize), m_maxClientCount(maxClientCount), m_threadPool(maxClientCount), m_localOnly(localOnly) {
         initializeSockets();
 
         this->m_socket = ::socket(AF_INET, SOCK_STREAM, 0);
@@ -21,7 +22,7 @@ namespace wolv::net {
         struct sockaddr_in serverAddr = {};
         std::memset(&serverAddr, 0, sizeof(serverAddr));
         serverAddr.sin_family       = AF_INET;
-        serverAddr.sin_addr.s_addr  = INADDR_ANY;
+        serverAddr.sin_addr.s_addr  = this->m_localOnly ? INADDR_LOOPBACK : INADDR_ANY;
         serverAddr.sin_port         = htons(port);
 
         int bindResult = ::bind(this->m_socket, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
