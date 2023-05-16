@@ -3,7 +3,8 @@ project(libwolv-net)
 # Add library
 add_library(${PROJECT_NAME} STATIC
         source/net/socket_client.cpp
-        source/net/socket_server.cpp)
+        source/net/socket_server.cpp
+        source/net/common.cpp)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_link_libraries(${PROJECT_NAME} PUBLIC libwolv-types libwolv-utils)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")

@@ -22,7 +22,7 @@ namespace wolv::net {
         struct sockaddr_in serverAddr = {};
         std::memset(&serverAddr, 0, sizeof(serverAddr));
         serverAddr.sin_family       = AF_INET;
-        serverAddr.sin_addr.s_addr  = this->m_localOnly ? INADDR_LOOPBACK : INADDR_ANY;
+        serverAddr.sin_addr.s_addr  = htonl(this->m_localOnly ? INADDR_LOOPBACK : INADDR_ANY);
         serverAddr.sin_port         = htons(port);
 
         int bindResult = ::bind(this->m_socket, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
