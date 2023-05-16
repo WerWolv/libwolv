@@ -14,11 +14,11 @@ namespace wolv::container {
      * @tparam Scalar The scalar type to be used for the interval start and end values
      * @tparam SearchRange The maximum range to search backwards to look for intervals that encompass other intervals
      */
-    template<typename Type, std::integral Scalar = u64, u64 SearchRange = std::numeric_limits<u64>::max()>
+    template<typename Type, std::integral Scalar = u64, i64 SearchRange = std::numeric_limits<i64>::max()>
     class IntervalTree {
     private:
         constexpr static bool TriviallyCopyable = std::is_trivially_copyable_v<Type>;
-        constexpr static bool HandleEncompassedIntervals = SearchRange != std::numeric_limits<u64>::max();
+        constexpr static bool HandleEncompassedIntervals = SearchRange != std::numeric_limits<i64>::max();
 
         using FindType = std::remove_cvref_t<typename std::conditional<TriviallyCopyable, Type, const Type*>::type>;
 
@@ -94,7 +94,7 @@ namespace wolv::container {
             it--;
 
             // Iterate through all intervals that overlap with the given interval
-            for (u64 i = 0; i < SearchRange; i++) {
+            for (i64 i = 0; i < SearchRange; i++) {
                 const auto &[start, content] = *it;
                 const auto &[end, value] = content;
 
@@ -111,6 +111,8 @@ namespace wolv::container {
                         result.push_back({ { start, end }, value });
                     else
                         result.push_back({ { start, end }, std::addressof(value) });
+
+                    i -= 1;
                 }
 
                 // If we've reached the start of the tree, we can stop
