@@ -2,14 +2,22 @@
 
 #include <wolv/utils/core.hpp>
 #include <wolv/utils/string.hpp>
+#include <wolv/utils/guards.hpp>
 
 #include <unistd.h>
 
 #if defined(OS_WINDOWS)
     #include <Windows.h>
-#else
-    #include <sys/mman.h>
+#elif defined(OS_MACOS)
+    #include <unistd.h>
+    #include <sys/types.h>
+    #include <sys/event.h>
+#elif defined(OS_LINUX)
+    #include <unistd.h>
+    #include <sys/types.h>
+    #include <sys/inotify.h>
 #endif
+
 namespace wolv::io {
 
     File::File(const std::fs::path &path, Mode mode) noexcept : m_path(path), m_mode(mode) {
@@ -255,6 +263,122 @@ namespace wolv::io {
         #endif
 
         return fileInfo;
+    }
+
+    #if defined(OS_WINDOWS)
+        static void trackWindows(const std::stop_token &stopToken, const std::fs::path &path, const std::function<void()> &callback) {
+
+            WIN32_FILE_ATTRIBUTE_DATA previousAttributes = {};
+
+            while (!stopToken.stop_requested()) {
+                WIN32_FILE_ATTRIBUTE_DATA currentAttributes;
+                if (GetFileAttributesExW(path.c_str(), GetFileExInfoStandard, &currentAttributes) == FALSE) {
+                    callback();
+                    break;
+                }
+
+                if (memcmp(&currentAttributes, &previousAttributes, sizeof(WIN32_FILE_ATTRIBUTE_DATA)) != 0) {
+                    callback();
+
+                    previousAttributes = currentAttributes;
+                }
+
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+            }
+
+        }
+    #endif
+
+    #if defined(OS_MACOS)
+        static void trackMacos(const std::stop_token &stopToken, const std::fs::path &path, const std::function<void()> &callback) {
+            int queue = kqueue();
+            if (queue == -1)
+                throw std::runtime_error("Failed to open kqueue");
+
+            ON_SCOPE_EXIT { close(queue); };
+
+            int fileDescriptor = open(path.c_str(), O_RDONLY);
+            if (fileDescriptor == -1)
+                throw std::runtime_error("Failed to open file descriptor");
+
+            ON_SCOPE_EXIT { close(fileDescriptor); };
+
+            kevent event = { };
+            EV_SET(&event, fileDescriptor, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR, NOTE_WRITE, 0, nullptr);
+            if (kevent(queue, &event, 1, nullptr, 0, nullptr) == -1)
+                throw std::runtime_error("Failed to add event to kqueue");
+
+            const timespec timeout = { 1, 0 };
+            while (!stopToken.stop_requested()) {
+                kevent eventList[1];
+                int eventCount = kevent(queue, nullptr, 0, eventList, 1, &timeout);
+                if (eventCount == -1)
+                    continue;
+
+                if (eventList[0].fflags & NOTE_WRITE) {
+                    callback();
+                }
+            }
+
+        }
+    #endif
+
+    #if defined(OS_LINUX)
+        static void trackLinux(const std::stop_token &stopToken, const std::fs::path &path, const std::function<void()> &callback) {
+            int fileDescriptor = inotify_init();
+            if (fileDescriptor == -1)
+                throw std::runtime_error("Failed to open inotify");
+
+            ON_SCOPE_EXIT { close(fileDescriptor); };
+
+            int watchDescriptor = inotify_add_watch(fileDescriptor, path.c_str(), IN_MODIFY);
+            if (watchDescriptor == -1)
+                throw std::runtime_error("Failed to add watch");
+
+            ON_SCOPE_EXIT { inotify_rm_watch(fileDescriptor, watchDescriptor); };
+
+            std::array<char, 4096> buffer;
+            pollfd pollDescriptor = { fileDescriptor, POLLIN, 0 };
+
+            while (!stopToken.stop_requested()) {
+                if (poll(&pollDescriptor, 1, 1000) <= 0)
+                    continue;
+
+                ssize_t bytesRead = read(fileDescriptor, buffer.data(), buffer.size());
+                if (bytesRead == -1)
+                    continue;
+
+                for (char *ptr = buffer.data(); ptr < buffer.data() + bytesRead;) {
+                    auto *event = reinterpret_cast<inotify_event *>(ptr);
+                    if (event->mask & IN_MODIFY) {
+                        callback();
+                    }
+
+                    ptr += sizeof(inotify_event) + event->len;
+                }
+            }
+
+        }
+    #endif
+
+    void ChangeTracker::startTracking(const std::function<void()> &callback) {
+        if (this->m_path.empty())
+            return;
+
+        this->m_thread = std::jthread([this, callback](const std::stop_token &stopToken) {
+            #if defined(OS_WINDOWS)
+                trackWindows(stopToken, this->m_path, callback);
+            #elif defined(OS_MACOS)
+                trackMacOS(this->m_path, callback);
+            #elif defined(OS_LINUX)
+                trackLinux(this->m_path, callback);
+            #endif
+        });
+    }
+
+    void ChangeTracker::stopTracking() {
+        this->m_thread.request_stop();
+        this->m_thread.join();
     }
 
 }

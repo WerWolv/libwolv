@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <optional>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include <sys/stat.h>
@@ -62,9 +63,9 @@ namespace wolv::io {
         [[nodiscard]] u8* getMapping() const { return this->m_map; }
 
         size_t readBuffer(u8 *buffer, size_t size);
-        std::vector<u8> readVector(size_t numBytes = 0);
-        std::string readString(size_t numBytes = 0);
-        std::u8string readU8String(size_t numBytes = 0);
+        [[nodiscard]] std::vector<u8> readVector(size_t numBytes = 0);
+        [[nodiscard]] std::string readString(size_t numBytes = 0);
+        [[nodiscard]] std::u8string readU8String(size_t numBytes = 0);
 
         size_t writeBuffer(const u8 *buffer, size_t size);
         size_t writeVector(const std::vector<u8> &bytes);
@@ -78,12 +79,12 @@ namespace wolv::io {
         void flush();
         bool remove();
 
-        auto getHandle() { return this->m_file; }
-        const std::fs::path &getPath() { return this->m_path; }
+        [[nodiscard]] auto getHandle() const { return this->m_file; }
+        [[nodiscard]] const std::fs::path &getPath() const { return this->m_path; }
 
         void disableBuffering();
 
-        std::optional<struct stat> getFileInfo();
+        [[nodiscard]] std::optional<struct stat> getFileInfo();
 
     private:
         FILE *m_file = nullptr;
@@ -92,6 +93,29 @@ namespace wolv::io {
         u8 *m_map = nullptr;
 
         size_t m_fileSize = 0;
+    };
+
+    class ChangeTracker {
+    public:
+        ChangeTracker() = default;
+        explicit ChangeTracker(std::fs::path path) : m_path(std::move(path)) { }
+        explicit ChangeTracker(const File &file) : m_path(file.getPath()) { }
+        ~ChangeTracker() { this->stopTracking(); }
+
+        ChangeTracker(const ChangeTracker &) = delete;
+        ChangeTracker(ChangeTracker &&) = default;
+
+        ChangeTracker& operator=(const ChangeTracker &) = delete;
+        ChangeTracker& operator=(ChangeTracker &&) = default;
+
+        [[nodiscard]] const std::fs::path& getPath() const { return this->m_path; }
+
+        void startTracking(const std::function<void()> &callback);
+        void stopTracking();
+
+    private:
+        std::fs::path m_path;
+        std::jthread m_thread;
     };
 
 }
