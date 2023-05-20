@@ -302,7 +302,7 @@ namespace wolv::io {
     #endif
 
     #if defined(OS_MACOS)
-        static void trackMacos(const std::stop_token &stopToken, const std::fs::path &path, const std::function<void()> &callback) {
+        static void trackMacOS(const std::stop_token &stopToken, const std::fs::path &path, const std::function<void()> &callback) {
             int queue = kqueue();
             if (queue == -1)
                 throw std::runtime_error("Failed to open kqueue");
