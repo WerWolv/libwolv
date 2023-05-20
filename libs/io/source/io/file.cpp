@@ -13,6 +13,7 @@
     #include <sys/types.h>
     #include <sys/event.h>
     #include <sys/mman.h>
+    #include <fnctl.h>
 #elif defined(OS_LINUX)
     #include <unistd.h>
     #include <sys/types.h>
@@ -313,9 +314,9 @@ namespace wolv::io {
 
             ON_SCOPE_EXIT { close(fileDescriptor); };
 
-            kevent event = { };
-            EV_SET(&event, fileDescriptor, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR, NOTE_WRITE, 0, nullptr);
-            if (kevent(queue, &event, 1, nullptr, 0, nullptr) == -1)
+            kevent eventHandle = { };
+            EV_SET(&eventHandle, fileDescriptor, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR, NOTE_WRITE, 0, nullptr);
+            if (kevent(queue, &eventHandle, 1, nullptr, 0, nullptr) == -1)
                 throw std::runtime_error("Failed to add event to kqueue");
 
             const timespec timeout = { 1, 0 };
