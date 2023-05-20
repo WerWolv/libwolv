@@ -60,7 +60,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: 🛠️ Install gcc
+      - name: ⬇️ Install gcc
         run: |
           brew install gcc@12 llvm
 
