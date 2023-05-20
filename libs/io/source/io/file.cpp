@@ -315,7 +315,7 @@ namespace wolv::io {
 
             ON_SCOPE_EXIT { close(fileDescriptor); };
 
-            kevent eventHandle = { };
+            struct kevent eventHandle = { };
             EV_SET(&eventHandle, fileDescriptor, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR, NOTE_WRITE, 0, nullptr);
             if (kevent(queue, &eventHandle, 1, nullptr, 0, nullptr) == -1)
                 throw std::runtime_error("Failed to add event to kqueue");
