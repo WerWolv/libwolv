@@ -80,6 +80,8 @@ namespace wolv::io {
     }
 
     void File::close() {
+        this->unmap();
+
         if (isValid()) {
             std::fclose(this->m_file);
             this->m_file = nullptr;
@@ -111,7 +113,7 @@ namespace wolv::io {
     }
 
     void File::unmap() {
-        if (!isValid()) return;
+        if (!isValid() || this->m_map == nullptr) return;
 
         #if defined(OS_WINDOWS)
 
@@ -122,6 +124,8 @@ namespace wolv::io {
             munmap(this->m_map, this->m_fileSize);
 
         #endif
+
+        this->m_map = nullptr;
     }
 
     size_t File::readBuffer(u8 *buffer, size_t size) {
