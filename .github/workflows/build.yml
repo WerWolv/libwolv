@@ -8,7 +8,7 @@ on:
 jobs:
   build-windows:
     runs-on: windows-2022
-    name: Windows build
+    name: 🪟 Windows build
     defaults:
       run:
         shell: msys2 {0}
@@ -28,7 +28,7 @@ jobs:
             cmake:p
             make:p
 
-      - name: Build
+      - name: 🛠️ Build
         run: |
           cmake -B build
           cmake --build build -j 4
@@ -36,7 +36,7 @@ jobs:
 
   build-linux:
     runs-on: ubuntu-22.04
-    name: Linux build
+    name: 🐧 Linux build
     
     steps:
       - name: 🧰 Checkout
@@ -44,7 +44,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Build
+      - name: 🛠️ Build
         run: |
           cmake -B build
           cmake --build build -j 4
@@ -52,7 +52,7 @@ jobs:
 
   build-macos:
     runs-on: macos-11
-    name: MacOS build
+    name: 🍎 MacOS build
 
     steps:
       - name: 🧰 Checkout
@@ -60,7 +60,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Build
+      - name: 🛠️ Build
         run: |
           cmake -B build
           cmake --build build -j 4
