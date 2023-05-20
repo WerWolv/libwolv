@@ -47,7 +47,7 @@ namespace wolv::net {
             DWORD timeout = milliseconds;
             setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<char*>(&timeout), sizeof(timeout));
         #else
-            struct timeval timeout = { 0, milliseconds * 1000 };
+            struct timeval timeout = { 0, milliseconds * 1000U };
             setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<char*>(&timeout), sizeof(timeout));
         #endif
     }

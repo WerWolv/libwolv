@@ -8,12 +8,13 @@
 
 #if defined(OS_WINDOWS)
     #include <Windows.h>
+    #include <share.h>
 #elif defined(OS_MACOS)
     #include <unistd.h>
     #include <sys/types.h>
     #include <sys/event.h>
     #include <sys/mman.h>
-    #include <fnctl.h>
+    #include <fcntl.h>
 #elif defined(OS_LINUX)
     #include <unistd.h>
     #include <sys/types.h>
@@ -28,12 +29,12 @@ namespace wolv::io {
         #if defined(OS_WINDOWS)
 
             if (mode == File::Mode::Read)
-                this->m_file = _wfopen(path.c_str(), L"rb");
+                this->m_file = _wfsopen(path.c_str(), L"rb", _SH_DENYNO);
             else if (mode == File::Mode::Write)
-                this->m_file = _wfopen(path.c_str(), L"r+b");
+                this->m_file = _wfsopen(path.c_str(), L"r+b", _SH_DENYNO);
 
             if (mode == File::Mode::Create || (mode == File::Mode::Write && this->m_file == nullptr))
-                this->m_file = _wfopen(path.c_str(), L"w+b");
+                this->m_file = _wfsopen(path.c_str(), L"w+b", _SH_DENYNO);
 
         #else
 
