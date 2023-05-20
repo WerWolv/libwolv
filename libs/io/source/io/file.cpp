@@ -322,7 +322,7 @@ namespace wolv::io {
 
             const timespec timeout = { 1, 0 };
             while (!stopToken.stop_requested()) {
-                kevent eventList[1];
+                struct kevent eventList[1];
                 int eventCount = kevent(queue, nullptr, 0, eventList, 1, &timeout);
                 if (eventCount == -1)
                     continue;
