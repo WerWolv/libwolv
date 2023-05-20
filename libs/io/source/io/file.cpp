@@ -59,6 +59,7 @@ namespace wolv::io {
     }
 
     File::~File() {
+        this->unmap();
         this->close();
     }
 
@@ -83,8 +84,6 @@ namespace wolv::io {
     }
 
     void File::close() {
-        this->unmap();
-
         if (isValid()) {
             std::fclose(this->m_file);
             this->m_file = nullptr;
@@ -103,7 +102,10 @@ namespace wolv::io {
             if (fileMapping == nullptr)
                 return;
 
+
             this->m_map = reinterpret_cast<u8*>(MapViewOfFile(fileMapping, this->m_mode == Mode::Read ? FILE_MAP_READ : FILE_MAP_ALL_ACCESS, 0, 0, 0));
+
+            CloseHandle(fileMapping);
 
         #else
 
@@ -116,7 +118,7 @@ namespace wolv::io {
     }
 
     void File::unmap() {
-        if (!isValid() || this->m_map == nullptr) return;
+        if (this->m_map == nullptr) return;
 
         #if defined(OS_WINDOWS)
 
@@ -244,6 +246,7 @@ namespace wolv::io {
     }
 
     bool File::remove() {
+        this->unmap();
         this->close();
         return std::remove(util::toUTF8String(this->m_path).c_str()) == 0;
     }
