@@ -12,10 +12,13 @@
     #include <unistd.h>
     #include <sys/types.h>
     #include <sys/event.h>
+    #include <sys/mman.h>
 #elif defined(OS_LINUX)
     #include <unistd.h>
     #include <sys/types.h>
     #include <sys/inotify.h>
+    #include <sys/mman.h>
+    #include <poll.h>
 #endif
 
 namespace wolv::io {
@@ -373,9 +376,9 @@ namespace wolv::io {
             #if defined(OS_WINDOWS)
                 trackWindows(stopToken, this->m_path, callback);
             #elif defined(OS_MACOS)
-                trackMacOS(this->m_path, callback);
+                trackMacOS(stopToken, this->m_path, callback);
             #elif defined(OS_LINUX)
-                trackLinux(this->m_path, callback);
+                trackLinux(stopToken, this->m_path, callback);
             #endif
         });
     }
