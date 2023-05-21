@@ -17,6 +17,8 @@ namespace wolv::container {
     template<typename Type, std::integral Scalar = u64, i64 SearchRange = std::numeric_limits<i64>::max()>
     class IntervalTree {
     private:
+        static_assert(SearchRange > 0, "SearchRange must be greater than 0");
+
         constexpr static bool TriviallyCopyable = std::is_trivially_copyable_v<Type>;
         constexpr static bool HandleEncompassedIntervals = SearchRange != std::numeric_limits<i64>::max();
 
