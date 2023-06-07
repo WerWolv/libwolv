@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstring>
 #include <wolv/types.hpp>
 
 #include <span>
