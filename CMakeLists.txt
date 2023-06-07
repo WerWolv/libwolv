@@ -14,3 +14,7 @@ add_subdirectory(libs/io)
 add_subdirectory(libs/hash)
 add_subdirectory(libs/net)
 add_subdirectory(libs/containers)
+add_subdirectory(libs/testing)
+
+enable_testing()
+add_subdirectory(tests)
