@@ -5,12 +5,13 @@ set(TEST_CATEGORY IO)
 
 # Add new tests here #
 set(AVAILABLE_TESTS
-    # Common
     FileAccess
+    BufferedReader
 )
 
 add_executable(${PROJECT_NAME}
         source/file.cpp
+        source/buffered_reader.cpp
 )
 
 # ---- No need to change anything from here downwards unless you know what you're doing ---- #
