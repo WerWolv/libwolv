@@ -33,6 +33,15 @@ jobs:
           cmake -B build
           cmake --build build -j 4
 
+      - name: 🛠️ Build tests
+        run: |
+          cmake --build build -j 4 -- libwolv-tests
+
+      - name: 🧪 Run tests
+        run: |
+          cd build
+          ctest --output-on-failure
+
 
   build-linux:
     runs-on: ubuntu-22.04
@@ -48,6 +57,15 @@ jobs:
         run: |
           cmake -B build
           cmake --build build -j 4
+
+      - name: 🛠️ Build tests
+        run: |
+          cmake --build build -j 4 -- libwolv-tests
+
+      - name: 🧪 Run tests
+        run: |
+          cd build
+          ctest --output-on-failure
 
 
   build-macos:
@@ -72,3 +90,12 @@ jobs:
           OBJCXX=$(brew --prefix llvm)/bin/clang++ \
           cmake -B build
           cmake --build build -j 4
+
+      - name: 🛠️ Build tests
+        run: |
+          cmake --build build -j 4 -- libwolv-tests
+
+      - name: 🧪 Run tests
+        run: |
+          cd build
+          ctest --output-on-failure
