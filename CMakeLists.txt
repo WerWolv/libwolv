@@ -17,4 +17,4 @@ add_subdirectory(libs/containers)
 add_subdirectory(libs/testing)
 
 enable_testing()
-add_subdirectory(tests)
+add_subdirectory(tests EXCLUDE_FROM_ALL)
