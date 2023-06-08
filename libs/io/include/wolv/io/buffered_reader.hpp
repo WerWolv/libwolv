@@ -16,7 +16,7 @@ namespace wolv::io {
     public:
         explicit BufferedReader(T *userData, size_t dataSize, size_t bufferSize = 0x100000)
                 : m_userData(userData), m_bufferAddress(0x00), m_maxBufferSize(bufferSize),
-                  m_startAddress(0x00), m_endAddress(std::min<size_t>(dataSize, 1) - 1LLU),
+                  m_startAddress(0x00), m_endAddress(std::max<size_t>(dataSize, 1) - 1LLU),
                   m_buffer(bufferSize) {
 
         }
@@ -52,7 +52,7 @@ namespace wolv::io {
             }
 
             this->updateBuffer(address, size);
-
+            
             auto result = &this->m_buffer[address -  this->m_bufferAddress];
 
             std::memcpy(buffer, result, std::min(size, this->m_buffer.size()));
