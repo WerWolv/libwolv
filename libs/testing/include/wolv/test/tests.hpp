@@ -12,11 +12,12 @@
 #define TEST_FAIL()        return EXIT_FAILURE
 #define TEST_SUCCESS()     return EXIT_SUCCESS
 #define FAILING            true
-#define TEST_ASSERT(x, ...)                                            \
+#define TEST_ASSERT(x)                                                 \
     do {                                                               \
         auto ret = (x);                                                \
         if (!ret) {                                                    \
-            std::printf("Test assert '" #x "' failed {} at {}:{}\n");  \
+            std::printf("Test assert '" #x "' failed at %s:%i\n",      \
+                __FILE__, __LINE__);                                   \
             return EXIT_FAILURE;                                       \
         }                                                              \
     } while (0)
