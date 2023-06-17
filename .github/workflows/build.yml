@@ -30,7 +30,7 @@ jobs:
 
       - name: 🛠️ Build
         run: |
-          cmake -B build
+          cmake -DLIBWOLV_ENABLE_TESTS=ON -B build
           cmake --build build -j 4
 
       - name: 🛠️ Build tests
