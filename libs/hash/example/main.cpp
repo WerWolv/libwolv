@@ -1,4 +1,5 @@
 #include <wolv/hash/crc.hpp>
+#include <wolv/hash/uuid.hpp>
 
 #include <cstdio>
 
@@ -13,5 +14,8 @@ int main() {
     crc32.reset();
     crc32.process(data.begin(), data.end());
     printf("CRC32: %08llX\n", crc32.getResult());
+
+    auto uuid = wolv::hash::generateUUID();
+    printf("UUID: %s\n", uuid.c_str());
 
 }
