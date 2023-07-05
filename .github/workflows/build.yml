@@ -55,7 +55,7 @@ jobs:
 
       - name: 🛠️ Build
         run: |
-          cmake -B build
+          cmake -DLIBWOLV_ENABLE_TESTS=ON -B build
           cmake --build build -j 4
 
       - name: 🛠️ Build tests
@@ -88,7 +88,7 @@ jobs:
           CXX=$(brew --prefix gcc@12)/bin/g++-12   \
           OBJC=$(brew --prefix llvm)/bin/clang     \
           OBJCXX=$(brew --prefix llvm)/bin/clang++ \
-          cmake -B build
+          cmake -DLIBWOLV_ENABLE_TESTS=ON -B build
           cmake --build build -j 4
 
       - name: 🛠️ Build tests
