@@ -1,3 +1,5 @@
+#pragma once
+
 #include <wolv/utils/guards.hpp>
 
 #if defined(OS_WINDOWS)
