@@ -28,18 +28,30 @@ namespace wolv::util {
             ThreadPool(const ThreadPool &) = delete;
             ThreadPool(ThreadPool &&other) noexcept {
                 if (this != &other) {
-                    this->m_threads = std::move(other.m_threads);
+                    other.stop();
+                    for (size_t i = 0; i < other.m_threads.size(); i += 1) {
+                        this->m_threads.emplace_back([this]{
+                            this->waitForTasks();
+                        });
+                    }
+                    other.m_threads.clear();
+
                     this->m_tasks = std::move(other.m_tasks);
-                    this->m_stop.exchange(other.m_stop.load());
                 }
             }
 
             ThreadPool& operator=(const ThreadPool &) = delete;
             ThreadPool& operator=(ThreadPool &&other) noexcept {
                 if (this != &other) {
-                    this->m_threads = std::move(other.m_threads);
+                    other.stop();
+                    for (size_t i = 0; i < other.m_threads.size(); i += 1) {
+                        this->m_threads.emplace_back([this]{
+                            this->waitForTasks();
+                        });
+                    }
+                    other.m_threads.clear();
+
                     this->m_tasks = std::move(other.m_tasks);
-                    this->m_stop.exchange(other.m_stop.load());
                 }
 
                 return *this;
