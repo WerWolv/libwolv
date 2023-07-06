@@ -14,6 +14,18 @@ namespace wolv::net {
         if (this->m_socket == SocketNone)
             return;
 
+        const int reuse = true;
+        #if defined (OS_WINDOWS)
+            setsockopt(this->m_socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&reuse), sizeof(reuse));
+            setsockopt(this->m_socket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, reinterpret_cast<const char *>(&reuse), sizeof(reuse));
+        #else
+            #ifdef SO_REUSEPORT
+                setsockopt(this->m_socket, SOL_SOCKET, SO_REUSEPORT, reinterpret_cast<const void *>(&reuse), sizeof(reuse));
+            #else
+                setsockopt(this->m_socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const void *>(&reuse), sizeof(reuse));
+            #endif
+        #endif
+
         auto guard = SCOPE_GUARD {
             closeSocket(this->m_socket);
             this->m_socket = SocketNone;
