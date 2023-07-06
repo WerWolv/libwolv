@@ -26,12 +26,16 @@ namespace wolv::net {
         serverAddr.sin_port         = htons(port);
 
         int bindResult = ::bind(this->m_socket, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
-        if (bindResult < 0)
+        if (bindResult < 0) {
+            this->m_error = bindResult;
             return;
+        }
 
         int listenResult = ::listen(this->m_socket, this->m_maxClientCount);
-        if (listenResult < 0)
+        if (listenResult < 0) {
+            this->m_error = listenResult;
             return;
+        }
 
         guard.release();
     }
@@ -86,6 +90,14 @@ namespace wolv::net {
             this->handleClient(clientSocket, shouldStop, callback);
             closeSocket(clientSocket);
         });
+    }
+
+    std::optional<int> SocketServer::getError() const {
+        return this->m_error;
+    }
+
+    bool SocketServer::isListening() const {
+        return !this->m_error.has_value();
     }
 
 }

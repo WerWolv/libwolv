@@ -5,6 +5,7 @@
 #include <wolv/utils/thread_pool.hpp>
 
 #include <functional>
+#include <optional>
 #include <string>
 #include <thread>
 #include <list>
@@ -20,6 +21,9 @@ namespace wolv::net {
 
         void accept(const Callback &callback);
 
+        std::optional<int> getError() const;
+        bool isListening() const;
+
     private:
         void handleClient(SocketHandle clientSocket, const std::atomic<bool> &shouldStop, const Callback &callback) const;
 
@@ -30,6 +34,7 @@ namespace wolv::net {
 
         SocketHandle m_socket = SocketNone;
         util::ThreadPool m_threadPool = util::ThreadPool(0);
+        std::optional<int> m_error;
     };
 
 }
