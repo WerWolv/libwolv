@@ -86,9 +86,9 @@ namespace wolv::net {
             bool reuse = true;
             setsockopt(clientSocket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&reuse), sizeof(reuse));
 
-            int len = ::recv(clientSocket, reinterpret_cast<char*>(buffer.data()), buffer.size(), 0);
-            if (len > 0) {
-                std::copy(buffer.begin(), buffer.begin() + len, std::back_inserter(data));
+            int receivedByteCount = ::recv(clientSocket, reinterpret_cast<char*>(buffer.data()), buffer.size(), 0);
+            if (receivedByteCount > 0) {
+                std::copy(buffer.begin(), buffer.begin() + receivedByteCount, std::back_inserter(data));
                 continue;
             }
 
