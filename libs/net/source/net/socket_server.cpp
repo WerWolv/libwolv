@@ -145,4 +145,14 @@ namespace wolv::net {
         return !this->m_error.has_value();
     }
 
+    bool SocketServer::isActive() const {
+        return this->m_socket != SocketNone;
+    }
+
+    void SocketServer::shutdown() {
+        this->m_threadPool.stop();
+        closeSocket(this->m_socket);
+        this->m_socket = SocketNone;
+    }
+
 }

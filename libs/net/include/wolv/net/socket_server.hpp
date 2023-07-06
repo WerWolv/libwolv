@@ -27,8 +27,11 @@ namespace wolv::net {
 
         void close(SocketHandle socket) const;
 
+        void shutdown();
+
         [[nodiscard]] std::optional<int> getError() const;
         [[nodiscard]] bool isListening() const;
+        [[nodiscard]] bool isActive() const;
 
     private:
         void handleClient(SocketHandle clientSocket, bool keepAlive, const std::atomic<bool> &shouldStop, const ReadCallback &callback) const;
