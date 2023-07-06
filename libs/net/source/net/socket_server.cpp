@@ -68,8 +68,20 @@ namespace wolv::net {
         #endif
     }
 
-    void SocketServer::handleClient(SocketHandle clientSocket, const std::atomic<bool> &shouldStop, const Callback &callback) const {
-        std::vector<u8> buffer(this->m_bufferSize);
+    void SocketServer::send(SocketHandle socket, const std::vector<u8> &data) const {
+        ::send(socket, reinterpret_cast<const char*>(data.data()), data.size(), 0);
+    }
+
+    void SocketServer::send(SocketHandle socket, const std::string &data) const {
+        ::send(socket, data.c_str(), data.size(), 0);
+    }
+
+    void SocketServer::close(wolv::net::SocketHandle socket) const {
+        closeSocket(socket);
+    }
+
+    void SocketServer::handleClient(SocketHandle clientSocket, bool keepAlive, const std::atomic<bool> &shouldStop, const ReadCallback &callback) const {
+        std::vector<u8> buffer(m_bufferSize);
         std::vector<u8> data;
 
         while (!shouldStop) {
@@ -78,28 +90,49 @@ namespace wolv::net {
             bool reuse = true;
             setsockopt(clientSocket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&reuse), sizeof(reuse));
 
-            int n = ::recv(clientSocket, reinterpret_cast<char*>(buffer.data()), buffer.size(), 0);
-            if (n <= 0) {
-                if (!data.empty()) {
-                    std::vector<u8> result = callback(clientSocket, data);
-                    ::send(clientSocket, reinterpret_cast<char*>(result.data()), result.size(), 0);
-                    data.clear();
-                }
-                break;
-            } else {
-                std::copy(buffer.begin(), buffer.begin() + n, std::back_inserter(data));
+            int len = ::recv(clientSocket, reinterpret_cast<char*>(buffer.data()), buffer.size(), 0);
+            if(len > 0) {
+                std::copy(buffer.begin(), buffer.begin() + len, std::back_inserter(data));
+                continue;
             }
+
+            if(!data.empty()) {
+
+                // callback with the data
+                std::vector<u8> result = callback(clientSocket, data);
+                if (!result.empty())
+                    ::send(clientSocket, reinterpret_cast<const char *>(result.data()), result.size(), 0);
+
+                // clear the data
+                data.clear();
+
+                // if we're not keeping the connection alive, break
+                if (!keepAlive)
+                    break;
+
+            }
+
+            // check if the client is still connected
+            if (len < 0 && errno == EAGAIN)
+                continue;
+
+            // if the client is not connected, break
+            close(clientSocket);
+            closeSocket(clientSocket);
+            break;
         }
     }
 
-    void SocketServer::accept(const Callback &callback) {
+    void SocketServer::accept(const ReadCallback &callback, const CloseCallback& closeCallback, bool keepAlive) {
         auto clientSocket = acceptConnection(this->m_socket);
         if (clientSocket == SocketNone) {
             return;
         }
 
-        this->m_threadPool.enqueue([this, clientSocket, callback](const auto &shouldStop) {
-            this->handleClient(clientSocket, shouldStop, callback);
+        this->m_threadPool.enqueue([this, clientSocket, callback, closeCallback, keepAlive](const auto &shouldStop) {
+            this->handleClient(clientSocket, keepAlive, shouldStop, callback);
+            if (closeCallback)
+                closeCallback(clientSocket);
             closeSocket(clientSocket);
         });
     }

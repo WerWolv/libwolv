@@ -17,15 +17,21 @@ namespace wolv::net {
         SocketServer() = default;
         explicit SocketServer(u16 port, size_t bufferSize = 1024, i32 maxClientCount = 5, bool localOnly = true);
 
-        using Callback = std::function<std::vector<u8>(SocketHandle, const std::vector<u8>)>;
+        using ReadCallback = std::function<std::vector<u8>(SocketHandle, const std::vector<u8>)>;
+        using CloseCallback = std::function<void(SocketHandle)>;
 
-        void accept(const Callback &callback);
+        void accept(const ReadCallback &callback, const CloseCallback &closeCallback = nullptr, bool keepAlive = false);
 
-        std::optional<int> getError() const;
-        bool isListening() const;
+        void send(SocketHandle socket, const std::vector<u8> &data) const;
+        void send(SocketHandle socket, const std::string &data) const;
+
+        void close(SocketHandle socket) const;
+
+        [[nodiscard]] std::optional<int> getError() const;
+        [[nodiscard]] bool isListening() const;
 
     private:
-        void handleClient(SocketHandle clientSocket, const std::atomic<bool> &shouldStop, const Callback &callback) const;
+        void handleClient(SocketHandle clientSocket, bool keepAlive, const std::atomic<bool> &shouldStop, const ReadCallback &callback) const;
 
     private:
         size_t m_bufferSize = 1024;
