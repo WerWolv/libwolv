@@ -68,8 +68,16 @@ namespace wolv::net {
         #endif
     }
 
-    void SocketServer::handleClient(SocketHandle clientSocket, const std::atomic<bool> &shouldStop, const Callback &callback) const {
-        std::vector<u8> buffer(this->m_bufferSize);
+    void SocketServer::send(SocketHandle socket, const std::vector<u8> &data) const {
+        ::send(socket, reinterpret_cast<const char*>(data.data()), data.size(), 0);
+    }
+
+    void SocketServer::send(SocketHandle socket, const std::string &data) const {
+        ::send(socket, data.c_str(), data.size(), 0);
+    }
+
+    void SocketServer::handleClient(SocketHandle clientSocket, bool keepAlive, const std::atomic<bool> &shouldStop, const ReadCallback &callback) const {
+        std::vector<u8> buffer(m_bufferSize);
         std::vector<u8> data;
 
         while (!shouldStop) {
@@ -78,28 +86,49 @@ namespace wolv::net {
             bool reuse = true;
             setsockopt(clientSocket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&reuse), sizeof(reuse));
 
-            int n = ::recv(clientSocket, reinterpret_cast<char*>(buffer.data()), buffer.size(), 0);
-            if (n <= 0) {
-                if (!data.empty()) {
-                    std::vector<u8> result = callback(clientSocket, data);
-                    ::send(clientSocket, reinterpret_cast<char*>(result.data()), result.size(), 0);
-                    data.clear();
-                }
-                break;
-            } else {
-                std::copy(buffer.begin(), buffer.begin() + n, std::back_inserter(data));
+            int receivedByteCount = ::recv(clientSocket, reinterpret_cast<char*>(buffer.data()), buffer.size(), 0);
+            if (receivedByteCount > 0) {
+                std::copy(buffer.begin(), buffer.begin() + receivedByteCount, std::back_inserter(data));
+                continue;
             }
+
+            if (!data.empty()) {
+
+                // Callback with the data
+                auto result = callback(clientSocket, data);
+                if (!result.empty())
+                    ::send(clientSocket, reinterpret_cast<const char *>(result.data()), result.size(), 0);
+
+                // Clear the data
+                data.clear();
+
+                // If we're not keeping the connection alive, break
+                if (!keepAlive)
+                    break;
+
+            }
+
+            // Check if the client is still connected
+            if (len < 0 && errno == EAGAIN)
+                // We need to continue, because the client is still connected
+                continue;
+
+            // If the client is not connected, break
+            closeSocket(clientSocket);
+            break;
         }
     }
 
-    void SocketServer::accept(const Callback &callback) {
+    void SocketServer::accept(const ReadCallback &callback, const CloseCallback& closeCallback, bool keepAlive) {
         auto clientSocket = acceptConnection(this->m_socket);
         if (clientSocket == SocketNone) {
             return;
         }
 
-        this->m_threadPool.enqueue([this, clientSocket, callback](const auto &shouldStop) {
-            this->handleClient(clientSocket, shouldStop, callback);
+        this->m_threadPool.enqueue([this, clientSocket, callback, closeCallback, keepAlive](const auto &shouldStop) {
+            this->handleClient(clientSocket, keepAlive, shouldStop, callback);
+            if (closeCallback)
+                closeCallback(clientSocket);
             closeSocket(clientSocket);
         });
     }
@@ -110,6 +139,16 @@ namespace wolv::net {
 
     bool SocketServer::isListening() const {
         return !this->m_error.has_value();
+    }
+
+    bool SocketServer::isActive() const {
+        return this->m_socket != SocketNone;
+    }
+
+    void SocketServer::shutdown() {
+        this->m_threadPool.stop();
+        closeSocket(this->m_socket);
+        this->m_socket = SocketNone;
     }
 
 }
