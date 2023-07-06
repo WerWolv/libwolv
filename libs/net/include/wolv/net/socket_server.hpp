@@ -25,8 +25,6 @@ namespace wolv::net {
         void send(SocketHandle socket, const std::vector<u8> &data) const;
         void send(SocketHandle socket, const std::string &data) const;
 
-        void close(SocketHandle socket) const;
-
         void shutdown();
 
         [[nodiscard]] std::optional<int> getError() const;

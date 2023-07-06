@@ -76,10 +76,6 @@ namespace wolv::net {
         ::send(socket, data.c_str(), data.size(), 0);
     }
 
-    void SocketServer::close(wolv::net::SocketHandle socket) const {
-        closeSocket(socket);
-    }
-
     void SocketServer::handleClient(SocketHandle clientSocket, bool keepAlive, const std::atomic<bool> &shouldStop, const ReadCallback &callback) const {
         std::vector<u8> buffer(m_bufferSize);
         std::vector<u8> data;
@@ -91,33 +87,33 @@ namespace wolv::net {
             setsockopt(clientSocket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&reuse), sizeof(reuse));
 
             int len = ::recv(clientSocket, reinterpret_cast<char*>(buffer.data()), buffer.size(), 0);
-            if(len > 0) {
+            if (len > 0) {
                 std::copy(buffer.begin(), buffer.begin() + len, std::back_inserter(data));
                 continue;
             }
 
-            if(!data.empty()) {
+            if (!data.empty()) {
 
-                // callback with the data
-                std::vector<u8> result = callback(clientSocket, data);
+                // Callback with the data
+                auto result = callback(clientSocket, data);
                 if (!result.empty())
                     ::send(clientSocket, reinterpret_cast<const char *>(result.data()), result.size(), 0);
 
-                // clear the data
+                // Clear the data
                 data.clear();
 
-                // if we're not keeping the connection alive, break
+                // If we're not keeping the connection alive, break
                 if (!keepAlive)
                     break;
 
             }
 
-            // check if the client is still connected
+            // Check if the client is still connected
             if (len < 0 && errno == EAGAIN)
+                // We need to continue, because the client is still connected
                 continue;
 
-            // if the client is not connected, break
-            close(clientSocket);
+            // If the client is not connected, break
             closeSocket(clientSocket);
             break;
         }
