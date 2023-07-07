@@ -109,7 +109,7 @@ namespace wolv::net {
             }
 
             // Check if the client is still connected
-            if (len < 0 && errno == EAGAIN)
+            if (receivedByteCount < 0 && errno == EAGAIN)
                 // We need to continue, because the client is still connected
                 continue;
 
