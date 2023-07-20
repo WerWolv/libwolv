@@ -250,7 +250,8 @@ namespace wolv::io {
     bool File::remove() {
         this->unmap();
         this->close();
-        return std::remove(util::toUTF8String(this->m_path).c_str()) == 0;
+
+        return std::fs::remove(this->m_path);
     }
 
     void File::disableBuffering() {
