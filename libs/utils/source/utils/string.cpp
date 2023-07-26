@@ -1,8 +1,13 @@
+#include <stdexcept>
+
 #include <wolv/utils/string.hpp>
 
 namespace wolv::util {
 
     std::vector<std::string> splitString(const std::string &string, const std::string &delimiter) {
+        if (delimiter.empty()) {
+            throw std::logic_error("Empty separator");
+        } 
         size_t start = 0, end = 0;
         std::string token;
         std::vector<std::string> res;
