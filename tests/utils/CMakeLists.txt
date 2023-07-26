@@ -8,6 +8,8 @@ set(AVAILABLE_TESTS
     String_Split
     String_Combine
     String_Replace
+    String_Trim
+    String_Strnlen
 )
 
 add_executable(${PROJECT_NAME}
