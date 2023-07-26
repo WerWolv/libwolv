@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(libwolv-utils-tests)
-set(TEST_CATEGORY IO)
+set(TEST_CATEGORY UTILS)
 
 # Add new tests here #
 set(AVAILABLE_TESTS
