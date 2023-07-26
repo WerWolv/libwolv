@@ -10,10 +10,13 @@ set(AVAILABLE_TESTS
     String_Replace
     String_Trim
     String_Strnlen
+    
+    Guard_ScopeGuard
 )
 
 add_executable(${PROJECT_NAME}
         source/string.cpp
+        source/guards.cpp
 )
 
 # ---- No need to change anything from here downwards unless you know what you're doing ---- #
