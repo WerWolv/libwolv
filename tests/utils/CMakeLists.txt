@@ -14,12 +14,15 @@ set(AVAILABLE_TESTS
     Guard_ScopeGuard
     
     Lock
+    
+    ThreadPool
 )
 
 add_executable(${PROJECT_NAME}
         source/string.cpp
         source/guards.cpp
         source/lock.cpp
+        source/thread_pool.cpp
 )
 
 # ---- No need to change anything from here downwards unless you know what you're doing ---- #
