@@ -12,11 +12,14 @@ set(AVAILABLE_TESTS
     String_Strnlen
     
     Guard_ScopeGuard
+    
+    Lock
 )
 
 add_executable(${PROJECT_NAME}
         source/string.cpp
         source/guards.cpp
+        source/lock.cpp
 )
 
 # ---- No need to change anything from here downwards unless you know what you're doing ---- #
