@@ -6,7 +6,14 @@
 
 #include <unistd.h>
 
-#if defined(OS_WINDOWS)
+#if defined(OS_WEB)
+    #include <cstdio>
+
+    #define fopen64 fopen
+    #define fseeko64 fseek
+    #define ftello64 ftell
+    #define ftruncate64 ftruncate
+#elif defined(OS_WINDOWS)
     #include <Windows.h>
     #include <share.h>
 #elif defined(OS_MACOS)
@@ -36,18 +43,8 @@ namespace wolv::io {
             if (mode == File::Mode::Create || (mode == File::Mode::Write && this->m_file == nullptr))
                 this->m_file = _wfsopen(path.c_str(), L"w+b", _SH_DENYNO);
 
-        #elif defined(OS_MACOS) || defined(OS_LINUX)
-
-            if (mode == File::Mode::Read)
-                this->m_file = fopen64(util::toUTF8String(path).c_str(), "rb");
-            else if (mode == File::Mode::Write)
-                this->m_file = fopen64(util::toUTF8String(path).c_str(), "r+b");
-
-            if (mode == File::Mode::Create || (mode == File::Mode::Write && this->m_file == nullptr))
-                this->m_file = fopen64(util::toUTF8String(path).c_str(), "w+b");
-
         #else
-            
+
             if (mode == File::Mode::Read)
                 this->m_file = fopen(util::toUTF8String(path).c_str(), "rb");
             else if (mode == File::Mode::Write)
