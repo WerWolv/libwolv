@@ -36,7 +36,7 @@ namespace wolv::io {
             if (mode == File::Mode::Create || (mode == File::Mode::Write && this->m_file == nullptr))
                 this->m_file = _wfsopen(path.c_str(), L"w+b", _SH_DENYNO);
 
-        #else
+        #elif defined(OS_MACOS) || defined(OS_LINUX)
 
             if (mode == File::Mode::Read)
                 this->m_file = fopen64(util::toUTF8String(path).c_str(), "rb");
@@ -45,6 +45,16 @@ namespace wolv::io {
 
             if (mode == File::Mode::Create || (mode == File::Mode::Write && this->m_file == nullptr))
                 this->m_file = fopen64(util::toUTF8String(path).c_str(), "w+b");
+
+        #else
+            
+            if (mode == File::Mode::Read)
+                this->m_file = fopen(util::toUTF8String(path).c_str(), "rb");
+            else if (mode == File::Mode::Write)
+                this->m_file = fopen(util::toUTF8String(path).c_str(), "r+b");
+
+            if (mode == File::Mode::Create || (mode == File::Mode::Write && this->m_file == nullptr))
+                this->m_file = fopen(util::toUTF8String(path).c_str(), "w+b");
 
         #endif
 
@@ -109,7 +119,7 @@ namespace wolv::io {
 
             CloseHandle(fileMapping);
 
-        #else
+        #elif defined(OS_MACOS) || defined(OS_LINUX)
 
             auto fd = fileno(this->m_file);
             auto size = getSize();
@@ -126,7 +136,7 @@ namespace wolv::io {
 
             UnmapViewOfFile(this->m_map);
 
-        #else
+        #elif defined(OS_MACOS) || defined(OS_LINUX)
 
             munmap(this->m_map, this->m_fileSize);
 
@@ -268,7 +278,7 @@ namespace wolv::io {
             if (wstat(this->m_path.c_str(), &fileInfo) != 0)
                 return std::nullopt;
 
-        #else
+        #elif defined(OS_MACOS) || defined(OS_LINUX)
 
             if (stat(wolv::util::toUTF8String(this->m_path).c_str(), &fileInfo) != 0)
                 return std::nullopt;
