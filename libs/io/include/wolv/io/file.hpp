@@ -95,6 +95,8 @@ namespace wolv::io {
         size_t m_fileSize = 0;
     };
 
+#if __cpp_lib_jthread >= 201911L
+
     class ChangeTracker {
     public:
         ChangeTracker() = default;
@@ -117,5 +119,7 @@ namespace wolv::io {
         std::fs::path m_path;
         std::jthread m_thread;
     };
+
+#endif
 
 }

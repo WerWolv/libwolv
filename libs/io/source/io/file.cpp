@@ -278,6 +278,8 @@ namespace wolv::io {
         return fileInfo;
     }
 
+#if __cpp_lib_jthread >= 201911L
+
     #if defined(OS_WINDOWS)
         static void trackWindows(const std::stop_token &stopToken, const std::fs::path &path, const std::function<void()> &callback) {
 
@@ -393,5 +395,7 @@ namespace wolv::io {
         this->m_thread.request_stop();
         this->m_thread.join();
     }
+
+#endif
 
 }

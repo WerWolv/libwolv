@@ -7,14 +7,14 @@ endif ()
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_subdirectory(libs/types)
-add_subdirectory(libs/utils)
+add_subdirectory(libs/types EXCLUDE_FROM_ALL)
+add_subdirectory(libs/utils EXCLUDE_FROM_ALL)
 
-add_subdirectory(libs/io)
-add_subdirectory(libs/hash)
-add_subdirectory(libs/net)
-add_subdirectory(libs/containers)
-add_subdirectory(libs/testing)
+add_subdirectory(libs/io EXCLUDE_FROM_ALL)
+add_subdirectory(libs/hash EXCLUDE_FROM_ALL)
+add_subdirectory(libs/net EXCLUDE_FROM_ALL)
+add_subdirectory(libs/containers EXCLUDE_FROM_ALL)
+add_subdirectory(libs/testing EXCLUDE_FROM_ALL)
 
 if (LIBWOLV_ENABLE_TESTS)
     enable_testing()
