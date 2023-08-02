@@ -258,7 +258,7 @@ namespace wolv::io {
         this->unmap();
         this->close();
 
-        return std::fs::remove(this->m_path);
+        return fs::remove(this->m_path);
     }
 
     void File::disableBuffering() {
