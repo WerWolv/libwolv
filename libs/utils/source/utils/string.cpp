@@ -6,7 +6,7 @@ namespace wolv::util {
 
     std::vector<std::string> splitString(const std::string &string, const std::string &delimiter) {
         if (delimiter.empty()) {
-            throw std::logic_error("Empty separator");
+            return { string };
         } 
         size_t start = 0, end = 0;
         std::string token;

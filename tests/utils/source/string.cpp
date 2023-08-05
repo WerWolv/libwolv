@@ -25,13 +25,8 @@ TEST_SEQUENCE("String_Split") {
 
     // test with no separator
     {
-        try {
-            splitString("housewindowtree", "");
-            TEST_FAIL();
-
-        } catch (std::logic_error &e) {
-
-        }
+        std::vector<std::string> res = {"housewindowtree"};
+        TEST_ASSERT(splitString("housewindowtree", "") == res);
     }
 
     // test with no input string
