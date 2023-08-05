@@ -109,39 +109,26 @@ TEST_SEQUENCE("String_Trim") {
     TEST_SUCCESS();
 };
 
-char* to_char_pointer(std::initializer_list<char> list) {
-    char* result = new char[list.size()];
-    int index = 0;
-    for(auto i = list.begin(); i != list.end(); i++){
-        result[index++] = *i;
-    }
-    return result;
-}
-
 // test strnlen()
 TEST_SEQUENCE("String_Strnlen") {
     // basic data to get length from
     {
-        auto data = to_char_pointer({0x01, 0x7F, 0x7F, 0x00});
-        TEST_ASSERT(strnlen(data, 255) == 3);
+        TEST_ASSERT(strnlen("\x01\x7F\x7F\x00", 255) == 3);
     }
 
     // Verify that we won't read more bytes than the specified maximum
     {
-        char *data = to_char_pointer({0x01, 0x7F, 0x7F, 0x00});
-        TEST_ASSERT(strnlen(data, 2) == 2);
+        TEST_ASSERT(strnlen("\x01\x7F\x7F\x00", 2) == 2);
     }
 
     // Make sure doesn't read past the null byte
     {
-        char *data = to_char_pointer({0x7F, 0x7F, 0x00, 0x7F, 0x00});
-        TEST_ASSERT(strnlen(data, 255) == 2);
+        TEST_ASSERT(strnlen("\x7F\x7F\x00\x7F\x00", 255) == 2);
     }
 
     // put the null byte first
     {
-        char *data = to_char_pointer({0x00, 0x7F, 0x7F, 0x7F});
-        TEST_ASSERT(strnlen(data, 255) == 0);
+        TEST_ASSERT(strnlen("\x00\x7F\x7F\x7F", 255) == 0);
     }
 
     TEST_SUCCESS();
