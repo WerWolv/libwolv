@@ -77,6 +77,29 @@ namespace wolv::container {
         }
 
         /**
+         * @brief Clears the tree
+         */
+        constexpr void clear() {
+            this->m_intervals.clear();
+        }
+
+        /**
+         * @brief Returns the begin iterator of the tree
+         * @return
+         */
+        constexpr auto begin() {
+            return this->m_intervals.begin();
+        }
+
+        /**
+         * @brief Returns the end iterator of the tree
+         * @return
+         */
+        constexpr auto end() {
+            return this->m_intervals.end();
+        }
+
+        /**
          * @brief Finds all intervals that overlap with the given interval
          * @note If T is not trivially copyable, the returned vector will contain pointers to the values in the tree
          * @param interval Interval to search for
