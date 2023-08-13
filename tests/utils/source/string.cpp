@@ -133,3 +133,41 @@ TEST_SEQUENCE("String_Strnlen") {
 
     TEST_SUCCESS();
 };
+
+TEST_SEQUENCE("String_MonoSpaceWrap") {
+    // if wrap bigger or equal to string length, return the string
+    {
+        TEST_ASSERT(wrapMonospacedString("house", 1, 6) == "house");
+    }
+
+    // wrap of 2 should split every 2 characters
+    {
+        TEST_ASSERT(wrapMonospacedString("house", 1, 2) == "ho\nus\ne");
+    }
+
+    // if the character size gets smaller it should adjust accordingly
+    {
+        TEST_ASSERT(wrapMonospacedString("house", .5, 2) == "hous\ne");
+        TEST_ASSERT(wrapMonospacedString("house", .5, 1) == "ho\nus\ne");
+    }
+
+    // on uneven character sizes it should round down
+    { // 1.577 / .6532 = 2.414, // 1.577 / .5783 = 2.727
+        TEST_ASSERT(wrapMonospacedString("house", .6532f, 1.577f) == "ho\nus\ne");
+        TEST_ASSERT(wrapMonospacedString("house", .5783f, 1.577f) == "ho\nus\ne");
+    }
+
+    // if the split would be in the word split at first space or punctuation
+    {
+        TEST_ASSERT(wrapMonospacedString("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse", 1, 10) == "Lorem \nipsum \ndolor sit \namet, \nconsectetu\nr \nadipiscing\n elit. \nSed non \nrisus. \nSuspendiss\ne");
+    }
+
+    // an empty string, negative character width or negative max width should return input
+    {
+        TEST_ASSERT(wrapMonospacedString("", 1, 10).empty());
+        TEST_ASSERT(wrapMonospacedString("house", -1, 10) == "house");
+        TEST_ASSERT(wrapMonospacedString("house", 1, -10) == "house");
+    }
+
+    TEST_SUCCESS();
+};
