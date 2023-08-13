@@ -10,6 +10,7 @@ set(AVAILABLE_TESTS
     String_Replace
     String_Trim
     String_Strnlen
+    String_MonoSpaceWrap
     
     Guard_ScopeGuard
     

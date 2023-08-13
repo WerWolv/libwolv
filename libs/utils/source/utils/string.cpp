@@ -47,4 +47,53 @@ namespace wolv::util {
         return string;
     }
 
+    std::string wrapMonospacedString(const std::string &string, const f32 charWidth, const f32 maxWidth) {
+        //If the arguments don't make sense, just immediately return the incoming string.
+        if(string.empty() || charWidth < 0 || maxWidth < 0) {
+            return string;
+        }
+
+        std::string result;
+
+        u32 startOfLineIndex = 0;
+        u32 candidateLineBreakIndex = 0;
+        f32 currentWidth = 0;
+
+        for (u32 i = 0; i < string.size(); i++) {
+            if (currentWidth + charWidth <= maxWidth) {
+                //Character fits, so increase width.
+                currentWidth += charWidth;
+            } else if (candidateLineBreakIndex > 0) {
+                //Character doesn't fit, and there is a candidate for a line-break.
+                result.append(string.substr(startOfLineIndex, (candidateLineBreakIndex + 1) - startOfLineIndex));
+                result.append("\n");
+
+                //Start a new line
+                startOfLineIndex = candidateLineBreakIndex + 1;
+                candidateLineBreakIndex = 0;
+                currentWidth = (i - startOfLineIndex + 1) * charWidth; // NOLINT(*-narrowing-conversions)
+            } else {
+                //Character doesn't fit, and there is no candidate for a line-break, so force a word-break instead.
+                result.append(string.substr(startOfLineIndex, i - startOfLineIndex));
+                result.append("\n");
+
+                //Start a new line
+                startOfLineIndex = i;
+                candidateLineBreakIndex = 0;
+                currentWidth = charWidth;
+            }
+
+            const auto c = string[i];
+
+            if (std::ispunct(c) != 0 || c == ' ') {
+                //Character is a candidate for a line-break;
+                candidateLineBreakIndex = i;
+            }
+        }
+
+        //Add the remainder of the string, if any.
+        result.append(string.substr(startOfLineIndex, string.size() - startOfLineIndex));
+
+        return result;
+    }
 }
