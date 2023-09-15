@@ -11,7 +11,7 @@ namespace wolv::hash {
         std::random_device randomDevice;
         std::mt19937 generator(randomDevice());
 
-        std::uniform_int_distribution<char> distribution(0, 15);
+        std::uniform_int_distribution<u8> distribution(0, 15);
 
         std::string uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx";
         for (char &c : uuid) {
