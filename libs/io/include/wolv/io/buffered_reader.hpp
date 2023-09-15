@@ -135,6 +135,10 @@ namespace wolv::io {
                 return this->m_address - other.m_address;
             }
 
+            Iterator operator-(i64 offset) const {
+                return { this->m_reader, this->m_address - offset };
+            }
+
             Iterator operator+(i64 offset) const {
                 return { this->m_reader, this->m_address + offset };
             }
@@ -221,6 +225,10 @@ namespace wolv::io {
 
             difference_type operator-(const ReverseIterator &other) const {
                 return other.m_address - this->m_address;
+            }
+
+            ReverseIterator operator-(i64 offset) const {
+                return { this->m_reader, this->m_address + offset };
             }
 
             ReverseIterator operator+(i64 offset) const {
