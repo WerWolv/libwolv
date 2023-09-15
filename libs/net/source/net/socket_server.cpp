@@ -3,6 +3,8 @@
 #include <wolv/utils/guards.hpp>
 
 #include <cstring>
+#include <sys/time.h>
+#include <iterator>
 
 namespace wolv::net {
 
