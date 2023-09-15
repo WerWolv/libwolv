@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #if defined(OS_WEB)
+    #include <sys/mman.h>
     #include <cstdio>
 
     #define fopen64 fopen

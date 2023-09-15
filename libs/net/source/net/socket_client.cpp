@@ -1,5 +1,7 @@
 #include <wolv/net/socket_client.hpp>
 
+#include <iterator>
+
 namespace wolv::net {
 
     SocketClient::SocketClient(Type type) : m_type(type) {
