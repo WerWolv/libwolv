@@ -132,7 +132,7 @@ namespace wolv::io {
 
             UnmapViewOfFile(this->m_map);
 
-        #elif defined(OS_MACOS) || defined(OS_LINUX)
+        #elif defined(OS_MACOS) || defined(OS_LINUX) || defined(OS_WEB)
 
             munmap(this->m_map, this->m_fileSize);
 
@@ -274,7 +274,7 @@ namespace wolv::io {
             if (wstat(this->m_path.c_str(), &fileInfo) != 0)
                 return std::nullopt;
 
-        #elif defined(OS_MACOS) || defined(OS_LINUX)
+        #elif defined(OS_MACOS) || defined(OS_LINUX) || defined(OS_WEB)
 
             if (stat(wolv::util::toUTF8String(this->m_path).c_str(), &fileInfo) != 0)
                 return std::nullopt;
