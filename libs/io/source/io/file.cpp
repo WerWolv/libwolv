@@ -115,7 +115,7 @@ namespace wolv::io {
 
             CloseHandle(fileMapping);
 
-        #elif defined(OS_MACOS) || defined(OS_LINUX)
+        #elif defined(OS_MACOS) || defined(OS_LINUX) || defined(OS_WEB)
 
             auto fd = fileno(this->m_file);
             auto size = getSize();
