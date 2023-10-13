@@ -1,5 +1,6 @@
 #include <wolv/types.hpp>
 #include <wolv/literals.hpp>
+#include <wolv/types/static_string.hpp>
 
 int main() {
 
