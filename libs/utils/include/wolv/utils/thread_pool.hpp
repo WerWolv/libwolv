@@ -74,8 +74,10 @@ namespace wolv::util {
 
                 this->m_condition.notify_all();
 
-                for (auto &thread : this->m_threads)
-                    thread.detach();
+                for (auto &thread : this->m_threads) {
+                    if (thread.joinable())
+                        thread.detach();
+                }
             }
 
         private:
