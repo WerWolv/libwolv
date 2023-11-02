@@ -4,6 +4,7 @@
 #include <wolv/utils/string.hpp>
 #include <wolv/utils/thread_pool.hpp>
 #include <wolv/utils/lock.hpp>
+#include <wolv/utils/expected.hpp>
 
 int main() {
     puts("Start");
