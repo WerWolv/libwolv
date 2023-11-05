@@ -48,7 +48,7 @@ namespace wolv::net {
                 setsockopt(this->m_socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const void *>(&reuse), sizeof(reuse));
             #endif
 
-            ::fcntl(this->m_socket, F_SETFL, ::fcntl(clientSocket, F_GETFL, 0) | O_NONBLOCK);
+            ::fcntl(this->m_socket, F_SETFL, ::fcntl(this->m_socket, F_GETFL, 0) | O_NONBLOCK);
         #endif
 
         int listenResult = ::listen(this->m_socket, this->m_maxClientCount);
