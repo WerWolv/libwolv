@@ -29,6 +29,11 @@ namespace wolv::util {
             ThreadPool(ThreadPool &&other) noexcept {
                 if (this != &other) {
                     other.stop();
+                    this->stop();
+
+                    this->m_threads.clear();
+                    this->m_stop = false;
+
                     for (size_t i = 0; i < other.m_threads.size(); i += 1) {
                         this->m_threads.emplace_back([this]{
                             this->waitForTasks();
@@ -44,11 +49,17 @@ namespace wolv::util {
             ThreadPool& operator=(ThreadPool &&other) noexcept {
                 if (this != &other) {
                     other.stop();
+                    this->stop();
+
+                    this->m_threads.clear();
+                    this->m_stop = false;
+
                     for (size_t i = 0; i < other.m_threads.size(); i += 1) {
                         this->m_threads.emplace_back([this]{
                             this->waitForTasks();
                         });
                     }
+
                     other.m_threads.clear();
 
                     this->m_tasks = std::move(other.m_tasks);

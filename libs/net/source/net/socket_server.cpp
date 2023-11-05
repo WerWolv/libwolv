@@ -60,6 +60,38 @@ namespace wolv::net {
         guard.release();
     }
 
+    SocketServer::~SocketServer() {
+        this->shutdown();
+    }
+
+    SocketServer::SocketServer(wolv::net::SocketServer &&other) noexcept {
+        this->m_socket = other.m_socket;
+        other.m_socket = SocketNone;
+
+        this->m_bufferSize = other.m_bufferSize;
+        this->m_maxClientCount = other.m_maxClientCount;
+        this->m_localOnly = other.m_localOnly;
+        this->m_error = other.m_error;
+
+        this->m_threadPool = std::move(other.m_threadPool);
+    }
+
+    SocketServer& SocketServer::operator=(wolv::net::SocketServer &&other) noexcept {
+        if (this != &other) {
+            this->m_socket = other.m_socket;
+            other.m_socket = SocketNone;
+
+            this->m_bufferSize = other.m_bufferSize;
+            this->m_maxClientCount = other.m_maxClientCount;
+            this->m_localOnly = other.m_localOnly;
+            this->m_error = other.m_error;
+
+            this->m_threadPool = std::move(other.m_threadPool);
+        }
+
+        return *this;
+    }
+
     SocketHandle acceptConnection(SocketHandle serverSocket) {
         struct sockaddr_in clientAddr = {};
         socklen_t clientSize = sizeof(clientAddr);

@@ -16,6 +16,12 @@ namespace wolv::net {
     public:
         SocketServer() = default;
         explicit SocketServer(u16 port, size_t bufferSize = 1024, i32 maxClientCount = 5, bool localOnly = true);
+        ~SocketServer();
+        SocketServer(const SocketServer&) = delete;
+        SocketServer(SocketServer&&) noexcept;
+
+        SocketServer& operator=(const SocketServer&) = delete;
+        SocketServer& operator=(SocketServer&&) noexcept;
 
         using ReadCallback = std::function<std::vector<u8>(SocketHandle, const std::vector<u8>)>;
         using CloseCallback = std::function<void(SocketHandle)>;
