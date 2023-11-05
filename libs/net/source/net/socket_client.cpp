@@ -49,7 +49,7 @@ namespace wolv::net {
             u_long mode = 1;
             ::ioctlsocket(this->m_socket, FIONBIO, &mode);
         #else
-            ::fcntl(this->m_socket, F_SETFL, ::fcntl(clientSocket, F_GETFL, 0) | O_NONBLOCK);
+            ::fcntl(this->m_socket, F_SETFL, ::fcntl(this->m_socket, F_GETFL, 0) | O_NONBLOCK);
         #endif
 
         auto receivedSize = ::recv(this->m_socket, reinterpret_cast<char *>(data.data()), size, 0);
