@@ -1,6 +1,7 @@
 #include <wolv/net/socket_client.hpp>
 
 #include <iterator>
+#include <fcntl.h>
 
 namespace wolv::net {
 
