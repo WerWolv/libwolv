@@ -48,8 +48,8 @@ namespace wolv::util {
     }
 
     std::string wrapMonospacedString(const std::string &string, const f32 charWidth, const f32 maxWidth) {
-        //If the arguments don't make sense, just immediately return the incoming string.
-        if(string.empty() || charWidth < 0 || maxWidth < 0) {
+        // If the arguments don't make sense, just immediately return the incoming string.
+        if (string.empty() || charWidth < 0 || maxWidth < 0) {
             return string;
         }
 
