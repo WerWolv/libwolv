@@ -1,9 +1,7 @@
 #pragma once
 
 #include <cstring>
-#include <wolv/types.hpp>
 
-#include <span>
 #include <vector>
 
 namespace wolv::io {
@@ -82,27 +80,27 @@ namespace wolv::io {
             Iterator(BufferedReader *reader, u64 address) : m_reader(reader), m_address(address) {}
 
             Iterator& operator++() {
-                this->m_address++;
+                ++this->m_address;
 
                 return *this;
             }
 
             Iterator operator++(int) {
                 auto copy = *this;
-                this->m_address++;
+                ++this->m_address;
 
                 return copy;
             }
 
             Iterator& operator--() {
-                this->m_address--;
+                --this->m_address;
 
                 return *this;
             }
 
             Iterator operator--(int) {
                 auto copy = *this;
-                this->m_address--;
+                --this->m_address;
 
                 return copy;
             }
@@ -144,11 +142,10 @@ namespace wolv::io {
             }
 
             value_type operator[](i64 offset) const {
-                auto result = this->m_reader->read(this->m_address + offset, 1);
-                if (result.empty())
-                    return 0x00;
+                value_type value;
+                this->m_reader->read(this->m_address + offset, &value, sizeof(value));
 
-                return result[0];
+                return value;
             }
 
             friend bool operator== (const Iterator& left, const Iterator& right) { return left.m_address == right.m_address; };
@@ -174,27 +171,27 @@ namespace wolv::io {
             ReverseIterator(BufferedReader *reader, u64 address) : m_reader(reader), m_address(address) {}
 
             ReverseIterator& operator++() {
-                this->m_address--;
+                --this->m_address;
 
                 return *this;
             }
 
             ReverseIterator operator++(int) {
                 auto copy = *this;
-                this->m_address--;
+                --this->m_address;
 
                 return copy;
             }
 
             ReverseIterator& operator--() {
-                this->m_address++;
+                ++this->m_address;
 
                 return *this;
             }
 
             ReverseIterator operator--(int) {
                 auto copy = *this;
-                this->m_address++;
+                ++this->m_address;
 
                 return copy;
             }
@@ -243,12 +240,12 @@ namespace wolv::io {
                 return result[0];
             }
 
-            friend bool operator== (const ReverseIterator& left, const ReverseIterator& right) { return left.m_address == right.m_address; };
-            friend bool operator!= (const ReverseIterator& left, const ReverseIterator& right) { return left.m_address != right.m_address; };
-            friend bool operator>  (const ReverseIterator& left, const ReverseIterator& right) { return left.m_address >  right.m_address; };
-            friend bool operator<  (const ReverseIterator& left, const ReverseIterator& right) { return left.m_address <  right.m_address; };
-            friend bool operator>= (const ReverseIterator& left, const ReverseIterator& right) { return left.m_address >= right.m_address; };
-            friend bool operator<= (const ReverseIterator& left, const ReverseIterator& right) { return left.m_address <= right.m_address; };
+            friend bool operator== (const ReverseIterator& left, const ReverseIterator& right) { return left.m_address == right.m_address; }
+            friend bool operator!= (const ReverseIterator& left, const ReverseIterator& right) { return left.m_address != right.m_address; }
+            friend bool operator>  (const ReverseIterator& left, const ReverseIterator& right) { return left.m_address >  right.m_address; }
+            friend bool operator<  (const ReverseIterator& left, const ReverseIterator& right) { return left.m_address <  right.m_address; }
+            friend bool operator>= (const ReverseIterator& left, const ReverseIterator& right) { return left.m_address >= right.m_address; }
+            friend bool operator<= (const ReverseIterator& left, const ReverseIterator& right) { return left.m_address <= right.m_address; }
 
         private:
             BufferedReader *m_reader;
