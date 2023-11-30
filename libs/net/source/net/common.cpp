@@ -1,5 +1,7 @@
 #include <wolv/net/common.hpp>
 
+#include <wolv/utils/guards.hpp>
+
 namespace wolv::net {
 
     void closeSocket(SocketHandle socket) {

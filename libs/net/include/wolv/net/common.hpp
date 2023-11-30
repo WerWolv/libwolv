@@ -1,12 +1,8 @@
 #pragma once
 
-#include <wolv/utils/guards.hpp>
-
 #if defined(OS_WINDOWS)
 
     #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #include <windows.h>
 
 #else
 

@@ -3,9 +3,13 @@
 #include <wolv/utils/guards.hpp>
 
 #include <cstring>
-#include <sys/time.h>
 #include <iterator>
 #include <fcntl.h>
+
+#if defined(OS_WINDOWS)
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+#endif
 
 namespace wolv::net {
 
@@ -28,13 +32,13 @@ namespace wolv::net {
         serverAddr.sin_addr.s_addr  = htonl(this->m_localOnly ? INADDR_LOOPBACK : INADDR_ANY);
         serverAddr.sin_port         = htons(port);
 
-        int bindResult = ::bind(this->m_socket, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
+        int bindResult = ::bind(this->m_socket, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr));
         if (bindResult < 0) {
             this->m_error = bindResult;
             return;
         }
 
-        const int reuse = true;
+        constexpr int reuse = true;
         #if defined (OS_WINDOWS)
             setsockopt(this->m_socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&reuse), sizeof(reuse));
             setsockopt(this->m_socket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, reinterpret_cast<const char *>(&reuse), sizeof(reuse));
@@ -95,7 +99,7 @@ namespace wolv::net {
     SocketHandle acceptConnection(SocketHandle serverSocket) {
         struct sockaddr_in clientAddr = {};
         socklen_t clientSize = sizeof(clientAddr);
-        return ::accept(serverSocket, (struct sockaddr*)&clientAddr, &clientSize);
+        return ::accept(serverSocket, reinterpret_cast<sockaddr*>(&clientAddr), &clientSize);
     }
 
     void setSocketTimeout(SocketHandle socket, u32 milliseconds) {
@@ -135,7 +139,7 @@ namespace wolv::net {
 
             int receivedByteCount = ::recv(clientSocket, reinterpret_cast<char*>(buffer.data()), buffer.size(), 0);
             if (receivedByteCount > 0) {
-                std::copy(buffer.begin(), buffer.begin() + receivedByteCount, std::back_inserter(data));
+                std::copy_n(buffer.begin(), receivedByteCount, std::back_inserter(data));
                 continue;
             }
 
