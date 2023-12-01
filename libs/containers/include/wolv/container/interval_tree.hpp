@@ -113,7 +113,7 @@ namespace wolv::container {
             std::vector<Data> result;
 
             // Find the first interval that starts after the given interval
-            auto it = this->m_intervals.upper_bound(interval.start);
+            auto it = this->m_intervals.upper_bound(interval.end);
             if (it == this->m_intervals.begin())
                 return {};
 
