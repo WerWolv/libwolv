@@ -7,6 +7,8 @@ add_library(${PROJECT_NAME} STATIC
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 
+string(REPLACE "libwolv-" "" PROJECT_NAME_SPACE ${PROJECT_NAME})
+add_library(wolv::${PROJECT_NAME_SPACE} ALIAS ${PROJECT_NAME})
 
 # Add example project
 add_executable(${PROJECT_NAME}-test EXCLUDE_FROM_ALL example/main.cpp)

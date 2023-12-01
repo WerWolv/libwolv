@@ -15,6 +15,9 @@ elseif (APPLE)
     target_compile_definitions(${PROJECT_NAME} INTERFACE OS_MACOS)
 endif ()
 
+string(REPLACE "libwolv-" "" PROJECT_NAME_SPACE ${PROJECT_NAME})
+add_library(wolv::${PROJECT_NAME_SPACE} ALIAS ${PROJECT_NAME})
+
 # Add example project
 add_executable(${PROJECT_NAME}-test EXCLUDE_FROM_ALL example/main.cpp)
 target_include_directories(${PROJECT_NAME}-test PRIVATE example)

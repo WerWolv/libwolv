@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(libwolv)
 
-if (TARGET libwolv-types)
+if (TARGET wolv::types)
     return ()
 endif ()
 
@@ -20,3 +20,4 @@ if (LIBWOLV_ENABLE_TESTS)
     enable_testing()
     add_subdirectory(tests EXCLUDE_FROM_ALL)
 endif ()
+

@@ -24,12 +24,15 @@ endif ()
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE})
 target_include_directories(${PROJECT_NAME} PUBLIC include)
-target_link_libraries(${PROJECT_NAME} PUBLIC libwolv-types libwolv-utils)
+target_link_libraries(${PROJECT_NAME} PUBLIC wolv::types wolv::utils)
 
 if (APPLE)
     find_library(FOUNDATION NAMES Foundation)
     target_link_libraries(${PROJECT_NAME} PUBLIC ${FOUNDATION})
 endif ()
+
+string(REPLACE "libwolv-" "" PROJECT_NAME_SPACE ${PROJECT_NAME})
+add_library(wolv::${PROJECT_NAME_SPACE} ALIAS ${PROJECT_NAME})
 
 
 # Add example project
