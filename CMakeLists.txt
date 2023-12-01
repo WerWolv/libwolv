@@ -14,6 +14,7 @@ add_subdirectory(libs/io EXCLUDE_FROM_ALL)
 add_subdirectory(libs/hash EXCLUDE_FROM_ALL)
 add_subdirectory(libs/net EXCLUDE_FROM_ALL)
 add_subdirectory(libs/containers EXCLUDE_FROM_ALL)
+add_subdirectory(libs/math_eval EXCLUDE_FROM_ALL)
 add_subdirectory(libs/testing EXCLUDE_FROM_ALL)
 
 if (LIBWOLV_ENABLE_TESTS)

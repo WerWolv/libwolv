@@ -18,6 +18,9 @@ namespace wolv::util {
     template<class... Ts>
     overloaded(Ts...) -> overloaded<Ts...>;
 
+    template<typename T>
+    struct always_false : std::false_type { };
+
 
     template<typename T>
     std::array<u8, sizeof(T)> toBytes(const T &value) {
