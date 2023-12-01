@@ -8,7 +8,7 @@ namespace wolv::util {
 
     namespace scope_guard {
 
-        #define SCOPE_GUARD   ::wolv::util::scope_guard::ScopeGuardOnExit() + [&]()
+        #define SCOPE_GUARD   ::wolv::util::scope_guard::ScopeGuardOnExit() + [&]() -> void
         #define ON_SCOPE_EXIT [[maybe_unused]] auto WOLV_ANONYMOUS_VARIABLE(SCOPE_EXIT_) = SCOPE_GUARD
 
         template<class F>
@@ -26,7 +26,7 @@ namespace wolv::util {
             void release() { this->m_active = false; }
 
             ScopeGuard(ScopeGuard &&other) noexcept : m_func(std::move(other.m_func)), m_active(other.m_active) {
-                other.cancel();
+                other.release();
             }
 
             ScopeGuard &operator=(ScopeGuard &&) = delete;
