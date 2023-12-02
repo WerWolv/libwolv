@@ -96,4 +96,20 @@ namespace wolv::util {
 
         return result;
     }
+
+    std::string capitalizeString(std::string string) {
+        for (const auto delimiter : { "_", "-", " " }) {
+            auto parts = splitString(string, delimiter);
+
+            for (auto &part : parts) {
+                if (!part.empty())
+                    part[0] = char(std::toupper(part[0]));
+            }
+
+            string = combineStrings(parts, delimiter);
+        }
+
+        return string;
+    }
+
 }

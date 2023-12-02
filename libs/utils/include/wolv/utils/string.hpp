@@ -12,6 +12,7 @@ namespace wolv::util {
     std::string combineStrings(const std::vector<std::string> &strings, const std::string &delimiter);
     std::string replaceStrings(std::string string, const std::string &search, const std::string &replace);
     std::string wrapMonospacedString(const std::string& string, f32 charWidth, f32 maxWidth);
+    std::string capitalizeString(std::string string);
 
     template<typename T>
     concept Char8StringConvertable = requires(T t) { t.u8string(); };
