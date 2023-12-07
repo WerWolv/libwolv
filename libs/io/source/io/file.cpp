@@ -164,8 +164,6 @@ namespace wolv::io {
     std::string File::readString(size_t numBytes) {
         if (!isValid()) return {};
 
-        if (getSize() == 0) return {};
-
         auto bytes = this->readVector(numBytes);
 
         if (bytes.empty())
@@ -177,8 +175,6 @@ namespace wolv::io {
 
     std::u8string File::readU8String(size_t numBytes) {
         if (!isValid()) return {};
-
-        if (getSize() == 0) return {};
 
         auto bytes = this->readVector(numBytes);
 
