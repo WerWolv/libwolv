@@ -34,6 +34,7 @@ endif ()
 string(REPLACE "libwolv-" "" PROJECT_NAME_SPACE ${PROJECT_NAME})
 add_library(wolv::${PROJECT_NAME_SPACE} ALIAS ${PROJECT_NAME})
 
+target_link_libraries(libwolv INTERFACE ${PROJECT_NAME})
 
 # Add example project
 add_executable(${PROJECT_NAME}-test EXCLUDE_FROM_ALL example/main.cpp)

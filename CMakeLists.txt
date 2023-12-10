@@ -7,6 +7,8 @@ endif ()
 
 set(CMAKE_CXX_STANDARD 23)
 
+add_library(libwolv INTERFACE)
+
 add_subdirectory(libs/types EXCLUDE_FROM_ALL)
 add_subdirectory(libs/utils EXCLUDE_FROM_ALL)
 
