@@ -4,7 +4,7 @@
 
 namespace wolv::util {
 
-    std::vector<std::string> splitString(const std::string &string, const std::string &delimiter) {
+    std::vector<std::string> splitString(const std::string &string, const std::string &delimiter, bool removeEmpty) {
         if (delimiter.empty()) {
             return { string };
         }
@@ -24,7 +24,8 @@ namespace wolv::util {
 
         result.emplace_back(string.substr(start));
 
-        std::erase_if(result, [](const auto &string) { return string.empty(); });
+        if (removeEmpty)
+            std::erase_if(result, [](const auto &string) { return string.empty(); });
 
         return result;
     }
