@@ -361,9 +361,19 @@ namespace wolv::math_eval {
                         result = leftOperand * rightOperand;
                         break;
                     case Operator::Division:
+                        if (rightOperand == 0) {
+                            this->setError("Division by Zero!");
+                            return std::nullopt;
+                        }
+
                         result = leftOperand / rightOperand;
                         break;
                     case Operator::Modulus:
+                        if (rightOperand == 0) {
+                            this->setError("Division by Zero!");
+                            return std::nullopt;
+                        }
+
                         if constexpr (std::floating_point<T>)
                             result = std::fmod(leftOperand, rightOperand);
                         else
