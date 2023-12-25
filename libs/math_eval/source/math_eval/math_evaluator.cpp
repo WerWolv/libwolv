@@ -95,19 +95,14 @@ namespace wolv::math_eval {
                 if (currToken.bracketType == BracketType::Left)
                     operatorStack.push(currToken);
                 else {
+                    while (!operatorStack.empty() && (operatorStack.top().type != TokenType::Bracket || (operatorStack.top().type == TokenType::Bracket && operatorStack.top().bracketType != BracketType::Left))) {
+                        outputQueue.push(operatorStack.top());
+                        operatorStack.pop();
+                    }
+
                     if (operatorStack.empty()) {
                         this->setError("Mismatching parenthesis!");
                         return std::nullopt;
-                    }
-
-                    while (operatorStack.top().type != TokenType::Bracket || (operatorStack.top().type == TokenType::Bracket && operatorStack.top().bracketType != BracketType::Left)) {
-                        if (operatorStack.empty()) {
-                            this->setError("Mismatching parenthesis!");
-                            return std::nullopt;
-                        }
-
-                        outputQueue.push(operatorStack.top());
-                        operatorStack.pop();
                     }
 
                     operatorStack.pop();
