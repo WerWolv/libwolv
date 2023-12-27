@@ -150,6 +150,11 @@ namespace wolv::math_eval {
 
                 inputQueue.push(Token { .type = TokenType::Number, .number = number, .name = "", .arguments = { } });
             } else if (*pos == '(') {
+                if (!(!inputQueue.empty() && (inputQueue.back().type == TokenType::Operator || (inputQueue.back().type == TokenType::Bracket && inputQueue.back().bracketType == BracketType::Left)))) {
+                    this->setError("Invalid syntax!");
+                    return std::nullopt;
+                }
+
                 inputQueue.push(Token { .type = TokenType::Bracket, .bracketType = BracketType::Left, .name = "", .arguments = { } });
                 pos++;
             } else if (*pos == ')') {
@@ -160,15 +165,11 @@ namespace wolv::math_eval {
             } else {
                 auto [op, width] = toOperator(pos);
 
-                if (!inputQueue.empty()) {
-                    auto token = inputQueue.back();
-
-                    if (token.type == TokenType::Operator || (token.type == TokenType::Bracket && token.bracketType == BracketType::Left)) {
-                        if (op == Operator::Addition)
-                            op = Operator::Plus;
-                        else if (op == Operator::Subtraction)
-                            op = Operator::Minus;
-                    }
+                if (inputQueue.empty() || inputQueue.back().type == TokenType::Operator || (inputQueue.back().type == TokenType::Bracket && inputQueue.back().bracketType == BracketType::Left)) {
+                    if (op == Operator::Addition)
+                        op = Operator::Plus;
+                    else if (op == Operator::Subtraction)
+                        op = Operator::Minus;
                 }
 
                 if (op != Operator::Invalid) {
