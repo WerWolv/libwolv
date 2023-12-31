@@ -58,7 +58,7 @@ namespace wolv::io {
         void seek(u64 offset);
         void close();
 
-        void map();
+        bool map();
         void unmap();
         [[nodiscard]] u8* getMapping() const { return this->m_map; }
 

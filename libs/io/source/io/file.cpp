@@ -99,8 +99,9 @@ namespace wolv::io {
     }
 
 
-    void File::map() {
-        if (!isValid()) return;
+    bool File::map() {
+        if (!isValid())
+            return false;
 
         #if defined(OS_WINDOWS)
 
@@ -108,10 +109,12 @@ namespace wolv::io {
             auto fileMapping = CreateFileMapping(fileHandle, nullptr, SEC_RESERVE | (this->m_mode == Mode::Read ? PAGE_READONLY : PAGE_READWRITE), 0, 0, nullptr);
 
             if (fileMapping == nullptr)
-                return;
+                return false;
 
 
             this->m_map = reinterpret_cast<u8*>(MapViewOfFile(fileMapping, this->m_mode == Mode::Read ? FILE_MAP_READ : FILE_MAP_ALL_ACCESS, 0, 0, 0));
+            if (this->m_map == nullptr)
+                return false;
 
             CloseHandle(fileMapping);
 
@@ -121,8 +124,13 @@ namespace wolv::io {
             auto size = getSize();
 
             this->m_map = reinterpret_cast<u8*>(mmap(nullptr, size, this->m_mode == Mode::Read ? PROT_READ : PROT_WRITE, MAP_SHARED, fd, 0));
-
+            if (this->m_map == MAP_FAILED) {
+                this->m_map = nullptr;
+                return false;
+            }
         #endif
+
+        return true;
     }
 
     void File::unmap() {
