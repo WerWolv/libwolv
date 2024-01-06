@@ -84,7 +84,7 @@ namespace wolv::io {
     #if defined (OS_WINDOWS)
         HANDLE m_handle = reinterpret_cast<void*>(-1);
     #else
-        int m_handle;
+        int m_handle = -1;
     #endif
 
         std::fs::path m_path;

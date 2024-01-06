@@ -125,6 +125,15 @@ namespace wolv::io {
         }
     }
 
+    size_t File::writeBuffer(const u8 *buffer, size_t size) {
+        if (!isValid()) return 0;
+
+        DWORD bytesWritten = 0;
+        ::WriteFile(m_handle, buffer, size, &bytesWritten, nullptr);
+
+        return bytesWritten;
+    }
+
     size_t File::writeBufferAtomic(u64 address, const u8 *buffer, size_t size) {
         if (!isValid()) return 0;
 
@@ -143,16 +152,6 @@ namespace wolv::io {
                 return 0;
             }
         }
-    }
-
-
-    size_t File::writeBuffer(const u8 *buffer, size_t size) {
-        if (!isValid()) return 0;
-
-        DWORD bytesWritten = 0;
-        ::WriteFile(m_handle, buffer, size, &bytesWritten, nullptr);
-
-        return bytesWritten;
     }
 
     void File::setSize(u64 size) {

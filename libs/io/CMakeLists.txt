@@ -4,7 +4,7 @@ project(libwolv-io)
 set(SOURCE
         source/io/file.cpp
         $<$<PLATFORM_ID:Windows>:source/io/file_win.cpp>
-        $<$<NOT:$<PLATFORM_ID:Windows>>:source/io/file_win.cpp>
+        $<$<NOT:$<PLATFORM_ID:Windows>>:source/io/file_unix.cpp>
         source/io/fs.cpp
 )
 
