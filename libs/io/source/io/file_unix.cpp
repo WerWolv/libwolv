@@ -3,9 +3,8 @@
 #if defined(OS_WEB)
     #include <sys/mman.h>
     #include <cstdio>
-
-    #define fopen64 fopen
-    #define ftruncate64 ftruncate
+    #include <unistd.h>
+    #include <fcntl.h>
 #elif defined(OS_MACOS)
     #include <unistd.h>
     #include <sys/types.h>
