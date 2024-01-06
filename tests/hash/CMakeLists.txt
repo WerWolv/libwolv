@@ -24,4 +24,4 @@ set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAK
 foreach (test IN LISTS AVAILABLE_TESTS)
     add_test(NAME "${TEST_CATEGORY}/${test}" COMMAND ${PROJECT_NAME} "${test}" WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 endforeach ()
-add_dependencies(wolv::tests ${PROJECT_NAME})
+add_dependencies(libwolv-tests ${PROJECT_NAME})

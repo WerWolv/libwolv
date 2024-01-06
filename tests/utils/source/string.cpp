@@ -113,22 +113,22 @@ TEST_SEQUENCE("String_Trim") {
 TEST_SEQUENCE("String_Strnlen") {
     // basic data to get length from
     {
-        TEST_ASSERT(strnlen("\x01\x7F\x7F\x00", 255) == 3);
+        TEST_ASSERT(wolv::util::strnlen("\x01\x7F\x7F\x00", 255) == 3);
     }
 
     // Verify that we won't read more bytes than the specified maximum
     {
-        TEST_ASSERT(strnlen("\x01\x7F\x7F\x00", 2) == 2);
+        TEST_ASSERT(wolv::util::strnlen("\x01\x7F\x7F\x00", 2) == 2);
     }
 
     // Make sure doesn't read past the null byte
     {
-        TEST_ASSERT(strnlen("\x7F\x7F\x00\x7F\x00", 255) == 2);
+        TEST_ASSERT(wolv::util::strnlen("\x7F\x7F\x00\x7F\x00", 255) == 2);
     }
 
     // put the null byte first
     {
-        TEST_ASSERT(strnlen("\x00\x7F\x7F\x7F", 255) == 0);
+        TEST_ASSERT(wolv::util::strnlen("\x00\x7F\x7F\x7F", 255) == 0);
     }
 
     TEST_SUCCESS();
