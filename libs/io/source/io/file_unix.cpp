@@ -1,21 +1,16 @@
 #include <wolv/io/file.hpp>
+#include <wolv/utils/guards.hpp>
 
-#if defined(OS_WEB)
-    #include <sys/mman.h>
-    #include <cstdio>
-    #include <unistd.h>
-    #include <fcntl.h>
-#elif defined(OS_MACOS)
-    #include <unistd.h>
+#include <sys/mman.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+#if defined(OS_MACOS)
     #include <sys/types.h>
     #include <sys/event.h>
-    #include <sys/mman.h>
-    #include <fcntl.h>
 #elif defined(OS_LINUX)
-    #include <unistd.h>
     #include <sys/types.h>
     #include <sys/inotify.h>
-    #include <sys/mman.h>
     #include <poll.h>
 #endif
 
