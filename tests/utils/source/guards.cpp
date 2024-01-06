@@ -9,7 +9,7 @@ TEST_SEQUENCE("Guard_ScopeGuard") {
     // ensure block is run at the end of the block and not before
     int i = 0;
     {
-        SCOPE_GUARD {
+        ON_SCOPE_EXIT {
             i = 2;
         };
         i = 1;
@@ -18,7 +18,7 @@ TEST_SEQUENCE("Guard_ScopeGuard") {
 
     // ensure block is actually run
     {
-        SCOPE_GUARD {
+        ON_SCOPE_EXIT {
             i = 3;
         };
     }

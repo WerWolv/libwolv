@@ -67,6 +67,7 @@ namespace wolv::io {
     void File::close() {
         if (isValid()) {
             ::close(m_handle);
+            m_handle = -1;
         }
 
         if (m_fileHandle != nullptr) {
