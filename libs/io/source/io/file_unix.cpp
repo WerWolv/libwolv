@@ -175,7 +175,7 @@ namespace wolv::io {
 #if __cpp_lib_jthread >= 201911L
 
     #if defined(OS_MACOS)
-        static void trackMacOS(const std::stop_token &stopToken, const std::fs::path &path, const std::function<void()> &callback) {
+        void ChangeTracker::trackImpl(const std::stop_token &stopToken, const std::fs::path &path, const std::function<void()> &callback) {
             int queue = kqueue();
             if (queue == -1)
                 throw std::runtime_error("Failed to open kqueue");
@@ -206,10 +206,8 @@ namespace wolv::io {
             }
 
         }
-    #endif
-
-    #if defined(OS_LINUX)
-        static void trackLinux(const std::stop_token &stopToken, const std::fs::path &path, const std::function<void()> &callback) {
+    #elif defined(OS_LINUX)
+        void ChangeTracker::trackImpl(const std::stop_token &stopToken, const std::fs::path &path, const std::function<void()> &callback) {
             int fileDescriptor = inotify_init();
             if (fileDescriptor == -1)
                 throw std::runtime_error("Failed to open inotify");
@@ -244,6 +242,8 @@ namespace wolv::io {
             }
 
         }
+    #else
+        void ChangeTracker::trackImpl(const std::stop_token &, const std::fs::path &, const std::function<void()> &) {}
     #endif
 
 #endif
