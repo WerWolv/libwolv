@@ -11,22 +11,8 @@
 
 #include <sys/stat.h>
 
-#if defined(OS_MACOS)
-
-    #include <unistd.h>
-    #include <sys/fcntl.h>
-
-    #define off64_t     off_t
-    #define fopen64     fopen
-    #define fseeko64    fseek
-    #define ftello64    ftell
-    #define ftruncate64 ftruncate
-
-#elif defined(OS_LINUX)
-
-    #include <unistd.h>
-    #include <fcntl.h>
-
+#if defined(OS_WINDOWS)
+    using HANDLE = void*;
 #endif
 
 namespace wolv::io {
@@ -48,10 +34,7 @@ namespace wolv::io {
 
         File &operator=(File &&other) noexcept;
 
-
-        [[nodiscard]] bool isValid() const {
-            return this->m_file != nullptr;
-        }
+        [[nodiscard]] bool isValid() const;
 
         File clone();
 
@@ -67,10 +50,20 @@ namespace wolv::io {
         [[nodiscard]] std::string readString(size_t numBytes = 0);
         [[nodiscard]] std::u8string readU8String(size_t numBytes = 0);
 
+        size_t readBufferAtomic(u64 address, u8 *buffer, size_t size);
+        [[nodiscard]] std::vector<u8> readVectorAtomic(u64 address, size_t numBytes);
+        [[nodiscard]] std::string readStringAtomic(u64 address, size_t numBytes);
+        [[nodiscard]] std::u8string readU8StringAtomic(u64 address, size_t numBytes);
+
         size_t writeBuffer(const u8 *buffer, size_t size);
         size_t writeVector(const std::vector<u8> &bytes);
         size_t writeString(const std::string &string);
         size_t writeU8String(const std::u8string &string);
+
+        size_t writeBufferAtomic(u64 address, const u8 *buffer, size_t size);
+        size_t writeVectorAtomic(u64 address, const std::vector<u8> &bytes);
+        size_t writeStringAtomic(u64 address, const std::string &string);
+        size_t writeU8StringAtomic(u64 address, const std::u8string &string);
 
         [[nodiscard]] size_t getSize() const;
         void setSize(u64 size);
@@ -79,7 +72,7 @@ namespace wolv::io {
         void flush();
         bool remove();
 
-        [[nodiscard]] auto getHandle() const { return this->m_file; }
+        [[nodiscard]] FILE* getHandle() const;
         [[nodiscard]] const std::fs::path &getPath() const { return this->m_path; }
 
         void disableBuffering();
@@ -87,7 +80,13 @@ namespace wolv::io {
         [[nodiscard]] std::optional<struct stat> getFileInfo();
 
     private:
-        FILE *m_file = nullptr;
+        mutable FILE *m_fileHandle = nullptr;
+    #if defined (OS_WINDOWS)
+        HANDLE m_handle = reinterpret_cast<void*>(-1);
+    #else
+        int m_handle;
+    #endif
+
         std::fs::path m_path;
         Mode m_mode = Mode::Read;
         u8 *m_map = nullptr;
@@ -114,6 +113,9 @@ namespace wolv::io {
 
         void startTracking(const std::function<void()> &callback);
         void stopTracking();
+
+    private:
+        static void trackImpl(const std::stop_token &stopToken, const std::fs::path &path, const std::function<void()> &callback);
 
     private:
         std::fs::path m_path;
