@@ -2,6 +2,7 @@
 
 #include <cstring>
 
+#include <iostream>
 #include <vector>
 
 namespace wolv::io {
@@ -25,6 +26,14 @@ namespace wolv::io {
 
         void setEndAddress(u64 address) {
             this->m_endAddress = address;
+        }
+
+        u64 getStartAddress() const {
+            return this->m_startAddress;
+        }
+
+        u64 getEndAddress() const {
+            return this->m_endAddress;
         }
 
         [[nodiscard]] std::vector<u8> read(u64 address, size_t size) {
@@ -261,11 +270,11 @@ namespace wolv::io {
         }
 
         ReverseIterator rbegin() {
-            return { this, this->m_startAddress };
+            return { this, this->m_endAddress };
         }
 
         ReverseIterator rend() {
-            return { this, 0 };
+            return { this, this->m_startAddress - 1 };
         }
 
     private:
