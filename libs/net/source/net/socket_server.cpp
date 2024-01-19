@@ -2,6 +2,7 @@
 
 #include <wolv/utils/guards.hpp>
 
+#include <algorithm>
 #include <cstring>
 #include <iterator>
 #include <fcntl.h>
