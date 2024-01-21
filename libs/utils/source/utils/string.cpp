@@ -44,9 +44,11 @@ namespace wolv::util {
         if (search.empty())
             return string;
 
-        std::size_t pos;
-        while ((pos = string.find(search)) != std::string::npos)
+        std::size_t pos = 0;
+        while ((pos = string.find(search, pos)) != std::string::npos) {
             string.replace(pos, search.size(), replace);
+            pos += replace.size();
+        }
 
         return string;
     }
