@@ -127,7 +127,7 @@ namespace wolv::io {
         if (!isValid())
             return;
 
-        ftruncate(m_handle, size);
+        (void)ftruncate(m_handle, size);
     }
 
     void File::updateSize() {
