@@ -127,7 +127,9 @@ namespace wolv::io {
         if (!isValid())
             return;
 
-        (void)ftruncate(m_handle, size);
+        if (ftruncate(m_handle, size) < 0) {
+            // Handle error, although there's really nothing to handle.
+        }
     }
 
     void File::updateSize() {
