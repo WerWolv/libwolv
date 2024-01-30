@@ -23,7 +23,7 @@ namespace wolv::io {
             m_handle = open(path.c_str(), O_RDWR);
 
         if (mode == Mode::Create || (mode == Mode::Write && m_handle == -1))
-            m_handle = open(path.c_str(), O_RDWR | O_CREAT, 0666);
+            m_handle = open(path.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
 
         this->updateSize();
     }
