@@ -57,7 +57,7 @@ namespace wolv::io {
                 return;
             }
 
-            this->updateBuffer(address, size);
+            this->updateBuffer(address, size, false);
             
             auto result = &this->m_buffer[address -  this->m_bufferAddress];
 
@@ -70,7 +70,7 @@ namespace wolv::io {
                 return;
             }
 
-            this->updateBuffer(address - std::min<u64>(address, this->m_buffer.size()), size);
+            this->updateBuffer(address, size, true);
 
             auto result = &this->m_buffer[address - this->m_bufferAddress];
 
@@ -277,11 +277,13 @@ namespace wolv::io {
         }
 
     private:
-        void updateBuffer(u64 address, size_t size) {
-            if (address > this->m_endAddress)
+        void updateBuffer(u64 address, size_t size, [[maybe_unused]] bool reverse) {
+            if (!reverse && address > this->m_endAddress)
+                return;
+            if (reverse && address < this->m_startAddress)
                 return;
 
-            if (!this->m_bufferValid || address < this->m_bufferAddress || address + size > (this->m_bufferAddress + this->m_buffer.size())) {
+            if (!reverse && (!this->m_bufferValid || address < this->m_bufferAddress || address + size > (this->m_bufferAddress + this->m_buffer.size()))) {
                 const auto remainingBytes = (this->m_endAddress - address) + 1;
                 if (remainingBytes < this->m_maxBufferSize)
                     this->m_buffer.resize(remainingBytes);
@@ -290,6 +292,18 @@ namespace wolv::io {
 
                 Reader(this->m_userData, this->m_buffer.data(), address, this->m_buffer.size());
                 this->m_bufferAddress = address;
+                this->m_bufferValid = true;
+            }
+
+            if (reverse && (!this->m_bufferValid || address < this->m_bufferAddress || address + size > (this->m_bufferAddress + this->m_buffer.size()))) {
+                const auto remainingBytes = (address - this->m_startAddress) + 1;
+                if (remainingBytes < this->m_maxBufferSize)
+                    this->m_buffer.resize(remainingBytes);
+                else
+                    this->m_buffer.resize(this->m_maxBufferSize);
+
+                Reader(this->m_userData, this->m_buffer.data(), address - this->m_buffer.size() + 1, this->m_buffer.size());
+                this->m_bufferAddress = address - this->m_buffer.size() + 1;
                 this->m_bufferValid = true;
             }
         }
