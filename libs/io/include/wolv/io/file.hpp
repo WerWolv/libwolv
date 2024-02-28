@@ -67,7 +67,6 @@ namespace wolv::io {
 
         [[nodiscard]] size_t getSize() const;
         void setSize(u64 size);
-        void updateSize();
 
         void flush();
         bool remove();
@@ -78,6 +77,9 @@ namespace wolv::io {
         void disableBuffering();
 
         [[nodiscard]] std::optional<struct stat> getFileInfo();
+
+    private:
+        void updateSize() const;
 
     private:
         mutable FILE *m_fileHandle = nullptr;
@@ -91,7 +93,8 @@ namespace wolv::io {
         Mode m_mode = Mode::Read;
         u8 *m_map = nullptr;
 
-        size_t m_fileSize = 0;
+        mutable bool m_sizeValid = false;
+        mutable size_t m_fileSize = 0;
     };
 
 #if __cpp_lib_jthread >= 201911L

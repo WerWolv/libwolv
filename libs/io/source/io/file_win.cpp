@@ -31,6 +31,7 @@ namespace wolv::io {
         m_path = std::move(other.m_path);
         m_mode = other.m_mode;
         m_fileSize = other.m_fileSize;
+        m_sizeValid = other.m_sizeValid;
     }
 
     File::~File() {
@@ -48,6 +49,7 @@ namespace wolv::io {
         m_path = std::move(other.m_path);
         m_mode = other.m_mode;
         m_fileSize = other.m_fileSize;
+        m_sizeValid = other.m_sizeValid;
 
         return *this;
     }
@@ -129,6 +131,8 @@ namespace wolv::io {
     size_t File::writeBuffer(const u8 *buffer, size_t size) {
         if (!isValid()) return 0;
 
+        m_sizeValid = false;
+
         DWORD bytesWritten = 0;
         ::WriteFile(m_handle, buffer, size, &bytesWritten, nullptr);
 
@@ -141,6 +145,8 @@ namespace wolv::io {
         thread_local OVERLAPPED overlapped = { };
         overlapped.Offset = static_cast<DWORD>(address);
         overlapped.OffsetHigh = static_cast<DWORD>(address >> 32);
+
+        m_sizeValid = false;
 
         DWORD bytesRead = 0;
         if (::WriteFile(m_handle, buffer, size, &bytesRead, &overlapped)) {
@@ -163,7 +169,7 @@ namespace wolv::io {
         this->updateSize();
     }
 
-    void File::updateSize() {
+    void File::updateSize() const {
         if (!isValid()) {
             m_fileSize = 0;
             return;
@@ -173,6 +179,7 @@ namespace wolv::io {
         DWORD lowSize = ::GetFileSize(m_handle, &highSize);
 
         m_fileSize = (static_cast<u64>(highSize) << 32) | lowSize;
+        m_sizeValid = true;
     }
 
     void File::flush() {

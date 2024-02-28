@@ -15,6 +15,9 @@ namespace wolv::io {
     }
 
     size_t File::getSize() const {
+        if (!m_sizeValid) {
+            updateSize();
+        }
         return m_fileSize;
     }
 

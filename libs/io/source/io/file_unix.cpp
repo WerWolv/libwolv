@@ -113,6 +113,7 @@ namespace wolv::io {
     size_t File::writeBuffer(const u8 *buffer, size_t size) {
         if (!isValid()) return 0;
 
+        m_sizeValid = false;
         return write(m_handle, buffer, size);
     }
 
@@ -120,6 +121,7 @@ namespace wolv::io {
         if (!isValid())
             return 0;
 
+        m_sizeValid = false;
         return pwrite(m_handle, buffer, size, address);
     }
 
@@ -141,6 +143,7 @@ namespace wolv::io {
         const auto currOffset = lseek(m_handle, 0, SEEK_CUR);
         m_fileSize = lseek(m_handle, 0, SEEK_END);
         lseek(m_handle, currOffset, SEEK_SET);
+        m_sizeValid = true;
     }
 
     void File::flush() {
