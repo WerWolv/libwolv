@@ -134,7 +134,7 @@ namespace wolv::io {
         }
     }
 
-    void File::updateSize() {
+    void File::updateSize() const {
         if (!isValid()) {
             m_fileSize = 0;
             return;
