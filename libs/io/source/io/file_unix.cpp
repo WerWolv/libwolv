@@ -214,7 +214,7 @@ namespace wolv::io {
 
         }
     #elif defined(OS_LINUX)
-        void ChangeTracker::trackImpl(const std::stop_token &stopToken, const std::fs::path &path, const std::function<void()> &callback) {
+        void ChangeTracker::trackImpl(const bool &stopped, const std::fs::path &path, const std::function<void()> &callback) {
             int fileDescriptor = inotify_init();
             if (fileDescriptor == -1)
                 throw std::runtime_error("Failed to open inotify");
@@ -230,7 +230,7 @@ namespace wolv::io {
             std::array<char, 4096> buffer;
             pollfd pollDescriptor = { fileDescriptor, POLLIN, 0 };
 
-            while (!stopToken.stop_requested()) {
+            while (!stopped) {
                 if (poll(&pollDescriptor, 1, 1000) <= 0)
                     continue;
 
@@ -250,7 +250,7 @@ namespace wolv::io {
 
         }
     #else
-        void ChangeTracker::trackImpl(const std::stop_token &, const std::fs::path &, const std::function<void()> &) {}
+        void ChangeTracker::trackImpl(const bool &, const std::fs::path &, const std::function<void()> &) {}
     #endif
 
 }
