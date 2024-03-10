@@ -17,7 +17,7 @@
 namespace wolv::io {
 
     File::File(const std::fs::path &path, Mode mode) noexcept : m_path(path), m_mode(mode) {
-        open();
+        this->open();
     }
 
 
@@ -34,8 +34,8 @@ namespace wolv::io {
     }
 
     File::~File() {
-        unmap();
-        close();
+        this->unmap();
+        this->close();
     }
 
     File &File::operator=(File &&other) noexcept {
@@ -58,12 +58,12 @@ namespace wolv::io {
 
     void File::open() {
         if (m_mode == Mode::Read)
-            m_handle = open(m_path.c_str(), O_RDONLY);
+            m_handle = ::open(m_path.c_str(), O_RDONLY);
         else if (m_mode == Mode::Write || m_mode == Mode::Create)
-            m_handle = open(m_path.c_str(), O_RDWR);
+            m_handle = ::open(m_path.c_str(), O_RDWR);
 
-        if (m_mode == Mode::Create || (mode == Mode::Write && m_handle == -1))
-            m_handle = open(m_path.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
+        if (m_mode == Mode::Create || (m_mode == Mode::Write && m_handle == -1))
+            m_handle = ::open(m_path.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
 
         this->updateSize();
     }
@@ -191,7 +191,7 @@ namespace wolv::io {
 
             ON_SCOPE_EXIT { close(queue); };
 
-            int fileDescriptor = open(path.c_str(), O_RDONLY);
+            int fileDescriptor = ::open(path.c_str(), O_RDONLY);
             if (fileDescriptor == -1)
                 throw std::runtime_error("Failed to open file descriptor");
 
