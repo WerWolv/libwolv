@@ -17,15 +17,7 @@
 namespace wolv::io {
 
     File::File(const std::fs::path &path, Mode mode) noexcept : m_path(path), m_mode(mode) {
-        if (mode == Mode::Read)
-            m_handle = open(path.c_str(), O_RDONLY);
-        else if (mode == Mode::Write)
-            m_handle = open(path.c_str(), O_RDWR);
-
-        if (mode == Mode::Create || (mode == Mode::Write && m_handle == -1))
-            m_handle = open(path.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
-
-        this->updateSize();
+        open();
     }
 
 
@@ -62,6 +54,18 @@ namespace wolv::io {
 
     void File::seek(u64 offset) {
         lseek(m_handle, offset, SEEK_SET);
+    }
+
+    void File::open() {
+        if (m_mode == Mode::Read)
+            m_handle = open(m_path.c_str(), O_RDONLY);
+        else if (m_mode == Mode::Write || m_mode == Mode::Create)
+            m_handle = open(m_path.c_str(), O_RDWR);
+
+        if (m_mode == Mode::Create || (mode == Mode::Write && m_handle == -1))
+            m_handle = open(m_path.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
+
+        this->updateSize();
     }
 
     void File::close() {

@@ -10,15 +10,7 @@
 namespace wolv::io {
 
     File::File(const std::fs::path &path, Mode mode) noexcept : m_path(path), m_mode(mode) {
-        if (mode == File::Mode::Read)
-            m_handle = ::CreateFileW(path.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-        else if (mode == File::Mode::Write)
-            m_handle = ::CreateFileW(path.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-
-        if (mode == File::Mode::Create || (mode == File::Mode::Write && this->m_handle == INVALID_HANDLE_VALUE))
-            m_handle = ::CreateFileW(path.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-
-        updateSize();
+        open();
     }
 
     File::File(File &&other) noexcept {
@@ -57,6 +49,19 @@ namespace wolv::io {
     void File::seek(u64 offset) {
         ::SetFilePointerEx(m_handle, LARGE_INTEGER { .QuadPart = LONGLONG(offset) }, nullptr, FILE_BEGIN);
     }
+
+    void File::open() {
+        if (m_mode == File::Mode::Read)
+            m_handle = ::CreateFileW(m_path.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+        else if (m_mode == File::Mode::Write || m_mode == File::Mode::Create)
+            m_handle = ::CreateFileW(m_path.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+
+        if (m_mode == File::Mode::Create || (m_mode == File::Mode::Write && this->m_handle == INVALID_HANDLE_VALUE))
+            m_handle = ::CreateFileW(m_path.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+
+        updateSize();
+    }
+
 
     void File::close() {
         if (isValid()) {

@@ -39,6 +39,7 @@ namespace wolv::io {
         File clone();
 
         void seek(u64 offset);
+        void open();
         void close();
 
         bool map();
