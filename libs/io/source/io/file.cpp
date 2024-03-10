@@ -134,7 +134,9 @@ namespace wolv::io {
 
         void ChangeTracker::stopTracking() {
             this->m_thread.request_stop();
-            this->m_thread.join();
+
+            if (this->m_thread.joinable())
+                this->m_thread.join();
         }
 
     #endif

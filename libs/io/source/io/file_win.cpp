@@ -227,6 +227,7 @@ namespace wolv::io {
 #if __cpp_lib_jthread >= 201911L
 
     void ChangeTracker::trackImpl(const std::stop_token &stopToken, const std::fs::path &path, const std::function<void()> &callback) {
+        bool firstTime = true;
         WIN32_FILE_ATTRIBUTE_DATA previousAttributes = {};
 
         while (!stopToken.stop_requested()) {
@@ -236,7 +237,12 @@ namespace wolv::io {
                 break;
             }
 
-            if (memcmp(&currentAttributes, &previousAttributes, sizeof(WIN32_FILE_ATTRIBUTE_DATA)) != 0) {
+            if (firstTime) {
+                previousAttributes = currentAttributes;
+                firstTime = false;
+            }
+
+            if (memcmp(&currentAttributes.ftLastWriteTime, &previousAttributes.ftLastWriteTime, sizeof(FILETIME)) != 0) {
                 callback();
 
                 previousAttributes = currentAttributes;
