@@ -3,6 +3,7 @@
 #include <wolv/types.hpp>
 #include <wolv/io/fs.hpp>
 
+#include <atomic>
 #include <cstdio>
 #include <optional>
 #include <string>
@@ -98,8 +99,6 @@ namespace wolv::io {
         mutable size_t m_fileSize = 0;
     };
 
-#if __cpp_lib_jthread >= 201911L
-
     class ChangeTracker {
     public:
         ChangeTracker() = default;
@@ -119,13 +118,12 @@ namespace wolv::io {
         void stopTracking();
 
     private:
-        static void trackImpl(const std::stop_token &stopToken, const std::fs::path &path, const std::function<void()> &callback);
+        static void trackImpl(const bool &stopped, const std::fs::path &path, const std::function<void()> &callback);
 
     private:
+        bool m_stopped = false;
         std::fs::path m_path;
-        std::jthread m_thread;
+        std::thread m_thread;
     };
-
-#endif
 
 }

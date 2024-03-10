@@ -181,10 +181,8 @@ namespace wolv::io {
     }
 
 
-#if __cpp_lib_jthread >= 201911L
-
     #if defined(OS_MACOS)
-        void ChangeTracker::trackImpl(const std::stop_token &stopToken, const std::fs::path &path, const std::function<void()> &callback) {
+        void ChangeTracker::trackImpl(const bool &stopped, const std::fs::path &path, const std::function<void()> &callback) {
             int queue = kqueue();
             if (queue == -1)
                 throw std::runtime_error("Failed to open kqueue");
@@ -203,7 +201,7 @@ namespace wolv::io {
                 throw std::runtime_error("Failed to add event to kqueue");
 
             const timespec timeout = { 1, 0 };
-            while (!stopToken.stop_requested()) {
+            while (!stopped) {
                 struct kevent eventList[1];
                 int eventCount = kevent(queue, nullptr, 0, eventList, 1, &timeout);
                 if (eventCount == -1)
@@ -254,7 +252,5 @@ namespace wolv::io {
     #else
         void ChangeTracker::trackImpl(const std::stop_token &, const std::fs::path &, const std::function<void()> &) {}
     #endif
-
-#endif
 
 }

@@ -121,24 +121,20 @@ namespace wolv::io {
         return writeBufferAtomic(address, reinterpret_cast<const u8*>(string.data()), string.size());
     }
 
-    #if __cpp_lib_jthread >= 201911L
+    void ChangeTracker::startTracking(const std::function<void()> &callback) {
+        if (this->m_path.empty())
+            return;
 
-        void ChangeTracker::startTracking(const std::function<void()> &callback) {
-            if (this->m_path.empty())
-                return;
+        this->m_thread = std::thread([this, callback]() {
+            trackImpl(this->m_stopped, this->m_path, callback);
+        });
+    }
 
-            this->m_thread = std::jthread([this, callback](const std::stop_token &stopToken) {
-                trackImpl(stopToken, this->m_path, callback);
-            });
-        }
+    void ChangeTracker::stopTracking() {
+        this->m_stopped = true;
 
-        void ChangeTracker::stopTracking() {
-            this->m_thread.request_stop();
-
-            if (this->m_thread.joinable())
-                this->m_thread.join();
-        }
-
-    #endif
+        if (this->m_thread.joinable())
+            this->m_thread.join();
+    }
 
 }

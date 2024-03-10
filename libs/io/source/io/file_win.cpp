@@ -224,13 +224,11 @@ namespace wolv::io {
     }
 
 
-#if __cpp_lib_jthread >= 201911L
-
-    void ChangeTracker::trackImpl(const std::stop_token &stopToken, const std::fs::path &path, const std::function<void()> &callback) {
+    void ChangeTracker::trackImpl(const bool &stopped, const std::fs::path &path, const std::function<void()> &callback) {
         bool firstTime = true;
         WIN32_FILE_ATTRIBUTE_DATA previousAttributes = {};
 
-        while (!stopToken.stop_requested()) {
+        while (!stopped) {
             WIN32_FILE_ATTRIBUTE_DATA currentAttributes;
             if (GetFileAttributesExW(path.c_str(), GetFileExInfoStandard, &currentAttributes) == FALSE) {
                 callback();
@@ -252,7 +250,5 @@ namespace wolv::io {
         }
 
     }
-
-#endif
 
 }
