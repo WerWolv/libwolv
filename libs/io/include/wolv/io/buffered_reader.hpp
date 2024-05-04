@@ -52,7 +52,7 @@ namespace wolv::io {
         }
 
         void read(u64 address, u8 *buffer, size_t size) {
-            if (size <= this->m_buffer.size()) {
+            if (size > this->m_buffer.size()) {
                 Reader(this->m_userData, buffer, address, size);
                 return;
             }
@@ -65,7 +65,7 @@ namespace wolv::io {
         }
 
         void readReverse(u64 address, u8 *buffer, size_t size) {
-            if (size <= this->m_buffer.size()) {
+            if (size > this->m_buffer.size()) {
                 Reader(this->m_userData, buffer, address, size);
                 return;
             }
