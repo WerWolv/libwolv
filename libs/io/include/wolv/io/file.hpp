@@ -9,6 +9,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <functional>
 
 #include <sys/stat.h>
 
