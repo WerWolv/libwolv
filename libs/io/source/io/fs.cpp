@@ -78,6 +78,15 @@ namespace wolv::io::fs {
         #endif
     }
 
+    std::string toNormalizedPathString(const std::fs::path &path) {
+        auto fixedPath = util::toUTF8String(path);
+        #if defined(OS_WINDOWS)
+            std::replace(fixedPath.begin(), fixedPath.end(), '\\', '/');
+        #endif
+
+        return fixedPath;
+    }
+
     #if defined(OS_MACOS)
 
         std::fs::path getApplicationSupportDirectoryPath() {
