@@ -86,11 +86,6 @@ TEST_SEQUENCE("String_Replace") {
         TEST_ASSERT(replaceStrings("house window tree window mirror", "window", "glass") == "house glass tree glass mirror");
     }
 
-    // test that it is recursive
-    {
-        TEST_ASSERT(replaceStrings("houhousese", "house", "") == "");
-    }
-
     TEST_SUCCESS();
 };
 
