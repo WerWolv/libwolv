@@ -70,7 +70,7 @@ jobs:
       # Generate report from all gcov .gcda files
       - name: 🧪 Generate coverage report
         run: |
-          apt install -y gcovr
+          sudo apt install -y gcovr
           gcovr --gcov-executable /usr/bin/gcov-12 -r . build --xml coverage_report.xml --verbose
 
       - name: Upload coverage reports to Codecov
