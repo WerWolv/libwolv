@@ -55,7 +55,7 @@ jobs:
 
       - name: 🛠️ Build
         run: |
-          cmake -DLIBWOLV_ENABLE_TESTS=ON -B build
+          cmake -DLIBWOLV_ENABLE_TESTS=ON -DCMAKE_C_FLAGS="--coverage" -DCMAKE_CXX_FLAGS="--coverage" -B build
           cmake --build build -j 4
 
       - name: 🛠️ Build tests
