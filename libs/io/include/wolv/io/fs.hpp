@@ -75,6 +75,9 @@ namespace wolv::io::fs {
 
     #if defined(OS_MACOS)
 
+    std::fs::path getMainBundleResourcesDirectoryPath();
+    std::fs::path getMainBundleBuiltInPlugInsDirectoryPath();
+
     std::fs::path getApplicationSupportDirectoryPath();
 
     #endif

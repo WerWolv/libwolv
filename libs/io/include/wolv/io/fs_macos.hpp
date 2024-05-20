@@ -2,9 +2,15 @@
 
 #if defined(OS_MACOS)
 
-    extern "C" char * getMacExecutableDirectoryPath();
-    extern "C" char * getMacApplicationSupportDirectoryPath();
+    extern "C" {
+        char* getMacExecutableDirectoryPath();
+    
+        char* getMacMainBundleResourcesDirectoryPath();
+        char* getMacMainBundleBuiltInPlugInsDirectoryPath();
 
-    extern "C" void macFree(void *ptr);
+        char* getMacApplicationSupportDirectoryPath();
+
+        void macFree(void* ptr);
+    }
 
 #endif
