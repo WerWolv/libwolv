@@ -10,6 +10,7 @@ set(AVAILABLE_TESTS
     FileStringOps
     FileClone
     FileAtomicStringOps
+    FileAtomicVectorOps
 
     BufferedReader
 )

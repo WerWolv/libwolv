@@ -142,3 +142,16 @@ TEST_SEQUENCE("FileAtomicStringOps") {
 
     TEST_SUCCESS();
 };
+TEST_SEQUENCE("FileAtomicVectorOps") {
+    {
+        wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
+        file.writeVectorAtomic(0, {'a', 'b', 'c'});
+    }
+
+    {
+        wolv::io::File file(FilePath, wolv::io::File::Mode::Read);
+        TEST_ASSERT(file.readVectorAtomic(0, 3) == std::vector<u8>({ 'a', 'b', 'c' }));
+    }
+
+    TEST_SUCCESS();
+};
