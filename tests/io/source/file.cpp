@@ -1,6 +1,8 @@
 #include <wolv/test/tests.hpp>
 
 #include <wolv/io/file.hpp>
+#include <fmt/core.h>
+#include <iostream>
 
 using namespace std::literals::string_literals;
 
@@ -24,6 +26,11 @@ TEST_SEQUENCE("FileAccess") {
         TEST_ASSERT(file.isValid());
 
         TEST_ASSERT(file.readString() == FileContent);
+
+        file.seek(0);
+        auto u8str = file.readU8String();
+        auto str = std::string(u8str.begin(), u8str.end());
+        TEST_ASSERT(str == FileContent);
     }
 
     // remove file
