@@ -2,8 +2,6 @@
 #include <wolv/types.hpp>
 
 #include <wolv/io/file.hpp>
-#include <fmt/core.h>
-#include <iostream>
 
 using namespace std::literals::string_literals;
 using namespace wolv::unsigned_integers;
