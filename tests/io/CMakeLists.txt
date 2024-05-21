@@ -7,6 +7,7 @@ set(TEST_CATEGORY IO)
 set(AVAILABLE_TESTS
     BasicFileAccess
     FileClone
+    FileVectorOps
     FileReadString
     BufferedReader
 )

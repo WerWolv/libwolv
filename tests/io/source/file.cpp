@@ -1,10 +1,12 @@
 #include <wolv/test/tests.hpp>
+#include <wolv/types.hpp>
 
 #include <wolv/io/file.hpp>
 #include <fmt/core.h>
 #include <iostream>
 
 using namespace std::literals::string_literals;
+using namespace wolv::unsigned_integers;
 
 const auto FilePath    = std::fs::current_path() / "file.txt";
 const auto FileContent = "Hello World";
@@ -71,6 +73,20 @@ TEST_SEQUENCE("FileClone") {
     TEST_SUCCESS();
 };
 
+
+TEST_SEQUENCE("FileVectorOps") {
+    {
+        wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
+        file.writeVector({ 'a', 'b', 'c' });
+    }
+
+    {
+        wolv::io::File file(FilePath, wolv::io::File::Mode::Read);
+        TEST_ASSERT(file.readVector() == std::vector<u8>({ 'a', 'b', 'c' }));
+    }
+
+    TEST_SUCCESS();
+};
 
 TEST_SEQUENCE("FileReadString") {
     writeTestFile();
