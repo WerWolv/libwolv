@@ -11,6 +11,7 @@ set(AVAILABLE_TESTS
     FileClone
     FileAtomicStringOps
     FileAtomicVectorOps
+    FileSize
 
     BufferedReader
 )

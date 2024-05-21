@@ -142,6 +142,7 @@ TEST_SEQUENCE("FileAtomicStringOps") {
 
     TEST_SUCCESS();
 };
+
 TEST_SEQUENCE("FileAtomicVectorOps") {
     {
         wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
@@ -153,5 +154,20 @@ TEST_SEQUENCE("FileAtomicVectorOps") {
         TEST_ASSERT(file.readVectorAtomic(0, 3) == std::vector<u8>({ 'a', 'b', 'c' }));
     }
 
+    TEST_SUCCESS();
+};
+
+TEST_SEQUENCE("FileSize") {
+    {
+        wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
+        TEST_ASSERT(file.getSize() == 0);
+        file.writeVector({'a', 'b', 'c'});
+        TEST_ASSERT(file.getSize() == 3);
+    }
+    
+    {
+        wolv::io::File file(FilePath, wolv::io::File::Mode::Read);
+        TEST_ASSERT(file.getSize() == 3);
+    }
     TEST_SUCCESS();
 };
