@@ -48,6 +48,45 @@ TEST_SEQUENCE("BasicFileAccess") {
     TEST_SUCCESS();
 };
 
+TEST_SEQUENCE("FileVectorOps") {
+    {
+        wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
+        file.writeVector({ 'a', 'b', 'c' });
+    }
+
+    {
+        wolv::io::File file(FilePath, wolv::io::File::Mode::Read);
+        TEST_ASSERT(file.readVector() == std::vector<u8>({ 'a', 'b', 'c' }));
+    }
+
+    TEST_SUCCESS();
+};
+
+TEST_SEQUENCE("FileStringOps") {
+    {
+        wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
+        file.writeString(FileContent);
+    }
+
+     // read file using readString methods
+    wolv::io::File file(FilePath, wolv::io::File::Mode::Read);
+    TEST_ASSERT(file.isValid());
+
+    TEST_ASSERT(file.readString() == FileContent);
+
+    file.seek(0);
+    auto u8str = file.readU8String();
+    auto str = std::string(u8str.begin(), u8str.end());
+    TEST_ASSERT(str == FileContent);
+
+    // check readString operations again now that the file is at the end
+    TEST_ASSERT(file.readString() == "");
+    TEST_ASSERT(file.readU8String() == std::u8string());
+
+    TEST_SUCCESS();
+};
+
+// helper method to create a file.
 void writeTestFile() {
     wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
     file.writeString(FileContent);
@@ -73,38 +112,3 @@ TEST_SEQUENCE("FileClone") {
     TEST_SUCCESS();
 };
 
-
-TEST_SEQUENCE("FileVectorOps") {
-    {
-        wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
-        file.writeVector({ 'a', 'b', 'c' });
-    }
-
-    {
-        wolv::io::File file(FilePath, wolv::io::File::Mode::Read);
-        TEST_ASSERT(file.readVector() == std::vector<u8>({ 'a', 'b', 'c' }));
-    }
-
-    TEST_SUCCESS();
-};
-
-TEST_SEQUENCE("FileReadString") {
-    writeTestFile();
-
-     // read file using readString methods
-    wolv::io::File file(FilePath, wolv::io::File::Mode::Read);
-    TEST_ASSERT(file.isValid());
-
-    TEST_ASSERT(file.readString() == FileContent);
-
-    file.seek(0);
-    auto u8str = file.readU8String();
-    auto str = std::string(u8str.begin(), u8str.end());
-    TEST_ASSERT(str == FileContent);
-
-    // check readString operations again now that the file is at the end
-    TEST_ASSERT(file.readString() == "");
-    TEST_ASSERT(file.readU8String() == std::u8string());
-
-    TEST_SUCCESS();
-};
