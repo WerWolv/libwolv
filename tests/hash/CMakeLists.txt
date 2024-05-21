@@ -7,6 +7,7 @@ set(TEST_CATEGORY HASH)
 set(AVAILABLE_TESTS
     UUID
     CRC
+    CRC_Reflect
 )
 
 add_executable(${PROJECT_NAME}
