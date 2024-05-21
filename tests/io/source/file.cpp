@@ -112,3 +112,18 @@ TEST_SEQUENCE("FileClone") {
     TEST_SUCCESS();
 };
 
+TEST_SEQUENCE("FileAtomicStringOps") {
+    {
+        wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
+        file.writeStringAtomic(0, "Hello");
+        file.writeU8StringAtomic(5, u8" World");
+    }
+
+    {
+        wolv::io::File file(FilePath, wolv::io::File::Mode::Read);
+        TEST_ASSERT(file.readStringAtomic(0, 5) == "Hello");
+        TEST_ASSERT(file.readStringAtomic(5, 6) == " World");
+    }
+
+    TEST_SUCCESS();
+};
