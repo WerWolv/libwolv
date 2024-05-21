@@ -133,7 +133,7 @@ TEST_SEQUENCE("FileAtomicStringOps") {
     {
         wolv::io::File file(FilePath, wolv::io::File::Mode::Read);
         TEST_ASSERT(file.readStringAtomic(0, 5) == "Hello");
-        TEST_ASSERT(file.readStringAtomic(5, 6) == " World");
+        TEST_ASSERT(file.readU8StringAtomic(5, 6) == u8" World");
     }
 
     TEST_SUCCESS();
