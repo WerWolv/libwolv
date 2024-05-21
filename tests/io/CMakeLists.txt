@@ -13,11 +13,16 @@ set(AVAILABLE_TESTS
     FileAtomicVectorOps
     FileSize
 
+    FileMove
+    FileHandle
+    FileInfo
+
     BufferedReader
 )
 
 add_executable(${PROJECT_NAME}
         source/file.cpp
+        source/file_impl.cpp
         source/buffered_reader.cpp
 )
 
