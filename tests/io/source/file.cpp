@@ -134,6 +134,10 @@ TEST_SEQUENCE("FileAtomicStringOps") {
         wolv::io::File file(FilePath, wolv::io::File::Mode::Read);
         TEST_ASSERT(file.readStringAtomic(0, 5) == "Hello");
         TEST_ASSERT(file.readU8StringAtomic(5, 6) == u8" World");
+
+        // check invalid addresses
+        TEST_ASSERT(file.readStringAtomic(100, 105) == "");
+        TEST_ASSERT(file.readU8StringAtomic(100, 105) == u8"");
     }
 
     TEST_SUCCESS();
