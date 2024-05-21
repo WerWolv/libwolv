@@ -15,6 +15,7 @@ set(AVAILABLE_TESTS
 
     FileMove
     FileHandle
+    FileInfo
 
     BufferedReader
 )

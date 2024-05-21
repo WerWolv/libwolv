@@ -45,3 +45,14 @@ TEST_SEQUENCE("FileHandle") {
 
     TEST_SUCCESS();
 };
+
+TEST_SEQUENCE("FileInfo") {
+    wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
+    TEST_ASSERT(file.isValid());
+    file.writeString(FileContent);
+
+    auto infos = *file.getFileInfo();
+    TEST_ASSERT(infos.st_size == 11);
+
+    TEST_SUCCESS();
+};
