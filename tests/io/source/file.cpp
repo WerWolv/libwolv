@@ -51,6 +51,27 @@ void writeTestFile() {
     file.writeString(FileContent);
 }
 
+TEST_SEQUENCE("FileClone") {
+    writeTestFile();
+
+     // read file using readString methods
+    wolv::io::File file(FilePath, wolv::io::File::Mode::Read);
+    TEST_ASSERT(file.isValid());
+    TEST_ASSERT(file.readString() == FileContent);
+
+    auto file2 = file.clone();
+    TEST_ASSERT(file2.isValid());
+    TEST_ASSERT(file2.readString() == FileContent);
+
+    // check if old file is still valid
+    file.seek(0);
+    TEST_ASSERT(file.isValid());
+    TEST_ASSERT(file.readString() == FileContent);
+
+    TEST_SUCCESS();
+};
+
+
 TEST_SEQUENCE("FileReadString") {
     writeTestFile();
 

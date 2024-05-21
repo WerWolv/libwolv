@@ -6,6 +6,7 @@ set(TEST_CATEGORY IO)
 # Add new tests here #
 set(AVAILABLE_TESTS
     BasicFileAccess
+    FileClone
     FileReadString
     BufferedReader
 )
