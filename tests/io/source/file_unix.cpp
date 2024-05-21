@@ -3,6 +3,7 @@
 #include <wolv/test/tests.hpp>
 #include <wolv/types.hpp>
 #include <wolv/io/file.hpp>
+#include <iostream>
 
 using namespace std::literals::string_literals;
 using namespace wolv::unsigned_integers;
@@ -52,6 +53,7 @@ TEST_SEQUENCE("FileInfo") {
     file.writeString(FileContent);
 
     auto infos = *file.getFileInfo();
+    std::cout << "SIZE=" << infos.st_size << std::endl;
     TEST_ASSERT(infos.st_size == 11);
 
     TEST_SUCCESS();
