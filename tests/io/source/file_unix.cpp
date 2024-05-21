@@ -51,6 +51,7 @@ TEST_SEQUENCE("FileInfo") {
     wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
     TEST_ASSERT(file.isValid());
     file.writeString(FileContent);
+    file.flush();
 
     auto infos = *file.getFileInfo();
     std::cout << "SIZE=" << infos.st_size << std::endl;
