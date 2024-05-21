@@ -6,10 +6,10 @@
 
 using namespace std::literals::string_literals;
 
-TEST_SEQUENCE("FileAccess") {
-    const auto FilePath    = std::fs::current_path() / "file.txt";
-    const auto FileContent = "Hello World";
+const auto FilePath    = std::fs::current_path() / "file.txt";
+const auto FileContent = "Hello World";
 
+TEST_SEQUENCE("FileAccess") {
     std::fs::create_directories(FilePath.parent_path());
 
     // create and write to file
