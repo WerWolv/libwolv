@@ -12,6 +12,10 @@ const auto FilePath    = std::fs::current_path() / "file.txt";
 const auto FileContent = "Hello World";
 
 TEST_SEQUENCE("BasicFileAccess") {
+    // ensure file doesn't already exist
+    if (std::fs::exists(FilePath))
+        std::fs::remove(FilePath);
+
     // create and write to file
     {
         wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
@@ -19,6 +23,10 @@ TEST_SEQUENCE("BasicFileAccess") {
 
         file.writeString(FileContent);
     }
+
+    // ensure file was created
+    if (!std::fs::exists(FilePath)) 
+        throw std::runtime_error("File doesn't exist");
 
     // read file
     {
@@ -37,6 +45,10 @@ TEST_SEQUENCE("BasicFileAccess") {
         file.remove();
         TEST_ASSERT(!file.isValid());
     }
+
+    // ensure file was deleted
+    if (std::fs::exists(FilePath)) 
+        throw std::runtime_error("File wasn't deleted");
 
     // try to read it again
     {
