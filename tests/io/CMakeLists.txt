@@ -14,6 +14,7 @@ set(AVAILABLE_TESTS
     FileSize
 
     FileMove
+    FileHandle
 
     BufferedReader
 )
