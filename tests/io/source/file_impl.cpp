@@ -1,4 +1,4 @@
-// We are still testing wolv::io::File, but in this file we target code coverage for file_unix.cpp in particular
+// We are still testing wolv::io::File, but in this file we target code coverage for file_unix.cpp and file_win.cpp in particular
 
 #include <wolv/test/tests.hpp>
 #include <wolv/types.hpp>

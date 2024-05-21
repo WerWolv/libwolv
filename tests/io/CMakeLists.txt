@@ -22,7 +22,7 @@ set(AVAILABLE_TESTS
 
 add_executable(${PROJECT_NAME}
         source/file.cpp
-        source/file_unix.cpp
+        source/file_impl.cpp
         source/buffered_reader.cpp
 )
 
