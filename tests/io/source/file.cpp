@@ -20,7 +20,7 @@ TEST_SEQUENCE("FileAccess") {
         file.writeString(FileContent);
     }
 
-    // read file
+    // read file using readString methods
     {
         wolv::io::File file(FilePath, wolv::io::File::Mode::Read);
         TEST_ASSERT(file.isValid());
@@ -31,6 +31,10 @@ TEST_SEQUENCE("FileAccess") {
         auto u8str = file.readU8String();
         auto str = std::string(u8str.begin(), u8str.end());
         TEST_ASSERT(str == FileContent);
+
+        // check readString operations again now that the file is at the end
+        TEST_ASSERT(file.readString() == "");
+        TEST_ASSERT(file.readU8String() == std::u8string());
     }
 
     // remove file
