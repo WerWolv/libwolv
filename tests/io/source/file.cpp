@@ -77,19 +77,18 @@ TEST_SEQUENCE("FileVectorOps") {
 TEST_SEQUENCE("FileStringOps") {
     {
         wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
-        file.writeString(FileContent);
+        file.writeString("Hello");
+        file.writeU8String(u8" world");
     }
 
      // read file using readString methods
     wolv::io::File file(FilePath, wolv::io::File::Mode::Read);
     TEST_ASSERT(file.isValid());
 
-    TEST_ASSERT(file.readString() == FileContent);
+    TEST_ASSERT(file.readString() == "Hello world");
 
     file.seek(0);
-    auto u8str = file.readU8String();
-    auto str = std::string(u8str.begin(), u8str.end());
-    TEST_ASSERT(str == FileContent);
+    TEST_ASSERT(file.readU8String() == u8"Hello world");
 
     // check readString operations again now that the file is at the end
     TEST_ASSERT(file.readString() == "");
