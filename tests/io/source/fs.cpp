@@ -10,7 +10,7 @@ const auto FileContent = "Hello World";
 
 TEST_SEQUENCE("FsGetExecPath") {
     // check there is a path
-    std::string path = wolv::io::fs::getExecutablePath().value();
+    auto path = wolv::io::fs::getExecutablePath().value();
     TEST_ASSERT(!path.empty());
     TEST_SUCCESS();
 };
