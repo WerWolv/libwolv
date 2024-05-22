@@ -17,6 +17,7 @@ set(AVAILABLE_TESTS
     FileHandle
     FileInfo
 
+    EmptyFileTracker
     FileTracker
 
     BufferedReader
