@@ -71,7 +71,7 @@ namespace wolv::io {
         [[nodiscard]] size_t getSize() const;
         void setSize(u64 size);
 
-        void flush();
+        bool flush();
         bool remove();
 
         [[nodiscard]] FILE* getHandle() const;

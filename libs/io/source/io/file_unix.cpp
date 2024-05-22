@@ -150,8 +150,9 @@ namespace wolv::io {
         m_sizeValid = true;
     }
 
-    void File::flush() {
-
+    bool File::flush() {
+        return fsync(m_handle) == 0;
+        // TODO handle error message
     }
 
     void File::disableBuffering() {
