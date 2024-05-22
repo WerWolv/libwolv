@@ -27,12 +27,12 @@ TEST_SEQUENCE("FileTracker") {
         hasChanged = true;
     });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     file.writeString("hello");
     file.close();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     TEST_ASSERT(hasChanged);
     TEST_SUCCESS();
@@ -52,12 +52,12 @@ TEST_SEQUENCE("CloneFileTracker") {
         hasChanged = true;
     });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     file.writeString("hello");
     file.close();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     TEST_ASSERT(hasChanged);
     TEST_SUCCESS();
