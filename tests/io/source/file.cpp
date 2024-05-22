@@ -160,6 +160,7 @@ TEST_SEQUENCE("FileSize") {
         wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
         TEST_ASSERT(file.getSize() == 0);
         file.writeVector({'a', 'b', 'c'});
+        file.flush();
         TEST_ASSERT(file.getSize() == 3);
     }
     
