@@ -3,12 +3,11 @@
 #include <wolv/test/tests.hpp>
 #include <wolv/types.hpp>
 #include <wolv/io/file.hpp>
+#include <helper.hpp>
 
 using namespace std::literals::string_literals;
 using namespace wolv::unsigned_integers;
 
-const auto FilePath    = std::fs::current_path() / "file.txt";
-const auto FileContent = "Hello World";
 
 TEST_SEQUENCE("EmptyFileTracker") {
     wolv::io::File file;
@@ -18,7 +17,10 @@ TEST_SEQUENCE("EmptyFileTracker") {
 };
 
 TEST_SEQUENCE("FileTracker") {
-    wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
+    auto filePath = std::fs::current_path() / randomFilename(); \
+    ON_SCOPE_EXIT { std::fs::remove(filePath); };
+
+    wolv::io::File file(filePath, wolv::io::File::Mode::Create);
     TEST_ASSERT(file.isValid());
 
     auto changeTracker = wolv::io::ChangeTracker(file);
@@ -40,7 +42,10 @@ TEST_SEQUENCE("FileTracker") {
 };
 
 TEST_SEQUENCE("CloneFileTracker") {
-    wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
+    auto filePath = std::fs::current_path() / randomFilename(); \
+    ON_SCOPE_EXIT { std::fs::remove(filePath); };
+
+    wolv::io::File file(filePath, wolv::io::File::Mode::Create);
     TEST_ASSERT(file.isValid());
 
     auto changeTracker = wolv::io::ChangeTracker(file);

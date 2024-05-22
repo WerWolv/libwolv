@@ -5,9 +5,6 @@
 using namespace std::literals::string_literals;
 using namespace wolv::unsigned_integers;
 
-const auto FilePath    = std::fs::current_path() / "file.txt";
-const auto FileContent = "Hello World";
-
 TEST_SEQUENCE("FsGetExecPath") {
     // check there is a path
     auto path = wolv::io::fs::getExecutablePath().value();

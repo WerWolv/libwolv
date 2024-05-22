@@ -4,14 +4,16 @@
 #include <wolv/types.hpp>
 #include <wolv/io/file.hpp>
 
+#include <helper.hpp>
+
 using namespace std::literals::string_literals;
 using namespace wolv::unsigned_integers;
 
-const auto FilePath    = std::fs::current_path() / "file.txt";
-const auto FileContent = "Hello World";
-
 TEST_SEQUENCE("FileMove") {
-    wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
+    auto filePath = std::fs::current_path() / randomFilename(); \
+    ON_SCOPE_EXIT { std::fs::remove(filePath); };
+
+    wolv::io::File file(filePath, wolv::io::File::Mode::Create);
     TEST_ASSERT(file.isValid());
 
     wolv::io::File file2(std::move(file));
@@ -25,13 +27,16 @@ TEST_SEQUENCE("FileMove") {
 };
 
 TEST_SEQUENCE("FileHandle") {
+    auto filePath = std::fs::current_path() / randomFilename(); \
+    ON_SCOPE_EXIT { std::fs::remove(filePath); };
+
     {
-        wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
+        wolv::io::File file(filePath, wolv::io::File::Mode::Create);
         TEST_ASSERT(file.isValid());
         file.writeString(FileContent);
     }
 
-    wolv::io::File file(FilePath, wolv::io::File::Mode::Read);
+    wolv::io::File file(filePath, wolv::io::File::Mode::Read);
     auto f = file.getHandle();
 
     char buffer[256];
@@ -47,7 +52,10 @@ TEST_SEQUENCE("FileHandle") {
 };
 
 TEST_SEQUENCE("FileInfo") {
-    wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
+    auto filePath = std::fs::current_path() / randomFilename(); \
+    ON_SCOPE_EXIT { std::fs::remove(filePath); };
+
+    wolv::io::File file(filePath, wolv::io::File::Mode::Create);
     TEST_ASSERT(file.isValid());
     file.writeString(FileContent);
     TEST_ASSERT(file.flush());
