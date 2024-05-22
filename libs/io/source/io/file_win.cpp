@@ -188,7 +188,7 @@ namespace wolv::io {
     }
 
     bool File::flush() {
-        if (!isValid()) return;
+        if (!isValid()) return false;
 
         ::FlushFileBuffers(m_handle);
         return true;
