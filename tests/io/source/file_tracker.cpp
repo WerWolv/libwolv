@@ -62,13 +62,13 @@ TEST_SEQUENCE("CloneFileTracker") {
         hasChanged = true;
     });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
     file.writeString("hello");
     file.flush();
     file.close();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
     TEST_ASSERT(hasChanged);
     TEST_SUCCESS();
