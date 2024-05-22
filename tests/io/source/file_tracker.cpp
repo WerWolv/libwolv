@@ -65,6 +65,7 @@ TEST_SEQUENCE("CloneFileTracker") {
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     file.writeString("hello");
+    file.flush();
     file.close();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
