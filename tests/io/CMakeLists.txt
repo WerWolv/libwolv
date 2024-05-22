@@ -17,12 +17,15 @@ set(AVAILABLE_TESTS
     FileHandle
     FileInfo
 
+    FileTracker
+
     BufferedReader
 )
 
 add_executable(${PROJECT_NAME}
         source/file.cpp
         source/file_impl.cpp
+        source/file_tracker.cpp
         source/buffered_reader.cpp
 )
 
