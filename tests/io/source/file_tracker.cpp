@@ -3,7 +3,6 @@
 #include <wolv/test/tests.hpp>
 #include <wolv/types.hpp>
 #include <wolv/io/file.hpp>
-#include <iostream>
 
 using namespace std::literals::string_literals;
 using namespace wolv::unsigned_integers;
@@ -25,7 +24,6 @@ TEST_SEQUENCE("FileTracker") {
     
     bool hasChanged = false;
     changeTracker.startTracking([&hasChanged]{
-        std::cerr << "File has changed" << std::endl;
         hasChanged = true;
     });
 
@@ -51,7 +49,6 @@ TEST_SEQUENCE("CloneFileTracker") {
     
     bool hasChanged = false;
     changeTracker3.startTracking([&hasChanged]{
-        std::cerr << "File has changed" << std::endl;
         hasChanged = true;
     });
 
