@@ -19,6 +19,7 @@ set(AVAILABLE_TESTS
 
     EmptyFileTracker
     FileTracker
+    CloneFileTracker
 
     BufferedReader
 )

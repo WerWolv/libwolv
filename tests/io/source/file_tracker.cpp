@@ -39,3 +39,29 @@ TEST_SEQUENCE("FileTracker") {
     TEST_ASSERT(hasChanged);
     TEST_SUCCESS();
 };
+
+TEST_SEQUENCE("CloneFileTracker") {
+    wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
+    TEST_ASSERT(file.isValid());
+
+    auto changeTracker = wolv::io::ChangeTracker(file);
+    auto changeTracker2 = std::move(changeTracker);
+    wolv::io::ChangeTracker changeTracker3;
+    changeTracker3 = std::move(changeTracker2);
+    
+    bool hasChanged = false;
+    changeTracker3.startTracking([&hasChanged]{
+        std::cerr << "File has changed" << std::endl;
+        hasChanged = true;
+    });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+    file.writeString("hello");
+    file.close();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+    TEST_ASSERT(hasChanged);
+    TEST_SUCCESS();
+};
