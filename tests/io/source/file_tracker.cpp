@@ -13,6 +13,7 @@ const auto FileContent = "Hello World";
 TEST_SEQUENCE("EmptyFileTracker") {
     wolv::io::File file;
     auto changeTracker = wolv::io::ChangeTracker(file);
+    changeTracker.startTracking([]{});
     TEST_SUCCESS();
 };
 
