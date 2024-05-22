@@ -33,12 +33,14 @@ TEST_SEQUENCE("FileTracker") {
         hasChanged = true;
     });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    // sleep for a bit to let the change tracker start
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     file.writeString("hello");
     file.close();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    // sleep 1s because tracker on Windows checks every second
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     TEST_ASSERT(hasChanged);
     TEST_SUCCESS();
@@ -62,13 +64,15 @@ TEST_SEQUENCE("CloneFileTracker") {
         hasChanged = true;
     });
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    // see test above
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     file.writeString("hello");
     file.flush();
     file.close();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    // see test above
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     TEST_ASSERT(hasChanged);
     TEST_SUCCESS();
