@@ -50,7 +50,7 @@ TEST_SEQUENCE("FileInfo") {
     wolv::io::File file(FilePath, wolv::io::File::Mode::Create);
     TEST_ASSERT(file.isValid());
     file.writeString(FileContent);
-    file.flush(); // for windows
+    TEST_ASSERT(file.flush());
 
     auto infos = *file.getFileInfo();
     TEST_ASSERT(infos.st_size == 11);

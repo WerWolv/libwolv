@@ -187,10 +187,11 @@ namespace wolv::io {
         m_sizeValid = true;
     }
 
-    void File::flush() {
+    bool File::flush() {
         if (!isValid()) return;
 
         ::FlushFileBuffers(m_handle);
+        return true;
     }
 
     void File::disableBuffering() {
