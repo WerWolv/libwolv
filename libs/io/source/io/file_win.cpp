@@ -53,7 +53,7 @@ namespace wolv::io {
     void File::open() {
         if (m_mode == File::Mode::Read)
             m_handle = ::CreateFileW(m_path.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-        else if (m_mode == File::Mode::Write || m_mode == File::Mode::Create)
+        else if (m_mode == File::Mode::Write)
             m_handle = ::CreateFileW(m_path.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
         if (m_mode == File::Mode::Create || (m_mode == File::Mode::Write && this->m_handle == INVALID_HANDLE_VALUE))
