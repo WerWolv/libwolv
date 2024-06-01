@@ -6,7 +6,7 @@
 
     char* getMacExecutableDirectoryPath(void) {
         @autoreleasepool {
-            const char *pathString = [[[[[NSBundle mainBundle] executableURL] URLByDeletingLastPathComponent] path] UTF8String];
+            const char *pathString = [[[[[[NSBundle mainBundle] executableURL] URLByResolvingSymlinksInPath] URLByDeletingLastPathComponent] path] UTF8String];
 
             char *result = malloc(strlen(pathString) + 1);
             strcpy(result, pathString);
