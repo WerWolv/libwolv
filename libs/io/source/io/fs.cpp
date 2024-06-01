@@ -89,16 +89,24 @@ namespace wolv::io::fs {
 
     #if defined(OS_MACOS)
 
-        std::fs::path getApplicationSupportDirectoryPath() {
-            std::string exePath;
-
-            {
-                auto string = getMacApplicationSupportDirectoryPath();
-                exePath = string;
-                macFree(string);
+        namespace {
+            std::fs::path convertToPath(char* macPath) {
+                std::string path = macPath;
+                macFree(macPath);
+                return util::trim(path);
             }
+        }
 
-            return util::trim(exePath);
+        std::fs::path getMainBundleResourcesDirectoryPath() {
+            return convertToPath(getMacMainBundleResourcesDirectoryPath());
+        }
+
+        std::fs::path getMainBundleBuiltInPlugInsDirectoryPath() {
+            return convertToPath(getMacMainBundleBuiltInPlugInsDirectoryPath());
+        }
+
+        std::fs::path getApplicationSupportDirectoryPath() {
+            return convertToPath(getMacApplicationSupportDirectoryPath());
         }
 
     #endif
