@@ -58,7 +58,8 @@ namespace wolv::io {
                 return;
             }
 
-            this->updateBuffer(address, size);
+            if (this->updateBuffer(address, size, false) == 0)
+                return;
             
             auto result = &this->m_buffer[address -  this->m_bufferAddress];
 
@@ -72,11 +73,12 @@ namespace wolv::io {
                 return;
             }
 
-            this->updateBuffer(address - std::min<u64>(address, this->m_buffer.size()), size);
+            if (this->updateBuffer(address, size, true) == 0)
+                return;
 
             auto result = &this->m_buffer[address - this->m_bufferAddress];
 
-            std::memcpy(buffer, result, std::min(size, this->m_buffer.size()));
+            std::memcpy(buffer, result, std::min(size, this->m_buffer.size() - (address - this->m_bufferAddress)));
         }
 
         class Iterator {
@@ -279,21 +281,42 @@ namespace wolv::io {
         }
 
     private:
-        void updateBuffer(u64 address, size_t size) {
-            if (address > this->m_endAddress)
-                return;
-
+        size_t updateBuffer(u64 address, size_t size, bool reverse) {
             if (!this->m_bufferValid || address < this->m_bufferAddress || address + size > (this->m_bufferAddress + this->m_buffer.size())) {
-                const auto remainingBytes = (this->m_endAddress - address) + 1;
-                if (remainingBytes < this->m_maxBufferSize)
-                    this->m_buffer.resize(remainingBytes);
+                u64 addressStart, addressEndPlus1;
+                if (reverse)
+                {
+                    addressEndPlus1 = address + size;
+                    if (addressEndPlus1 > this->m_endAddress + 1u)
+                        addressEndPlus1 = this->m_endAddress + 1u;
+                    addressStart = addressEndPlus1 - this->m_maxBufferSize;
+                    if (addressEndPlus1 - this->m_startAddress < this->m_maxBufferSize)
+                        addressStart = this->m_startAddress;
+                }
                 else
-                    this->m_buffer.resize(this->m_maxBufferSize);
+                {
+                    addressEndPlus1 = address + this->m_maxBufferSize;
+                    if (addressEndPlus1 > this->m_endAddress + 1u)
+                        addressEndPlus1 = this->m_endAddress + 1u;
+                    addressStart = address;
+                    if (addressStart < this->m_startAddress)
+                        addressStart = this->m_startAddress;
+                }
 
-                Reader(this->m_userData, this->m_buffer.data(), address, this->m_buffer.size());
-                this->m_bufferAddress = address;
-                this->m_bufferValid = true;
+                if (addressStart <= address && address < addressEndPlus1)
+                {
+                    const auto remainingBytes = addressEndPlus1 - addressStart;
+                    this->m_buffer.resize(remainingBytes);
+
+                    Reader(this->m_userData, this->m_buffer.data(), addressStart, remainingBytes);
+                    this->m_bufferAddress = addressStart;
+                    this->m_bufferValid = true;
+                    return remainingBytes;
+                }
+                //Nothing can be read
+                return 0;
             }
+            return size;
         }
 
     private:
