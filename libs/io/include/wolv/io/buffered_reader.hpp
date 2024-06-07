@@ -63,7 +63,7 @@ namespace wolv::io {
             
             auto result = &this->m_buffer[address -  this->m_bufferAddress];
 
-            std::memcpy(buffer, result, std::min(size, this->m_buffer.size()));
+            std::memcpy(buffer, result, std::min<size_t>(size, this->m_buffer.size()));
         }
 
         void readReverse(u64 address, u8 *buffer, size_t size) {
@@ -78,7 +78,7 @@ namespace wolv::io {
 
             auto result = &this->m_buffer[address - this->m_bufferAddress];
 
-            std::memcpy(buffer, result, std::min(size, this->m_buffer.size() - (address - this->m_bufferAddress)));
+            std::memcpy(buffer, result, std::min<size_t>(size, this->m_buffer.size() - (address - this->m_bufferAddress)));
         }
 
         class Iterator {
