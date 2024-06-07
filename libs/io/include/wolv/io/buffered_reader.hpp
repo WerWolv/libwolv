@@ -284,27 +284,23 @@ namespace wolv::io {
         size_t updateBuffer(u64 address, size_t size, bool reverse) {
             if (!this->m_bufferValid || address < this->m_bufferAddress || address + size > (this->m_bufferAddress + this->m_buffer.size())) {
                 u64 addressStart, addressEndPlus1;
-                if (reverse)
-                {
+                if (reverse) {
                     addressEndPlus1 = address + size;
-                    if (addressEndPlus1 > this->m_endAddress + 1u)
-                        addressEndPlus1 = this->m_endAddress + 1u;
+                    if (addressEndPlus1 > this->m_endAddress + 1U)
+                        addressEndPlus1 = this->m_endAddress + 1U;
                     addressStart = addressEndPlus1 - this->m_maxBufferSize;
                     if (addressEndPlus1 - this->m_startAddress < this->m_maxBufferSize)
                         addressStart = this->m_startAddress;
-                }
-                else
-                {
+                } else {
                     addressEndPlus1 = address + this->m_maxBufferSize;
-                    if (addressEndPlus1 > this->m_endAddress + 1u)
-                        addressEndPlus1 = this->m_endAddress + 1u;
+                    if (addressEndPlus1 > this->m_endAddress + 1U)
+                        addressEndPlus1 = this->m_endAddress + 1U;
                     addressStart = address;
                     if (addressStart < this->m_startAddress)
                         addressStart = this->m_startAddress;
                 }
 
-                if (addressStart <= address && address < addressEndPlus1)
-                {
+                if (addressStart <= address && address < addressEndPlus1) {
                     const auto remainingBytes = addressEndPlus1 - addressStart;
                     this->m_buffer.resize(remainingBytes);
 
@@ -313,9 +309,11 @@ namespace wolv::io {
                     this->m_bufferValid = true;
                     return remainingBytes;
                 }
+
                 //Nothing can be read
                 return 0;
             }
+
             return size;
         }
 
