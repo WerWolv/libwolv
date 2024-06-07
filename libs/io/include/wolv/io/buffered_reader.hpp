@@ -154,7 +154,7 @@ namespace wolv::io {
             }
 
             value_type operator[](i64 offset) const {
-                value_type value;
+                value_type value = 0x00;
                 this->m_reader->read(this->m_address + offset, &value, sizeof(value));
 
                 return value;
