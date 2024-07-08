@@ -33,9 +33,11 @@ namespace wolv::net {
 
         [[nodiscard]] std::string readString(size_t size = 0x1000) const;
         [[nodiscard]] std::vector<u8> readBytes(size_t size = 0x1000) const;
+        [[nodiscard]] int readBytes(u8 *buffer, size_t size) const;
 
         void writeString(const std::string &string) const;
         void writeBytes(const std::vector<u8> &bytes) const;
+        void writeBytes(const u8 *buffer, size_t size) const;
 
     private:
         bool m_connected = false;

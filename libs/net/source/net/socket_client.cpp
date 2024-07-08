@@ -30,20 +30,23 @@ namespace wolv::net {
     }
 
     void SocketClient::writeBytes(const std::vector<u8> &bytes) const {
-        if (!this->isConnected()) return;
+        this->writeBytes(bytes.data(), bytes.size());
+    }
 
-        ::send(this->m_socket, reinterpret_cast<const char *>(bytes.data()), bytes.size(), 0);
+    void SocketClient::writeBytes(const u8 *buffer, size_t size) const {
+        if (!this->isConnected()) return;
+        if (size == 0) return;
+
+        ::send(this->m_socket, reinterpret_cast<const char *>(buffer), size, 0);
     }
 
     void SocketClient::writeString(const std::string &string) const {
-        if (!this->isConnected()) return;
-
-        ::send(this->m_socket, string.c_str(), string.length(), 0);
+        this->writeBytes(reinterpret_cast<const u8*>(string.data()), string.size());
     }
 
-    std::vector<u8> SocketClient::readBytes(size_t size) const {
-        std::vector<u8> data;
-        data.resize(size);
+    int SocketClient::readBytes(u8 *buffer, size_t size) const {
+        if (size == 0)
+            return 0;
 
         #if defined(OS_WINDOWS)
             u_long mode = 1;
@@ -52,18 +55,31 @@ namespace wolv::net {
             ::fcntl(this->m_socket, F_SETFL, ::fcntl(this->m_socket, F_GETFL, 0) | O_NONBLOCK);
         #endif
 
-        auto receivedSize = ::recv(this->m_socket, reinterpret_cast<char *>(data.data()), size, 0);
-
-        if (receivedSize < 0)
-            return {};
-
-        data.resize(receivedSize);
-
-        return data;
+        return ::recv(this->m_socket, reinterpret_cast<char *>(buffer), size, 0);
     }
+
+    std::vector<u8> SocketClient::readBytes(size_t size) const {
+        if (!this->isConnected())
+            return { };
+        if (size == 0)
+            return { };
+
+        std::vector<u8> result(size);
+
+        auto readSize = this->readBytes(result.data(), size);
+        if (readSize <= 0)
+            return { };
+
+        result.resize(readSize);
+
+        return result;
+    }
+
 
     std::string SocketClient::readString(size_t size) const {
         auto bytes = readBytes(size);
+        if (bytes.empty())
+            return { };
 
         std::string result;
         std::copy(bytes.begin(), bytes.end(), std::back_inserter(result));
