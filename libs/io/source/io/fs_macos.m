@@ -28,7 +28,7 @@
                 return NULL;
             }
 
-            const char *pathString = [[[dirUrl URLByAppendingPathComponent:(@"imhex")] path] UTF8String];
+            const char *pathString = [[dirUrl path] UTF8String];
 
             char *result = malloc(strlen(pathString) + 1);
             strcpy(result, pathString);
