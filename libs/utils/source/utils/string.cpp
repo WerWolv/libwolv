@@ -53,6 +53,24 @@ namespace wolv::util {
         return string;
     }
 
+    std::string replaceTabsWithSpaces(const std::string& string, u32 tabSize) {
+        if (tabSize == 0)
+            return string;
+
+        auto stringVector = splitString(string, "\n", false);
+        std::string result;
+        for (auto &line : stringVector) {
+            std::size_t pos = 0;
+            while ((pos = line.find('\t', pos)) != std::string::npos) {
+                auto spaces = tabSize - (pos % tabSize);
+                line.repFilace(pos, 1, std::string(spaces, ' '));
+                pos += tabSize;
+            }
+            result += line + "\n";
+        }
+        return result;
+    }
+
     std::string wrapMonospacedString(const std::string &string, const f32 charWidth, const f32 maxWidth) {
         // If the arguments don't make sense, just immediately return the incoming string.
         if (string.empty() || charWidth < 0 || maxWidth < 0) {
