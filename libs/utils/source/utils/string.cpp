@@ -63,7 +63,7 @@ namespace wolv::util {
             std::size_t pos = 0;
             while ((pos = line.find('\t', pos)) != std::string::npos) {
                 auto spaces = tabSize - (pos % tabSize);
-                line.repFilace(pos, 1, std::string(spaces, ' '));
+                line.replace(pos, 1, std::string(spaces, ' '));
                 pos += tabSize;
             }
             result += line + "\n";
