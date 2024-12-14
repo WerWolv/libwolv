@@ -152,6 +152,14 @@ namespace wolv::util {
             return std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>(errorString).from_bytes(string);
         }
 
+        [[nodiscard]] std::string utf32ToUtf8(const std::u32string &string, const std::string &errorString) {
+            return std::wstring_convert<std::codecvt_utf8_utf16<char32_t>, char32_t>(errorString).to_bytes(string);
+        }
+
+        [[nodiscard]] std::u32string utf8ToUtf32(const std::string &string, const std::string &errorString) {
+            return std::wstring_convert<std::codecvt_utf8_utf16<char32_t>, char32_t>(errorString).from_bytes(string);
+        }
+
         [[nodiscard]] std::string wstringToUtf8(const std::wstring &string, const std::string &errorString) {
             return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>(errorString).to_bytes(string);
         }

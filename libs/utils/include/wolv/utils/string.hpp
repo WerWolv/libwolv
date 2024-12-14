@@ -17,6 +17,8 @@ namespace wolv::util {
 
     [[nodiscard]] std::string utf16ToUtf8(const std::u16string &string, const std::string &errorString = "???");
     [[nodiscard]] std::u16string utf8ToUtf16(const std::string &string, const std::string &errorString = "???");
+    [[nodiscard]] std::string utf32ToUtf8(const std::u32string &string, const std::string &errorString = "???");
+    [[nodiscard]] std::u32string utf8ToUtf32(const std::string &string, const std::string &errorString = "???");
     [[nodiscard]] std::string wstringToUtf8(const std::wstring &string, const std::string &errorString = "???");
     [[nodiscard]] std::wstring utf8ToWstring(const std::string &string, const std::string &errorString = "???");
 
