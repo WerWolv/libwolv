@@ -1,6 +1,8 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include <wolv/utils/string.hpp>
 
-#include <stdexcept>
 #include <codecvt>
 #include <locale>
 
@@ -139,37 +141,30 @@ namespace wolv::util {
     }
 
 
-    #if defined(__clang__)
-        #pragma clang diagnostic push
-        #pragma clang warning ignored "-Wdeprecated-declarations"
-    #endif
+    [[nodiscard]] std::string utf16ToUtf8(const std::u16string &string, const std::string &errorString) {
+        return std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>(errorString).to_bytes(string);
+    }
 
-        [[nodiscard]] std::string utf16ToUtf8(const std::u16string &string, const std::string &errorString) {
-            return std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>(errorString).to_bytes(string);
-        }
+    [[nodiscard]] std::u16string utf8ToUtf16(const std::string &string, const std::string &errorString) {
+        return std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>(errorString).from_bytes(string);
+    }
 
-        [[nodiscard]] std::u16string utf8ToUtf16(const std::string &string, const std::string &errorString) {
-            return std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>(errorString).from_bytes(string);
-        }
+    [[nodiscard]] std::string utf32ToUtf8(const std::u32string &string, const std::string &errorString) {
+        return std::wstring_convert<std::codecvt_utf8_utf16<char32_t>, char32_t>(errorString).to_bytes(string);
+    }
 
-        [[nodiscard]] std::string utf32ToUtf8(const std::u32string &string, const std::string &errorString) {
-            return std::wstring_convert<std::codecvt_utf8_utf16<char32_t>, char32_t>(errorString).to_bytes(string);
-        }
+    [[nodiscard]] std::u32string utf8ToUtf32(const std::string &string, const std::string &errorString) {
+        return std::wstring_convert<std::codecvt_utf8_utf16<char32_t>, char32_t>(errorString).from_bytes(string);
+    }
 
-        [[nodiscard]] std::u32string utf8ToUtf32(const std::string &string, const std::string &errorString) {
-            return std::wstring_convert<std::codecvt_utf8_utf16<char32_t>, char32_t>(errorString).from_bytes(string);
-        }
+    [[nodiscard]] std::string wstringToUtf8(const std::wstring &string, const std::string &errorString) {
+        return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>(errorString).to_bytes(string);
+    }
 
-        [[nodiscard]] std::string wstringToUtf8(const std::wstring &string, const std::string &errorString) {
-            return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>(errorString).to_bytes(string);
-        }
-
-        [[nodiscard]] std::wstring utf8ToWstring(const std::string &string, const std::string &errorString) {
-            return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>(errorString).from_bytes(string);
-        }
-
-    #if defined(__clang__)
-        #pragma clang diagnostic pop
-    #endif
+    [[nodiscard]] std::wstring utf8ToWstring(const std::string &string, const std::string &errorString) {
+        return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>(errorString).from_bytes(string);
+    }
 
 }
+
+#pragma GCC diagnostic pop
