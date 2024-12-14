@@ -8,12 +8,17 @@
 
 namespace wolv::util {
 
-    std::vector<std::string> splitString(const std::string &string, const std::string &delimiter, bool removeEmpty = false);
-    std::string combineStrings(const std::vector<std::string> &strings, const std::string &delimiter);
-    std::string replaceStrings(std::string string, const std::string &search, const std::string &replace);
-    std::string replaceTabsWithSpaces(const std::string& string, u32 tabSize = 4);
-    std::string wrapMonospacedString(const std::string& string, f32 charWidth, f32 maxWidth);
-    std::string capitalizeString(std::string string);
+    [[nodiscard]] std::vector<std::string> splitString(const std::string &string, const std::string &delimiter, bool removeEmpty = false);
+    [[nodiscard]] std::string combineStrings(const std::vector<std::string> &strings, const std::string &delimiter);
+    [[nodiscard]] std::string replaceStrings(std::string string, const std::string &search, const std::string &replace);
+    [[nodiscard]] std::string replaceTabsWithSpaces(const std::string& string, u32 tabSize = 4);
+    [[nodiscard]] std::string wrapMonospacedString(const std::string& string, f32 charWidth, f32 maxWidth);
+    [[nodiscard]] std::string capitalizeString(std::string string);
+
+    [[nodiscard]] std::string utf16ToUtf8(const std::u16string &string, const std::string &errorString = "???");
+    [[nodiscard]] std::u16string utf8ToUtf16(const std::string &string, const std::string &errorString = "???");
+    [[nodiscard]] std::string wstringToUtf8(const std::wstring &string, const std::string &errorString = "???");
+    [[nodiscard]] std::wstring utf8ToWstring(const std::string &string, const std::string &errorString = "???");
 
     template<typename T>
     concept Char8StringConvertable = requires(T t) { t.u8string(); };
@@ -24,7 +29,7 @@ namespace wolv::util {
         return { result.begin(), result.end() };
     }
 
-    constexpr inline size_t strnlen(const char *s, size_t n) {
+    constexpr size_t strnlen(const char *s, size_t n) {
         size_t i = 0;
 
         while (i < n && s[i] != '\x00') i++;
