@@ -24,6 +24,7 @@ namespace wolv::io {
         m_mode = other.m_mode;
         m_fileSize = other.m_fileSize;
         m_sizeValid = other.m_sizeValid;
+        m_openError = std::move(other.m_openError);
     }
 
     File::~File() {
@@ -42,6 +43,7 @@ namespace wolv::io {
         m_mode = other.m_mode;
         m_fileSize = other.m_fileSize;
         m_sizeValid = other.m_sizeValid;
+        m_openError = std::move(other.m_openError);
 
         return *this;
     }
@@ -51,6 +53,7 @@ namespace wolv::io {
     }
 
     void File::open() {
+        m_openError.reset();
         if (m_mode == File::Mode::Read)
             m_handle = ::CreateFileW(m_path.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
         else if (m_mode == File::Mode::Write)
@@ -58,6 +61,10 @@ namespace wolv::io {
 
         if (m_mode == File::Mode::Create || (m_mode == File::Mode::Write && this->m_handle == INVALID_HANDLE_VALUE))
             m_handle = ::CreateFileW(m_path.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+
+        if (m_handle == INVALID_HANDLE_VALUE) {
+            m_openError = ::GetLastError();
+        }
 
         updateSize();
     }
@@ -77,18 +84,23 @@ namespace wolv::io {
 
 
     bool File::map() {
+        m_openError.reset();
+
         if (!isValid())
             return false;
 
         auto fileMapping = ::CreateFileMapping(m_handle, nullptr, SEC_RESERVE | (this->m_mode == Mode::Read ? PAGE_READONLY : PAGE_READWRITE), 0, 0, nullptr);
-
-        if (fileMapping == nullptr)
+        if (fileMapping == nullptr) {
+            m_openError = ::GetLastError();
             return false;
+        }
 
 
-        this->m_map = reinterpret_cast<u8*>(::MapViewOfFile(fileMapping, this->m_mode == Mode::Read ? FILE_MAP_READ : FILE_MAP_ALL_ACCESS, 0, 0, 0));
-        if (this->m_map == nullptr)
+        this->m_map = static_cast<u8*>(::MapViewOfFile(fileMapping, this->m_mode == Mode::Read ? FILE_MAP_READ : FILE_MAP_ALL_ACCESS, 0, 0, 0));
+        if (this->m_map == nullptr) {
+            m_openError = ::GetLastError();
             return false;
+        }
 
         ::CloseHandle(fileMapping);
 

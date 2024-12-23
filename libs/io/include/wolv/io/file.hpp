@@ -37,6 +37,9 @@ namespace wolv::io {
         File &operator=(File &&other) noexcept;
 
         [[nodiscard]] bool isValid() const;
+        [[nodiscard]] const std::optional<i64>& getOpenError() const {
+            return m_openError;
+        }
 
         File clone();
 
@@ -95,6 +98,7 @@ namespace wolv::io {
         std::fs::path m_path;
         Mode m_mode = Mode::Read;
         u8 *m_map = nullptr;
+        std::optional<i64> m_openError;
 
         mutable bool m_sizeValid = false;
         mutable size_t m_fileSize = 0;

@@ -31,6 +31,7 @@ namespace wolv::io {
         m_path = std::move(other.m_path);
         m_mode = other.m_mode;
         m_fileSize = other.m_fileSize;
+        m_openError = std::move(other.m_openError);
     }
 
     File::~File() {
@@ -48,6 +49,7 @@ namespace wolv::io {
         m_path = std::move(other.m_path);
         m_mode = other.m_mode;
         m_fileSize = other.m_fileSize;
+        m_openError = std::move(other.m_openError);
 
         return *this;
     }
@@ -57,6 +59,8 @@ namespace wolv::io {
     }
 
     void File::open() {
+        m_openError.reset();
+
         if (m_mode == Mode::Read)
             m_handle = ::open(m_path.c_str(), O_RDONLY);
         else if (m_mode == Mode::Write || m_mode == Mode::Create)
@@ -64,6 +68,10 @@ namespace wolv::io {
 
         if (m_mode == Mode::Create || (m_mode == Mode::Write && m_handle == -1))
             m_handle = ::open(m_path.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
+
+        if (m_handle < 0) {
+            m_openError = errno;
+        }
 
         this->updateSize();
     }
@@ -82,11 +90,15 @@ namespace wolv::io {
 
 
     bool File::map() {
+        m_openError.reset();
+
         if (!isValid())
             return false;
 
         m_map = static_cast<u8*>(mmap(nullptr, m_fileSize, m_mode == Mode::Read ? PROT_READ : PROT_READ | PROT_WRITE, MAP_SHARED, m_handle, 0));
-
+        if (m_map == reinterpret_cast<void*>(-1)) {
+            m_openError = errno;
+        }
         return true;
     }
 
