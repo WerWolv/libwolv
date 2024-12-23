@@ -150,7 +150,7 @@ namespace wolv::math_eval {
 
                 inputQueue.push(Token { .type = TokenType::Number, .number = number, .name = "", .arguments = { } });
             } else if (*pos == '(') {
-                if (!(!inputQueue.empty() && (inputQueue.back().type == TokenType::Operator || (inputQueue.back().type == TokenType::Bracket && inputQueue.back().bracketType == BracketType::Left)))) {
+                if (!inputQueue.empty() && !(inputQueue.back().type == TokenType::Operator || (inputQueue.back().type == TokenType::Bracket && inputQueue.back().bracketType == BracketType::Left))) {
                     this->setError("Invalid syntax!");
                     return std::nullopt;
                 }
