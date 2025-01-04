@@ -215,9 +215,9 @@ namespace wolv::io {
 
             const timespec timeout = { 1, 0 };
             while (!stopped) {
-                struct kevent eventList[1];
+                struct kevent eventList[1] = {};
                 int eventCount = kevent(queue, nullptr, 0, eventList, 1, &timeout);
-                if (eventCount == -1)
+                if (eventCount <= 0)
                     continue;
 
                 if (eventList[0].fflags & NOTE_WRITE) {
