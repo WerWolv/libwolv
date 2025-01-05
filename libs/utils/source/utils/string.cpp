@@ -58,7 +58,7 @@ namespace wolv::util {
     }
 
     std::string replaceTabsWithSpaces(const std::string& string, u32 tabSize) {
-        if (tabSize == 0)
+        if (tabSize == 0 || string.empty() || string.find('\t') == std::string::npos)
             return string;
 
         auto stringVector = splitString(string, "\n", false);
@@ -70,8 +70,9 @@ namespace wolv::util {
                 line.replace(pos, 1, std::string(spaces, ' '));
                 pos += spaces-1;
             }
-            result += line + "\n";
+            result += line + '\n';
         }
+        result.pop_back();
         return result;
     }
 
