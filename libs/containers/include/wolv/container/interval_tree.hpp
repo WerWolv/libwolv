@@ -101,6 +101,22 @@ namespace wolv::container {
         }
 
         /**
+         * @brief Returns the begin iterator of the tree
+         * @return
+         */
+        constexpr auto begin() const  {
+            return this->m_intervals.begin();
+        }
+
+        /**
+         * @brief Returns the end iterator of the tree
+         * @return
+         */
+        constexpr auto end() const {
+            return this->m_intervals.end();
+        }
+
+        /**
          * @brief Finds all intervals that overlap with the given interval
          * @note If T is not trivially copyable, the returned vector will contain pointers to the values in the tree
          * @param interval Interval to search for
