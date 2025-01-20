@@ -7,6 +7,11 @@
 #include <Windows.h>
 #include <share.h>
 
+// https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/open-osfhandle
+#ifdef _MSC_VER
+#include <io.h>
+#endif // _MSC_VER
+
 namespace wolv::io {
 
     File::File(const std::fs::path &path, Mode mode) noexcept : m_path(path), m_mode(mode) {
@@ -213,8 +218,13 @@ namespace wolv::io {
     std::optional<struct stat> File::getFileInfo() {
         struct stat fileInfo = { };
 
-        if (wstat(this->m_path.c_str(), &fileInfo) != 0)
+#ifndef _USE_32BIT_TIME_T
+        if (_wstat(this->m_path.c_str(), (struct _stat64i32*)&fileInfo) != 0)
             return std::nullopt;
+#else
+        if (_wstat(this->m_path.c_str(), (struct _stat32*)&fileInfo) != 0)
+            return std::nullopt;
+#endif // _USE_32BIT_TIME_T
 
         return fileInfo;
     }

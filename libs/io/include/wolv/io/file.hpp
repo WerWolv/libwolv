@@ -11,6 +11,7 @@
 #include <vector>
 #include <functional>
 
+#include <sys/types.h>
 #include <sys/stat.h>
 
 #if defined(OS_WINDOWS)
