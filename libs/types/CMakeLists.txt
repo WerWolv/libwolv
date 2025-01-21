@@ -5,7 +5,20 @@ add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME} INTERFACE include)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 
-if (CMAKE_CXX_COMPILER MATCHES "\\/em\\+\\+(-[a-zA-Z0-9.])?$")
+# Heuristic for detecting if we should use built-in uint128 type
+if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT MSVC)
+    set(LIBWOLV_BUILTIN_UINT128_DEFAULT ON)
+else()
+    set(LIBWOLV_BUILTIN_UINT128_DEFAULT OFF)
+endif()
+
+option(LIBWOLV_BUILTIN_UINT128 "Use built-in uint128 type" ${LIBWOLV_BUILTIN_UINT128_DEFAULT})
+
+if (LIBWOLV_BUILTIN_UINT128)
+    target_compile_definitions(${PROJECT_NAME} INTERFACE LIBWOLV_BUILTIN_UINT128)
+endif ()
+
+if (EMSCRIPTEN OR WASI)
     target_compile_definitions(${PROJECT_NAME} INTERFACE OS_WEB)
 elseif (WIN32)
     target_compile_definitions(${PROJECT_NAME} INTERFACE OS_WINDOWS)

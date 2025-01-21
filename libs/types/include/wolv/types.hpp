@@ -1,5 +1,14 @@
 #include <cstdint>
 
+// Disable builtin uint128 support when building with the MSVC standard library
+#if defined(LIBWOLV_BUILTIN_UINT128) && defined(_MSC_VER)
+#undef LIBWOLV_BUILTIN_UINT128
+#endif // LIBWOLV_BUILTIN_UINT128
+
+#ifndef LIBWOLV_BUILTIN_UINT128
+#include "types/uintwide_t.h"
+#endif // LIBWOLV_BUILTIN_UINT128
+
 namespace wolv {
 
     namespace unsigned_integers {
@@ -8,7 +17,12 @@ namespace wolv {
         using u16 = std::uint16_t;
         using u32 = std::uint32_t;
         using u64 = std::uint64_t;
+
+#ifdef LIBWOLV_BUILTIN_UINT128
         using u128 = __uint128_t;
+#else
+        using u128 = ::math::wide_integer::uint128_t;
+#endif // LIBWOLV_BUILTIN_UINT128
 
     }
 
@@ -18,7 +32,12 @@ namespace wolv {
         using i16 = std::int16_t;
         using i32 = std::int32_t;
         using i64 = std::int64_t;
+
+#ifdef LIBWOLV_BUILTIN_UINT128
         using i128 = __int128_t;
+#else
+        using i128 = ::math::wide_integer::int128_t;
+#endif // LIBWOLV_BUILTIN_UINT128
 
     }
 
