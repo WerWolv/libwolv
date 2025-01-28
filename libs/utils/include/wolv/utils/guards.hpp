@@ -19,7 +19,7 @@ namespace wolv::util {
 
         public:
             explicit constexpr ScopeGuard(F func) : m_func(std::move(func)), m_active(true) { }
-            ~ScopeGuard() {
+            ~ScopeGuard() noexcept(false) {
                 if (this->m_active) { this->m_func(); }
             }
 
