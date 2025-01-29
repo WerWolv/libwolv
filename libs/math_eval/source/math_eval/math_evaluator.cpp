@@ -11,7 +11,7 @@
 
 namespace wolv::math_eval {
 
-    template<std::integral T, std::integral U>
+    template<typename T, typename U>
         [[nodiscard]] auto powi(T base, U exp) {
         using ResultType = decltype(T{} * U{});
 
@@ -135,9 +135,9 @@ namespace wolv::math_eval {
                 auto number = [&] {
                    if constexpr (std::floating_point<T>)
                        return std::strtold(pos, &pos);
-                   else if constexpr (std::signed_integral<T>)
+                   else if constexpr (std::signed_integral<T> || std::same_as<T, wolv::i128>)
                        return std::strtoll(pos, &pos, 10);
-                   else if constexpr (std::unsigned_integral<T>)
+                   else if constexpr (std::unsigned_integral<T> || std::same_as<T, wolv::u128>)
                        return std::strtoull(pos, &pos, 10);
                    else
                        static_assert(wolv::util::always_false<T>::value, "Can't parse literal of this type");
@@ -176,7 +176,7 @@ namespace wolv::math_eval {
                     inputQueue.push(Token { .type = TokenType::Operator, .op = op, .name = "", .arguments = { } });
                     pos += width;
                 } else {
-                    Token token;
+                    Token token = {};
 
                     while (std::isalpha(*pos) || *pos == '_') {
                         token.name += *pos;
@@ -518,7 +518,8 @@ namespace wolv::math_eval {
     }
 
     template class MathEvaluator<long double>;
+    template class MathEvaluator<i64>;
+    template class MathEvaluator<u64>;
     template class MathEvaluator<i128>;
     template class MathEvaluator<u128>;
-
 }
