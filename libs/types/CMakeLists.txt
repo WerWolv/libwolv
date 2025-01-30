@@ -6,7 +6,10 @@ target_include_directories(${PROJECT_NAME} INTERFACE include)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 
 # Heuristic for detecting if we should use built-in uint128 type
-if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT MSVC)
+
+include(CheckTypeSize)
+check_type_size("__uint128_t" UINT128_T_SIZE)
+if (HAVE_UINT128_T_SIZE)
     set(LIBWOLV_BUILTIN_UINT128_DEFAULT ON)
 else()
     set(LIBWOLV_BUILTIN_UINT128_DEFAULT OFF)
