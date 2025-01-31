@@ -2,6 +2,7 @@
 
 #include <wolv/utils/core.hpp>
 
+#include <bit>
 #include <string>
 #include <queue>
 #include <stack>
@@ -382,7 +383,7 @@ namespace wolv::math_eval {
                             result = powi(leftOperand, rightOperand);
                         break;
                     case Operator::Combine:
-                        result = (static_cast<u64>(leftOperand) << (64 - __builtin_clzll(static_cast<u64>(rightOperand)))) | static_cast<u64>(rightOperand);
+                        result = (static_cast<u64>(leftOperand) << (64 - std::countl_zero(static_cast<u64>(rightOperand)))) | static_cast<u64>(rightOperand);
                         break;
                     case Operator::Plus:
                         result = +rightOperand;
