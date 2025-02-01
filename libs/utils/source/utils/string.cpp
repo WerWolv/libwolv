@@ -1,5 +1,7 @@
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#if !defined(_MSC_VER)
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 #include <wolv/utils/string.hpp>
 
@@ -168,4 +170,6 @@ namespace wolv::util {
 
 }
 
-#pragma GCC diagnostic pop
+#if !defined(_MSC_VER)
+    #pragma GCC diagnostic pop
+#endif

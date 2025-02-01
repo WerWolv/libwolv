@@ -41,10 +41,10 @@ namespace wolv::util {
 
     template<typename T = char>
     [[nodiscard]] std::basic_string<T> trim(std::basic_string<T> s) {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](u8 ch) {
+        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](T ch) {
             return !std::isspace(ch) && ch >= 0x20;
         }));
-        s.erase(std::find_if(s.rbegin(), s.rend(), [](u8 ch) {
+        s.erase(std::find_if(s.rbegin(), s.rend(), [](T ch) {
             return !std::isspace(ch) && ch >= 0x20;
         }).base(), s.end());
 
