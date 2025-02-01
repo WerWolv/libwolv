@@ -33,6 +33,10 @@ if (APPLE)
     target_link_libraries(${PROJECT_NAME} PUBLIC ${FOUNDATION})
 endif ()
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    target_compile_options(${PROJECT_NAME} PRIVATE /EHsc)
+endif()
+
 string(REPLACE "libwolv-" "" PROJECT_NAME_SPACE ${PROJECT_NAME})
 add_library(wolv::${PROJECT_NAME_SPACE} ALIAS ${PROJECT_NAME})
 
