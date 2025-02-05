@@ -13,6 +13,10 @@ add_library(wolv::${PROJECT_NAME_SPACE} ALIAS ${PROJECT_NAME})
 
 target_link_libraries(libwolv INTERFACE ${PROJECT_NAME})
 
+if (WIN32)
+    set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+endif()
+
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     target_compile_options(${PROJECT_NAME} PRIVATE /EHsc)
 endif()

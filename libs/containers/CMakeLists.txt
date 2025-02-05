@@ -6,6 +6,10 @@ target_include_directories(${PROJECT_NAME} INTERFACE include)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 target_link_libraries(${PROJECT_NAME} INTERFACE wolv::types)
 
+if (WIN32)
+    set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+endif()
+
 string(REPLACE "libwolv-" "" PROJECT_NAME_SPACE ${PROJECT_NAME})
 add_library(wolv::${PROJECT_NAME_SPACE} ALIAS ${PROJECT_NAME})
 

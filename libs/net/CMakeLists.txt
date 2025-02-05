@@ -11,6 +11,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 
 if (WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE Ws2_32.lib)
+    set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif ()
 
 string(REPLACE "libwolv-" "" PROJECT_NAME_SPACE ${PROJECT_NAME})
