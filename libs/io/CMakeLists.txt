@@ -22,8 +22,6 @@ if (APPLE)
     endif ()
 
     set(SOURCE ${SOURCE} source/io/fs_macos.m)
-elseif (WIN32)
-    set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif ()
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE})
@@ -33,6 +31,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC wolv::types wolv::utils)
 if (APPLE)
     find_library(FOUNDATION NAMES Foundation)
     target_link_libraries(${PROJECT_NAME} PUBLIC ${FOUNDATION})
+elseif (WIN32)
+    set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif ()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
