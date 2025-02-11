@@ -1,11 +1,5 @@
-#if !defined(_MSC_VER)
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
 #include <wolv/utils/string.hpp>
 
-#include <codecvt>
 #include <locale>
 
 namespace wolv::util {
@@ -144,32 +138,152 @@ namespace wolv::util {
     }
 
 
-    [[nodiscard]] std::string utf16ToUtf8(const std::u16string &string, const std::string &errorString) {
-        return std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>(errorString).to_bytes(string);
+    std::optional<std::string> utf16ToUtf8(const std::u16string& input) {
+        std::string output;
+        for (size_t i = 0; i < input.size(); ++i) {
+            const char16_t ch = input[i];
+            if (ch <= 0x7F) {
+                output.push_back(static_cast<char>(ch));
+            } else if (ch <= 0x7FF) {
+                output.push_back(0xC0 | (ch >> 6));
+                output.push_back(0x80 | (ch & 0x3F));
+            } else if (ch >= 0xD800 && ch <= 0xDFFF) {
+                // Surrogate pair
+                if (i + 1 < input.size() && input[i + 1] >= 0xDC00 && input[i + 1] <= 0xDFFF) {
+                    const char32_t fullChar = ((ch - 0xD800) << 10) + (input[i + 1] - 0xDC00) + 0x10000;
+                    output.push_back(0xF0 | (fullChar >> 18));
+                    output.push_back(0x80 | ((fullChar >> 12) & 0x3F));
+                    output.push_back(0x80 | ((fullChar >> 6) & 0x3F));
+                    output.push_back(0x80 | (fullChar & 0x3F));
+                    ++i;
+                } else {
+                    return std::nullopt;
+                }
+            } else {
+                output.push_back(0xE0 | (ch >> 12));
+                output.push_back(0x80 | ((ch >> 6) & 0x3F));
+                output.push_back(0x80 | (ch & 0x3F));
+            }
+        }
+        return output;
     }
 
-    [[nodiscard]] std::u16string utf8ToUtf16(const std::string &string, const std::string &errorString) {
-        return std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>(errorString).from_bytes(string);
+    std::optional<std::u16string> utf8ToUtf16(const std::string& input) {
+        std::u16string output;
+        size_t i = 0;
+        while (i < input.size()) {
+            char32_t codepoint = 0;
+            unsigned char byte = input[i];
+            if (byte <= 0x7F) {
+                codepoint = byte;
+            } else if ((byte & 0xE0) == 0xC0) {
+                if (i + 1 >= input.size())
+                    return std::nullopt;
+                codepoint = ((byte & 0x1F) << 6) | (input[i + 1] & 0x3F);
+                i += 1;
+            } else if ((byte & 0xF0) == 0xE0) {
+                if (i + 2 >= input.size())
+                    return std::nullopt;
+                codepoint = ((byte & 0x0F) << 12) | ((input[i + 1] & 0x3F) << 6) | (input[i + 2] & 0x3F);
+                i += 2;
+            } else if ((byte & 0xF8) == 0xF0) {
+                if (i + 3 >= input.size())
+                    return std::nullopt;
+                codepoint = ((byte & 0x07) << 18) | ((input[i + 1] & 0x3F) << 12) | ((input[i + 2] & 0x3F) << 6) | (input[i + 3] & 0x3F);
+                i += 3;
+            } else {
+                return std::nullopt;
+            }
+
+            if (codepoint > 0xFFFF) {
+                output.push_back(0xD800 + ((codepoint - 0x10000) >> 10));
+                output.push_back(0xDC00 + ((codepoint - 0x10000) & 0x3FF));
+            } else {
+                output.push_back(static_cast<char16_t>(codepoint));
+            }
+            i += 1;
+        }
+        return output;
     }
 
-    [[nodiscard]] std::string utf32ToUtf8(const std::u32string &string, const std::string &errorString) {
-        return std::wstring_convert<std::codecvt_utf8_utf16<char32_t>, char32_t>(errorString).to_bytes(string);
+    std::optional<std::u32string> utf8ToUtf32(const std::string& input) {
+        std::u32string output;
+        size_t i = 0;
+        while (i < input.size()) {
+            char32_t codepoint = 0;
+            unsigned char byte = input[i];
+            if (byte <= 0x7F) {
+                codepoint = byte;
+            } else if ((byte & 0xE0) == 0xC0) {
+                codepoint = ((byte & 0x1F) << 6) | (input[i + 1] & 0x3F);
+                i += 1;
+            } else if ((byte & 0xF0) == 0xE0) {
+                codepoint = ((byte & 0x0F) << 12) | ((input[i + 1] & 0x3F) << 6) | (input[i + 2] & 0x3F);
+                i += 2;
+            } else if ((byte & 0xF8) == 0xF0) {
+                codepoint = ((byte & 0x07) << 18) | ((input[i + 1] & 0x3F) << 12) | ((input[i + 2] & 0x3F) << 6) | (input[i + 3] & 0x3F);
+                i += 3;
+            } else {
+                return std::nullopt;
+            }
+            output.push_back(codepoint);
+            i += 1;
+        }
+        return output;
     }
 
-    [[nodiscard]] std::u32string utf8ToUtf32(const std::string &string, const std::string &errorString) {
-        return std::wstring_convert<std::codecvt_utf8_utf16<char32_t>, char32_t>(errorString).from_bytes(string);
+    std::optional<std::string> utf32ToUtf8(const std::u32string& input) {
+        std::string output;
+        for (const char32_t ch : input) {
+            if (ch <= 0x7F) {
+                output.push_back(static_cast<char>(ch));
+            } else if (ch <= 0x7FF) {
+                output.push_back(0xC0 | (ch >> 6));
+                output.push_back(0x80 | (ch & 0x3F));
+            } else if (ch <= 0xFFFF) {
+                output.push_back(0xE0 | (ch >> 12));
+                output.push_back(0x80 | ((ch >> 6) & 0x3F));
+                output.push_back(0x80 | (ch & 0x3F));
+            } else if (ch <= 0x10FFFF) {
+                output.push_back(0xF0 | (ch >> 18));
+                output.push_back(0x80 | ((ch >> 12) & 0x3F));
+                output.push_back(0x80 | ((ch >> 6) & 0x3F));
+                output.push_back(0x80 | (ch & 0x3F));
+            } else {
+                return std::nullopt;
+            }
+        }
+        return output;
     }
 
-    [[nodiscard]] std::string wstringToUtf8(const std::wstring &string, const std::string &errorString) {
-        return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>(errorString).to_bytes(string);
+    std::optional<std::wstring> utf8ToWstring(const std::string& input) {
+        if constexpr (sizeof(wchar_t) == sizeof(char16_t)) {
+            const auto output = utf8ToUtf16(input);
+            if (!output.has_value())
+                 return std::nullopt;
+            else
+                return std::wstring(output->begin(), output->end());
+        } else if constexpr (sizeof(wchar_t) == sizeof(char32_t)) {
+            const auto output = utf8ToUtf32(input);
+            if (!output.has_value())
+                return std::nullopt;
+            else
+                return std::wstring(output->begin(), output->end());
+        } else {
+            static_assert("wchar_t is neither UTF-16 nor UTF-32!");
+        }
     }
 
-    [[nodiscard]] std::wstring utf8ToWstring(const std::string &string, const std::string &errorString) {
-        return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>(errorString).from_bytes(string);
+    std::optional<std::string> wstringToUtf8(const std::wstring& input) {
+        if constexpr (sizeof(wchar_t) == sizeof(char16_t)) {
+            const auto utf16 = std::u16string(input.begin(), input.end());
+            return utf16ToUtf8(utf16);
+        } else if constexpr (sizeof(wchar_t) == sizeof(char32_t)) {
+            const auto utf32 = std::u32string(input.begin(), input.end());
+            return utf32ToUtf8(utf32);
+        } else {
+            static_assert("wchar_t is neither UTF-16 nor UTF-32!");
+        }
     }
 
 }
-
-#if !defined(_MSC_VER)
-    #pragma GCC diagnostic pop
-#endif

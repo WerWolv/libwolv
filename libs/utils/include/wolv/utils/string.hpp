@@ -15,12 +15,12 @@ namespace wolv::util {
     [[nodiscard]] std::string wrapMonospacedString(const std::string& string, f32 charWidth, f32 maxWidth);
     [[nodiscard]] std::string capitalizeString(std::string string);
 
-    [[nodiscard]] std::string utf16ToUtf8(const std::u16string &string, const std::string &errorString = "???");
-    [[nodiscard]] std::u16string utf8ToUtf16(const std::string &string, const std::string &errorString = "???");
-    [[nodiscard]] std::string utf32ToUtf8(const std::u32string &string, const std::string &errorString = "???");
-    [[nodiscard]] std::u32string utf8ToUtf32(const std::string &string, const std::string &errorString = "???");
-    [[nodiscard]] std::string wstringToUtf8(const std::wstring &string, const std::string &errorString = "???");
-    [[nodiscard]] std::wstring utf8ToWstring(const std::string &string, const std::string &errorString = "???");
+    [[nodiscard]] std::optional<std::string> utf16ToUtf8(const std::u16string &string);
+    [[nodiscard]] std::optional<std::u16string> utf8ToUtf16(const std::string &string);
+    [[nodiscard]] std::optional<std::string> utf32ToUtf8(const std::u32string &string);
+    [[nodiscard]] std::optional<std::u32string> utf8ToUtf32(const std::string &string);
+    [[nodiscard]] std::optional<std::string> wstringToUtf8(const std::wstring &string);
+    [[nodiscard]] std::optional<std::wstring> utf8ToWstring(const std::string &string);
 
     template<typename T>
     concept Char8StringConvertable = requires(T t) { t.u8string(); };
