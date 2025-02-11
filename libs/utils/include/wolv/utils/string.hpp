@@ -3,6 +3,7 @@
 #include <wolv/types.hpp>
 
 #include <algorithm>
+#include <optional>
 #include <string>
 #include <vector>
 
