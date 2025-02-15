@@ -1,6 +1,7 @@
 #include <wolv/utils/string.hpp>
 
 #include <locale>
+#include <wolv/concepts.hpp>
 
 namespace wolv::util {
 
@@ -270,7 +271,11 @@ namespace wolv::util {
             else
                 return std::wstring(output->begin(), output->end());
         } else {
-            static_assert("wchar_t is neither UTF-16 nor UTF-32!");
+            static_assert(
+                sizeof(wchar_t) == sizeof(char16_t) ||
+                sizeof(wchar_t) == sizeof(char32_t),
+                "wchar_t is neither UTF-16 nor UTF-32!"
+            );
         }
     }
 
@@ -282,7 +287,11 @@ namespace wolv::util {
             const auto utf32 = std::u32string(input.begin(), input.end());
             return utf32ToUtf8(utf32);
         } else {
-            static_assert("wchar_t is neither UTF-16 nor UTF-32!");
+            static_assert(
+                sizeof(wchar_t) == sizeof(char16_t) ||
+                sizeof(wchar_t) == sizeof(char32_t),
+                "wchar_t is neither UTF-16 nor UTF-32!"
+            );
         }
     }
 
