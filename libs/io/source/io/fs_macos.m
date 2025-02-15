@@ -15,6 +15,19 @@
         }
     }
 
+    char* getMacExecutablePath(void) {
+        @autoreleasepool {
+            const char *pathString = [[[[[NSBundle mainBundle] executableURL] URLByResolvingSymlinksInPath] path] UTF8String];
+
+            char *result = malloc(strlen(pathString) + 1);
+            if (result) {
+                strcpy(result, pathString);
+            }
+
+            return result;
+        }
+    }
+
     char* getMacApplicationSupportDirectoryPath(void) {
         @autoreleasepool {
             NSError* error = nil;

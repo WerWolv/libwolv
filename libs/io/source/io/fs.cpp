@@ -44,7 +44,7 @@ namespace wolv::io::fs {
             std::string exePath;
 
             {
-                auto string = getMacExecutableDirectoryPath();
+                auto string = getMacExecutablePath();
                 exePath = string;
                 macFree(string);
             }
