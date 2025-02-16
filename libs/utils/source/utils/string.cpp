@@ -23,7 +23,8 @@ namespace wolv::util {
             result.emplace_back(std::move(token));
         }
 
-        result.emplace_back(string.substr(start));
+        if (start < string.size())
+            result.emplace_back(string.substr(start));
 
         if (removeEmpty)
             std::erase_if(result, [](const auto &string) { return string.empty(); });

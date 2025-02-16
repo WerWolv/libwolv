@@ -42,14 +42,15 @@ namespace wolv::util {
 
     template<typename T = char>
     [[nodiscard]] std::basic_string<T> trim(std::basic_string<T> s) {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](T ch) {
-            return !std::isspace(ch) && ch >= 0x20;
-        }));
-        s.erase(std::find_if(s.rbegin(), s.rend(), [](T ch) {
-            return !std::isspace(ch) && ch >= 0x20;
-        }).base(), s.end());
+        const auto chars = std::basic_string<T>{T(' '), T('\t'), T('\n'), T('\r')};
 
-        return s;
+        const size_t first = s.find_first_not_of(chars);
+        if (first == std::string::npos) {
+            return { };
+        }
+
+        const size_t last = s.find_last_not_of(chars);
+        return s.substr(first, last - first + 1);
     }
     
     template<typename T = char>
