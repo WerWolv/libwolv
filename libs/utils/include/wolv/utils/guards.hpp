@@ -1,6 +1,7 @@
 #pragma once
 
 #include <utility>
+#include <exception>
 
 #include <wolv/utils/preproc.hpp>
 
@@ -20,7 +21,17 @@ namespace wolv::util {
         public:
             explicit constexpr ScopeGuard(F func) : m_func(std::move(func)), m_active(true) { }
             ~ScopeGuard() noexcept(false) {
-                if (this->m_active) { this->m_func(); }
+                if (this->m_active) {
+                    if (std::uncaught_exceptions() == 0) {
+                        this->m_func();
+                    } else {
+                        try {
+                            this->m_func();
+                        } catch (...) {
+
+                        }
+                    }
+                }
             }
 
             void release() { this->m_active = false; }
