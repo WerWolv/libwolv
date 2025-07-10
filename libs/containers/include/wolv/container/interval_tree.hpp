@@ -137,22 +137,22 @@ namespace wolv::container {
 
             // Iterate through all intervals that overlap with the given interval
             for (i64 i = 0; i < SearchRange; i++) {
-                const auto &[start, content] = *it;
-                const auto &[end, value] = content;
+                const auto &[intervalStart, content] = *it;
+                const auto &[intervalEnd, value] = content;
 
                 if constexpr (!HandleEncompassedIntervals) {
                     // If we don't care about intervals that encompass smaller intervals, we can stop
-                    if (end < interval.start)
+                    if (intervalEnd < interval.start)
                         break;
                 }
 
                 // If the interval overlaps with the given interval, add it to the result
                 // If we don't care about encompassing intervals, we can skip this check
-                if (!HandleEncompassedIntervals || interval.overlaps({ start, end })) {
+                if (!HandleEncompassedIntervals || interval.overlaps({ intervalStart, intervalEnd })) {
                     if constexpr (TriviallyCopyable)
-                        result.push_back({ { start, end }, value });
+                        result.push_back({ { intervalStart, intervalEnd }, value });
                     else
-                        result.push_back({ { start, end }, std::addressof(value) });
+                        result.push_back({ { intervalStart, intervalEnd }, std::addressof(value) });
 
                     i -= 1;
                 }

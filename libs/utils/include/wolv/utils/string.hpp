@@ -41,7 +41,7 @@ namespace wolv::util {
     }
 
     template<typename T = char>
-    [[nodiscard]] std::basic_string<T> trim(std::basic_string<T> s) {
+    [[nodiscard]] std::basic_string<T> trim(const std::basic_string<T> &s) {
         const auto chars = std::basic_string<T>{T(' '), T('\t'), T('\n'), T('\r')};
 
         const size_t first = s.find_first_not_of(chars);
