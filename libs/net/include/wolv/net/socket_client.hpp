@@ -17,7 +17,7 @@ namespace wolv::net {
             UDP = 1
         };
 
-        explicit SocketClient(Type type = Type::TCP);
+        explicit SocketClient(Type type = Type::TCP, bool blocking = false);
         SocketClient(const SocketClient &) = delete;
         SocketClient(SocketClient &&other) noexcept;
 
@@ -42,6 +42,7 @@ namespace wolv::net {
     private:
         bool m_connected = false;
         Type m_type = Type::TCP;
+        bool m_blocking = false;
 
         SocketHandle m_socket = SocketNone;
 

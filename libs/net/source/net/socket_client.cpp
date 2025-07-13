@@ -5,13 +5,14 @@
 
 namespace wolv::net {
 
-    SocketClient::SocketClient(Type type) : m_type(type) {
+    SocketClient::SocketClient(Type type, bool blocking) : m_type(type), m_blocking(blocking) {
         initializeSockets();
     }
 
     SocketClient::SocketClient(SocketClient &&other) noexcept {
         this->m_socket    = other.m_socket;
         this->m_connected = other.m_connected;
+        this->m_blocking  = other.m_blocking;
 
         other.m_socket = SocketNone;
     }
@@ -23,6 +24,7 @@ namespace wolv::net {
     SocketClient& SocketClient::operator=(wolv::net::SocketClient &&other) noexcept {
         this->m_socket    = other.m_socket;
         this->m_connected = other.m_connected;
+        this->m_blocking  = other.m_blocking;
 
         other.m_socket = SocketNone;
 
@@ -48,12 +50,14 @@ namespace wolv::net {
         if (size == 0)
             return 0;
 
-        #if defined(OS_WINDOWS)
-            u_long mode = 1;
-            ::ioctlsocket(this->m_socket, FIONBIO, &mode);
-        #else
-            ::fcntl(this->m_socket, F_SETFL, ::fcntl(this->m_socket, F_GETFL, 0) | O_NONBLOCK);
-        #endif
+        if (!m_blocking) {
+            #if defined(OS_WINDOWS)
+                u_long mode = 1;
+                ::ioctlsocket(this->m_socket, FIONBIO, &mode);
+            #else
+                ::fcntl(this->m_socket, F_SETFL, ::fcntl(this->m_socket, F_GETFL, 0) | O_NONBLOCK);
+            #endif
+        }
 
         return ::recv(this->m_socket, reinterpret_cast<char *>(buffer), size, 0);
     }
