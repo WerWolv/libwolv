@@ -27,7 +27,7 @@ namespace wolv::util {
     concept Char8StringConvertable = requires(T t) { t.u8string(); };
 
     std::string toUTF8String(const Char8StringConvertable auto &value) {
-        auto result = value.u8string();
+        auto result = value.generic_u8string();
 
         return { result.begin(), result.end() };
     }
