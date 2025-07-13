@@ -55,6 +55,14 @@ namespace wolv::util {
         return string;
     }
 
+    std::string preprocessText(const std::string& code) {
+        std::string result = replaceStrings(code, "\r\n", "\n");
+        result = replaceStrings(result, "\r", "\n");
+        result = replaceTabsWithSpaces(result, 4);
+
+        return result;
+    }
+
     std::string replaceTabsWithSpaces(const std::string& string, u32 tabSize) {
         if (tabSize == 0 || string.empty() || string.find('\t') == std::string::npos)
             return string;
