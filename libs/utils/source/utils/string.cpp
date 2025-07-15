@@ -6,7 +6,7 @@
 namespace wolv::util {
 
     std::vector<std::string> splitString(const std::string &string, const std::string &delimiter, bool removeEmpty) {
-        if (delimiter.empty()) {
+        if (delimiter.empty() || string.empty()) {
             return { string };
         }
 
