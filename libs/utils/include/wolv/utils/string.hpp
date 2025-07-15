@@ -13,6 +13,7 @@ namespace wolv::util {
     [[nodiscard]] std::string combineStrings(const std::vector<std::string> &strings, const std::string &delimiter);
     [[nodiscard]] std::string replaceStrings(std::string string, const std::string &search, const std::string &replace);
     [[nodiscard]] std::string replaceTabsWithSpaces(const std::string& string, u32 tabSize = 4);
+    [[nodiscard]] std::string preprocessText(const std::string &string);
     [[nodiscard]] std::string wrapMonospacedString(const std::string& string, f32 charWidth, f32 maxWidth);
     [[nodiscard]] std::string capitalizeString(std::string string);
 

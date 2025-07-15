@@ -6,7 +6,7 @@
 namespace wolv::util {
 
     std::vector<std::string> splitString(const std::string &string, const std::string &delimiter, bool removeEmpty) {
-        if (delimiter.empty()) {
+        if (delimiter.empty() || string.empty()) {
             return { string };
         }
 
@@ -53,6 +53,14 @@ namespace wolv::util {
         }
 
         return string;
+    }
+
+    std::string preprocessText(const std::string& code) {
+        std::string result = replaceStrings(code, "\r\n", "\n");
+        result = replaceStrings(result, "\r", "\n");
+        result = replaceTabsWithSpaces(result, 4);
+
+        return result;
     }
 
     std::string replaceTabsWithSpaces(const std::string& string, u32 tabSize) {
