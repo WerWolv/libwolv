@@ -41,17 +41,23 @@ namespace wolv::util {
         return i;
     }
 
+
     template<typename T = char>
     [[nodiscard]] std::basic_string<T> trim(const std::basic_string<T> &s) {
-        const auto chars = std::basic_string<T>{T(' '), T('\t'), T('\n'), T('\r')};
+        static constexpr std::array<T, 5> Chars = { T(' '), T('\t'), T('\n'), T('\r'), T('\0') };
 
-        const size_t first = s.find_first_not_of(chars);
-        if (first == std::string::npos) {
+        constexpr static auto is_trim_char = [](T ch) {
+            return std::find(Chars.begin(), Chars.end(), ch) != Chars.end();
+        };
+
+        const auto first = std::find_if_not(s.begin(), s.end(), is_trim_char);
+        if (first == s.end()) {
             return { };
         }
 
-        const size_t last = s.find_last_not_of(chars);
-        return s.substr(first, last - first + 1);
+        const auto last = std::find_if_not(s.rbegin(), s.rend(), is_trim_char).base();
+
+        return std::basic_string<T>(first, last);
     }
     
     template<typename T = char>
