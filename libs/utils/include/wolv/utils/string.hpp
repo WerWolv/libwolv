@@ -2,6 +2,7 @@
 
 #include <wolv/types.hpp>
 
+#include <array>
 #include <algorithm>
 #include <optional>
 #include <string>
