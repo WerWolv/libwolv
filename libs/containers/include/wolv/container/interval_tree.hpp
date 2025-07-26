@@ -172,6 +172,10 @@ namespace wolv::container {
             return m_intervals.size();
         }
 
+        bool empty() const {
+            return m_intervals.empty();
+        }
+
     private:
         std::multimap<Scalar, std::pair<Scalar, Type>> m_intervals;
     };
