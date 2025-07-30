@@ -6,6 +6,7 @@ set(SOURCE
         $<$<PLATFORM_ID:Windows>:source/io/file_win.cpp>
         $<$<NOT:$<PLATFORM_ID:Windows>>:source/io/file_unix.cpp>
         source/io/fs.cpp
+        source/io/handle.cpp
 )
 
 if (APPLE)

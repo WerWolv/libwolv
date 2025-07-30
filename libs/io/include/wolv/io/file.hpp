@@ -2,6 +2,7 @@
 
 #include <wolv/types.hpp>
 #include <wolv/io/fs.hpp>
+#include <wolv/io/handle.hpp>
 
 #include <atomic>
 #include <cstdio>
@@ -90,11 +91,7 @@ namespace wolv::io {
 
     private:
         mutable FILE *m_fileHandle = nullptr;
-    #if defined (OS_WINDOWS)
-        HANDLE m_handle = reinterpret_cast<void*>(-1);
-    #else
-        int m_handle = -1;
-    #endif
+        NativeHandle m_handle;
 
         std::fs::path m_path;
         Mode m_mode = Mode::Read;

@@ -233,7 +233,7 @@ namespace wolv::io {
         if (m_fileHandle != nullptr)
             return m_fileHandle;
 
-        auto fileDescriptor = _open_osfhandle(intptr_t(m_handle), m_mode == Mode::Read ? _O_RDONLY : _O_WRONLY);
+        auto fileDescriptor = _open_osfhandle(intptr_t(static_cast<void*>(m_handle)), m_mode == Mode::Read ? _O_RDONLY : _O_WRONLY);
         if (fileDescriptor == -1)
             return nullptr;
 
