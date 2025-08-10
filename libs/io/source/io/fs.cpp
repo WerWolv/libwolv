@@ -8,6 +8,12 @@
 
     #include <windows.h>
 
+#elif defined(OS_FREEBSD)
+
+    #include <sys/types.h>
+    #include <sys/sysctl.h>
+    #include <limits.h>
+
 #elif defined(OS_MACOS)
 
     #include <wolv/io/fs_macos.hpp>
@@ -32,6 +38,22 @@ namespace wolv::io::fs {
 
             return util::trim(exePath);
 
+        #elif defined(OS_FREEBSD)
+
+            char exePath[PATH_MAX];
+            size_t size = sizeof(exePath);
+            int mib[4];
+
+            mib[0] = CTL_KERN;
+            mib[1] = KERN_PROC;
+            mib[2] = KERN_PROC_PATHNAME;
+            mib[3] = -1; // current process
+
+            if (sysctl(mib, 4, exePath, &size, nullptr, 0) != 0)
+                return std::nullopt;
+
+            return util::trim(std::string(exePath));
+
         #elif defined(OS_LINUX)
 
             std::string exePath(PATH_MAX, '\0');
@@ -41,6 +63,7 @@ namespace wolv::io::fs {
             return util::trim(exePath);
 
         #elif defined(OS_MACOS)
+
             std::string exePath;
 
             {
