@@ -1,4 +1,6 @@
 #include <wolv/container/interval_tree.hpp>
+#include <wolv/container/lazy.hpp>
+#include <wolv/container/ring_buffer.hpp>
 
 #include <cstdio>
 
