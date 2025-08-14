@@ -19,6 +19,8 @@ option(LIBWOLV_BUILTIN_UINT128 "Use built-in uint128 type" ${LIBWOLV_BUILTIN_UIN
 
 if (LIBWOLV_BUILTIN_UINT128)
     target_compile_definitions(${PROJECT_NAME} INTERFACE LIBWOLV_BUILTIN_UINT128)
+else()
+    target_compile_definitions(${PROJECT_NAME} INTERFACE WIDE_INTEGER_DISABLE_IOSTREAM)
 endif ()
 
 if (EMSCRIPTEN OR WASI)
