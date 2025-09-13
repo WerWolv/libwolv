@@ -78,6 +78,38 @@ namespace wolv::container {
         }
 
         /**
+         * @brief Returns the nearest interval located after the searchIndex, if it exists
+         * @param searchIndex Index from which to begin looking for the next interval
+         */
+        constexpr std::optional<Data> nextInterval(const Scalar searchIndex) const {
+            auto iter = this->m_intervals.upper_bound(searchIndex); // Returns an iterator to the next multimap pair
+
+            if (iter == this->m_intervals.end())
+                return std::nullopt;
+
+            // Can't simply return it in one line due to std::optional
+            Data d{ { iter->first, iter->second.first }, iter->second.second };
+            return d;
+        }
+
+        /**
+         * @brief Returns the nearest interval located before the searchIndex, if it exists
+         * @param searchIndex Index from which to begin looking for the previous interval
+         */
+        constexpr std::optional<Data> prevInterval(const Scalar searchIndex) const {
+            auto iter = this->m_intervals.lower_bound(searchIndex); // Returns the current or next iterator
+
+            if (iter == this->m_intervals.begin())
+                return std::nullopt;
+
+            --iter; // We need to go back one to get the previous iterator
+
+            // Can't simply return it in one line due to std::optional
+            Data d{ { iter->first, iter->second.first }, iter->second.second };
+            return d;
+        }
+
+        /**
          * @brief Clears the tree
          */
         constexpr void clear() {
