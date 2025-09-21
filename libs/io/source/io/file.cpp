@@ -1,3 +1,4 @@
+#include <utility>
 #include <wolv/io/file.hpp>
 #include <wolv/utils/string.hpp>
 
@@ -119,6 +120,15 @@ namespace wolv::io {
 
     size_t File::writeU8StringAtomic(u64 address, const std::u8string &string) {
         return writeBufferAtomic(address, reinterpret_cast<const u8*>(string.data()), string.size());
+    }
+
+    ChangeTracker& ChangeTracker::operator=(ChangeTracker &&other) noexcept {
+        stopTracking();
+        this->m_stopped = false;
+        m_path = std::move(other.m_path);
+        m_thread = std::move(other.m_thread);
+
+        return *this;
     }
 
     void ChangeTracker::startTracking(const std::function<void()> &callback) {
