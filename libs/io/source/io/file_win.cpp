@@ -76,7 +76,7 @@ namespace wolv::io {
 
 
     void File::close() {
-        if (isValid()) {
+        if (isValid() && m_handle != INVALID_HANDLE_VALUE) {
             ::CloseHandle(m_handle);
             m_handle = INVALID_HANDLE_VALUE;
         }
