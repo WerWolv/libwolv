@@ -113,7 +113,7 @@ namespace wolv::io {
         ChangeTracker(ChangeTracker &&) = default;
 
         ChangeTracker& operator=(const ChangeTracker &) = delete;
-        ChangeTracker& operator=(ChangeTracker &&) = default;
+        ChangeTracker& operator=(ChangeTracker &&other) noexcept;
 
         [[nodiscard]] const std::fs::path& getPath() const { return this->m_path; }
 
