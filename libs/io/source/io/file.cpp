@@ -124,7 +124,7 @@ namespace wolv::io {
 
     ChangeTracker& ChangeTracker::operator=(ChangeTracker &&other) noexcept {
         stopTracking();
-        this->m_stopped = false;
+        m_stopWorkerThread = false;
         m_path = std::move(other.m_path);
         m_thread = std::move(other.m_thread);
 
@@ -132,19 +132,19 @@ namespace wolv::io {
     }
 
     void ChangeTracker::startTracking(const std::function<void()> &callback) {
-        if (this->m_path.empty())
+        if (m_path.empty())
             return;
 
-        this->m_thread = std::thread([this, callback]() {
-            trackImpl(this->m_stopped, this->m_path, callback);
+        m_stopWorkerThread = false;
+        m_thread = std::thread([this, callback]() {
+            trackImpl(m_stopWorkerThread, m_path, callback);
         });
     }
 
     void ChangeTracker::stopTracking() {
-        this->m_stopped = true;
-
-        if (this->m_thread.joinable())
-            this->m_thread.join();
+        m_stopWorkerThread = true;
+        if (m_thread.joinable())
+            m_thread.join();
     }
 
 }

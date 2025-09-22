@@ -124,7 +124,7 @@ namespace wolv::io {
         static void trackImpl(const bool &stopped, const std::fs::path &path, const std::function<void()> &callback);
 
     private:
-        bool m_stopped = false;
+        bool m_stopWorkerThread = false;
         std::fs::path m_path;
         std::thread m_thread;
     };
