@@ -6,6 +6,7 @@
 
 #include <Windows.h>
 #include <share.h>
+#include <chrono>
 
 // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/open-osfhandle
 #ifdef _MSC_VER
@@ -247,11 +248,11 @@ namespace wolv::io {
     }
 
 
-    void ChangeTracker::trackImpl(const bool &stopped, const std::fs::path &path, const std::function<void()> &callback) {
+    void ChangeTracker::trackImpl(ChangeTracker::StopData &sd, const std::fs::path &path, const std::function<void()> &callback) {
         bool firstTime = true;
         WIN32_FILE_ATTRIBUTE_DATA previousAttributes = {};
 
-        while (!stopped) {
+        for (;;) {
             WIN32_FILE_ATTRIBUTE_DATA currentAttributes;
             if (GetFileAttributesExW(path.c_str(), GetFileExInfoStandard, &currentAttributes) == FALSE) {
                 callback();
@@ -269,7 +270,14 @@ namespace wolv::io {
                 previousAttributes = currentAttributes;
             }
 
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            std::unique_lock<std::mutex> lock(sd.mtx);
+            bool stopped = sd.cv.wait_for(lock, std::chrono::seconds(1), [&sd]{
+                return sd.stopFlag;
+            });
+            lock.unlock();
+            if (stopped) {
+                break;
+            }
         }
 
     }

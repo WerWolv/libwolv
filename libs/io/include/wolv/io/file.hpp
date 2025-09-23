@@ -10,7 +10,10 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <memory>
 #include <functional>
+#include <mutex>
+#include <condition_variable>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -104,9 +107,9 @@ namespace wolv::io {
 
     class ChangeTracker {
     public:
-        ChangeTracker() = default;
-        explicit ChangeTracker(std::fs::path path) : m_path(std::move(path)) { }
-        explicit ChangeTracker(const File &file) : m_path(file.getPath()) { }
+        ChangeTracker();
+        explicit ChangeTracker(std::fs::path path);
+        explicit ChangeTracker(const File &file);
         ~ChangeTracker() { this->stopTracking(); }
 
         ChangeTracker(const ChangeTracker &) = delete;
@@ -121,10 +124,16 @@ namespace wolv::io {
         void stopTracking();
 
     private:
-        static void trackImpl(const bool &stopped, const std::fs::path &path, const std::function<void()> &callback);
+        struct StopData
+        {
+            std::mutex mtx;
+            std::condition_variable cv;
+            bool stopFlag = false;
+        };
+        std::unique_ptr<StopData> m_stopData;
+        static void trackImpl(StopData &sd, const std::fs::path &path, const std::function<void()> &callback);
 
     private:
-        bool m_stopWorkerThread = false;
         std::fs::path m_path;
         std::thread m_thread;
     };
