@@ -122,9 +122,21 @@ namespace wolv::io {
         return writeBufferAtomic(address, reinterpret_cast<const u8*>(string.data()), string.size());
     }
 
+    ChangeTracker::ChangeTracker() {
+        m_stopData = std::make_unique<StopData>();
+    }
+
+    ChangeTracker::ChangeTracker(std::fs::path path) : m_path(std::move(path)) {
+        m_stopData = std::make_unique<StopData>();
+    }
+
+    ChangeTracker::ChangeTracker(const File &file) : m_path(file.getPath()) {
+        m_stopData = std::make_unique<StopData>();
+    }
+
     ChangeTracker& ChangeTracker::operator=(ChangeTracker &&other) noexcept {
         stopTracking();
-        m_stopWorkerThread = false;
+        m_stopData = std::move(other.m_stopData);
         m_path = std::move(other.m_path);
         m_thread = std::move(other.m_thread);
 
@@ -135,14 +147,21 @@ namespace wolv::io {
         if (m_path.empty())
             return;
 
-        m_stopWorkerThread = false;
         m_thread = std::thread([this, callback]() {
-            trackImpl(m_stopWorkerThread, m_path, callback);
+            trackImpl(*m_stopData, m_path, callback);
         });
     }
 
     void ChangeTracker::stopTracking() {
-        m_stopWorkerThread = true;
+        if (!m_stopData) {
+            return;
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(m_stopData->mtx);
+            m_stopData->stopFlag = true;
+        }
+        m_stopData->cv.notify_one();
         if (m_thread.joinable())
             m_thread.join();
     }
