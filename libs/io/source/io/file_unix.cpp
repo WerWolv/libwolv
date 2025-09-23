@@ -4,6 +4,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <chrono>
 
 #if defined(OS_MACOS) || defined(OS_FREEBSD)
     #include <sys/types.h>
@@ -199,7 +200,7 @@ namespace wolv::io {
 
 
     #if defined(OS_MACOS) || defined(OS_FREEBSD)
-        void ChangeTracker::trackImpl(const bool &stopped, const std::fs::path &path, const std::function<void()> &callback) {
+        void ChangeTracker::trackImpl(ChangeTracker::StopData &sd, const std::fs::path &path, const std::function<void()> &callback) {
             int queue = kqueue();
             if (queue == -1)
                 throw std::runtime_error("Failed to open kqueue");
@@ -217,8 +218,17 @@ namespace wolv::io {
             if (kevent(queue, &eventHandle, 1, nullptr, 0, nullptr) == -1)
                 throw std::runtime_error("Failed to add event to kqueue");
 
-            const timespec timeout = { 1, 0 };
-            while (!stopped) {
+            const timespec timeout = { 0, 0 };
+            for (;;) {
+                std::unique_lock<std::mutex> lock(sd.mtx);
+                bool stopped = sd.cv.wait_for(lock, std::chrono::seconds(1), [&sd]{
+                    return sd.stopFlag;
+                });
+                lock.unlock();
+                if (stopped) {
+                    break;
+                }
+
                 struct kevent eventList[1] = {};
                 int eventCount = kevent(queue, nullptr, 0, eventList, 1, &timeout);
                 if (eventCount <= 0)
@@ -231,7 +241,7 @@ namespace wolv::io {
 
         }
     #elif defined(OS_LINUX)
-        void ChangeTracker::trackImpl(const bool &stopped, const std::fs::path &path, const std::function<void()> &callback) {
+        void ChangeTracker::trackImpl(ChangeTracker::StopData &sd, const std::fs::path &path, const std::function<void()> &callback) {
             int fileDescriptor = inotify_init();
             if (fileDescriptor == -1)
                 throw std::runtime_error("Failed to open inotify");
@@ -247,8 +257,17 @@ namespace wolv::io {
             std::array<char, 4096> buffer;
             pollfd pollDescriptor = { fileDescriptor, POLLIN, 0 };
 
-            while (!stopped) {
-                if (poll(&pollDescriptor, 1, 1000) <= 0)
+            for (;;) {
+                std::unique_lock<std::mutex> lock(sd.mtx);
+                bool stopped = sd.cv.wait_for(lock, std::chrono::seconds(1), [&sd]{
+                    return sd.stopFlag;
+                });
+                lock.unlock();
+                if (stopped) {
+                    break;
+                }
+
+                if (poll(&pollDescriptor, 1, 0) <= 0)
                     continue;
 
                 ssize_t bytesRead = read(fileDescriptor, buffer.data(), buffer.size());

@@ -253,6 +253,15 @@ namespace wolv::io {
         WIN32_FILE_ATTRIBUTE_DATA previousAttributes = {};
 
         for (;;) {
+            std::unique_lock<std::mutex> lock(sd.mtx);
+            bool stopped = sd.cv.wait_for(lock, std::chrono::seconds(1), [&sd]{
+                return sd.stopFlag;
+            });
+            lock.unlock();
+            if (stopped) {
+                break;
+            }
+
             WIN32_FILE_ATTRIBUTE_DATA currentAttributes;
             if (GetFileAttributesExW(path.c_str(), GetFileExInfoStandard, &currentAttributes) == FALSE) {
                 callback();
@@ -268,15 +277,6 @@ namespace wolv::io {
                 callback();
 
                 previousAttributes = currentAttributes;
-            }
-
-            std::unique_lock<std::mutex> lock(sd.mtx);
-            bool stopped = sd.cv.wait_for(lock, std::chrono::seconds(1), [&sd]{
-                return sd.stopFlag;
-            });
-            lock.unlock();
-            if (stopped) {
-                break;
             }
         }
 
