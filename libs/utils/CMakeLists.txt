@@ -4,15 +4,17 @@ project(libwolv-utils)
 add_library(${PROJECT_NAME} STATIC
         source/utils/string.cpp
 )
+
+add_subdirectory(lib/jthread)
+
 target_include_directories(${PROJECT_NAME} PUBLIC include)
-target_link_libraries(${PROJECT_NAME} PUBLIC wolv::types)
+target_link_libraries(${PROJECT_NAME} PUBLIC wolv::types jthread)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 
 string(REPLACE "libwolv-" "" PROJECT_NAME_SPACE ${PROJECT_NAME})
 add_library(wolv::${PROJECT_NAME_SPACE} ALIAS ${PROJECT_NAME})
 
-add_subdirectory(lib/jthread)
-target_link_libraries(libwolv INTERFACE ${PROJECT_NAME} jthread)
+target_link_libraries(libwolv INTERFACE ${PROJECT_NAME})
 
 
 if (WIN32)
