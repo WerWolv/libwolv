@@ -122,7 +122,7 @@ namespace wolv::io {
     class ChangeTracker {
     public:
         ChangeTracker() = default;
-        explicit ChangeTracker(std::fs::path path)  : m_path(std::move(path)) { };
+        explicit ChangeTracker(std::fs::path path) : m_path(std::move(path)) { };
         explicit ChangeTracker(const File &file) : m_path(file.getPath()) { }
         ~ChangeTracker() { this->stopTracking(); }
 
