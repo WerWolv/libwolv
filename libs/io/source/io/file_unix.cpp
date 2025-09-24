@@ -219,7 +219,7 @@ namespace wolv::io {
 
             const timespec timeout = { 0, 0 };
 			StoppableSleep sleeper(st);
-            for (;;) {
+            while (true) {
                 if (sleeper.sleep(1000)) {
 					break;
 				}
@@ -253,7 +253,7 @@ namespace wolv::io {
             pollfd pollDescriptor = { fileDescriptor, POLLIN, 0 };
 
             StoppableSleep sleeper(st);
-            for (;;) {
+            while (true) {
                 if (sleeper.sleep(1000)) {
 					break;
 				}
