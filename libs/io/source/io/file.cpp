@@ -1,3 +1,5 @@
+#include <utility>
+#include <chrono>
 #include <wolv/io/file.hpp>
 #include <wolv/utils/string.hpp>
 
@@ -121,20 +123,39 @@ namespace wolv::io {
         return writeBufferAtomic(address, reinterpret_cast<const u8*>(string.data()), string.size());
     }
 
+    bool StoppableSleep::sleep(u32 duration) {
+        std::unique_lock lk(m_mtx);
+        bool shouldStop = false;
+
+        std::stop_callback cb(m_st, [&]{
+            m_cv.notify_all();
+            shouldStop = true;
+        });
+
+        m_cv.wait_for(lk, std::chrono::milliseconds(duration), [&]{return shouldStop;});
+
+        return shouldStop;
+    }
+
+    ChangeTracker& ChangeTracker::operator=(ChangeTracker &&other) noexcept {
+        stopTracking();
+        m_path = std::move(other.m_path);
+        m_thread = std::move(other.m_thread);
+
+        return *this;
+    }
+
     void ChangeTracker::startTracking(const std::function<void()> &callback) {
-        if (this->m_path.empty())
+        if (m_path.empty())
             return;
 
-        this->m_thread = std::thread([this, callback]() {
-            trackImpl(this->m_stopped, this->m_path, callback);
-        });
+        m_thread = std::jthread(trackImpl, m_path, callback);
     }
 
     void ChangeTracker::stopTracking() {
-        this->m_stopped = true;
-
-        if (this->m_thread.joinable())
-            this->m_thread.join();
+        m_thread.request_stop();
+        if (m_thread.joinable())
+            m_thread.join();
     }
 
 }

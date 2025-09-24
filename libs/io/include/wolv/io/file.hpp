@@ -8,7 +8,9 @@
 #include <cstdio>
 #include <optional>
 #include <string>
-#include <thread>
+#include <jthread.hpp>
+#include <mutex>
+#include <condition_variable>
 #include <vector>
 #include <functional>
 
@@ -102,6 +104,20 @@ namespace wolv::io {
         mutable size_t m_fileSize = 0;
     };
 
+    class StoppableSleep {
+    public:
+        StoppableSleep(const std::stop_token &st) : m_st(st) {}
+        bool sleep(u32 duration);
+        bool shouldStop() {
+            return m_st.stop_requested();
+        }
+
+    private:
+        std::stop_token m_st;
+        std::mutex m_mtx;
+        std::condition_variable_any m_cv;
+    };
+
     class ChangeTracker {
     public:
         ChangeTracker() = default;
@@ -113,7 +129,7 @@ namespace wolv::io {
         ChangeTracker(ChangeTracker &&) = default;
 
         ChangeTracker& operator=(const ChangeTracker &) = delete;
-        ChangeTracker& operator=(ChangeTracker &&) = default;
+        ChangeTracker& operator=(ChangeTracker &&other) noexcept;
 
         [[nodiscard]] const std::fs::path& getPath() const { return this->m_path; }
 
@@ -121,12 +137,11 @@ namespace wolv::io {
         void stopTracking();
 
     private:
-        static void trackImpl(const bool &stopped, const std::fs::path &path, const std::function<void()> &callback);
+        static void trackImpl(std::stop_token stoken, const std::fs::path &path, const std::function<void()> &callback);
 
     private:
-        bool m_stopped = false;
         std::fs::path m_path;
-        std::thread m_thread;
+        std::jthread m_thread;
     };
 
 }

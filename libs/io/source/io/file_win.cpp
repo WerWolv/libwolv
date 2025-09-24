@@ -247,11 +247,12 @@ namespace wolv::io {
     }
 
 
-    void ChangeTracker::trackImpl(const bool &stopped, const std::fs::path &path, const std::function<void()> &callback) {
+    void ChangeTracker::trackImpl(std::stop_token st, const std::fs::path &path, const std::function<void()> &callback) {
         bool firstTime = true;
         WIN32_FILE_ATTRIBUTE_DATA previousAttributes = {};
 
-        while (!stopped) {
+        StoppableSleep sleeper(st);
+        while (!sleeper.shouldStop()) {
             WIN32_FILE_ATTRIBUTE_DATA currentAttributes;
             if (GetFileAttributesExW(path.c_str(), GetFileExInfoStandard, &currentAttributes) == FALSE) {
                 callback();
@@ -269,7 +270,7 @@ namespace wolv::io {
                 previousAttributes = currentAttributes;
             }
 
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            sleeper.sleep(1000);
         }
 
     }
