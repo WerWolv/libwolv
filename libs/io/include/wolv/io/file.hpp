@@ -8,7 +8,7 @@
 #include <cstdio>
 #include <optional>
 #include <string>
-#include <thread>
+#include <jthread.hpp>
 #include <stop_token>
 #include <mutex>
 #include <condition_variable>
