@@ -1,5 +1,7 @@
 #pragma once
 
+#include <version>
+
 #if __cpp_lib_jthread >= 201911L
     #include <thread>
 #else

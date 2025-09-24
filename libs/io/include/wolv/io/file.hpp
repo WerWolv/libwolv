@@ -9,7 +9,6 @@
 #include <optional>
 #include <string>
 #include <jthread.hpp>
-#include <stop_token>
 #include <mutex>
 #include <condition_variable>
 #include <vector>
