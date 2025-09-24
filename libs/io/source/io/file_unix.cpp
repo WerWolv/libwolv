@@ -4,7 +4,6 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <chrono>
 
 #if defined(OS_MACOS) || defined(OS_FREEBSD)
     #include <sys/types.h>
@@ -200,7 +199,7 @@ namespace wolv::io {
 
 
     #if defined(OS_MACOS) || defined(OS_FREEBSD)
-        void ChangeTracker::trackImpl(ChangeTracker::StopData &sd, const std::fs::path &path, const std::function<void()> &callback) {
+        void ChangeTracker::trackImpl(std::stop_token st, const std::fs::path &path, const std::function<void()> &callback) {
             int queue = kqueue();
             if (queue == -1)
                 throw std::runtime_error("Failed to open kqueue");
@@ -219,15 +218,11 @@ namespace wolv::io {
                 throw std::runtime_error("Failed to add event to kqueue");
 
             const timespec timeout = { 0, 0 };
+			StoppableSleep sleeper(st);
             for (;;) {
-                std::unique_lock<std::mutex> lock(sd.mtx);
-                bool stopped = sd.cv.wait_for(lock, std::chrono::seconds(1), [&sd]{
-                    return sd.stopFlag;
-                });
-                lock.unlock();
-                if (stopped) {
-                    break;
-                }
+                if (sleeper.sleep(1000)) {
+					break;
+				}
 
                 struct kevent eventList[1] = {};
                 int eventCount = kevent(queue, nullptr, 0, eventList, 1, &timeout);
@@ -241,7 +236,7 @@ namespace wolv::io {
 
         }
     #elif defined(OS_LINUX)
-        void ChangeTracker::trackImpl(ChangeTracker::StopData &sd, const std::fs::path &path, const std::function<void()> &callback) {
+        void ChangeTracker::trackImpl(std::stop_token st, const std::fs::path &path, const std::function<void()> &callback) {
             int fileDescriptor = inotify_init();
             if (fileDescriptor == -1)
                 throw std::runtime_error("Failed to open inotify");
@@ -257,16 +252,12 @@ namespace wolv::io {
             std::array<char, 4096> buffer;
             pollfd pollDescriptor = { fileDescriptor, POLLIN, 0 };
 
+            StoppableSleep sleeper(st);
             for (;;) {
-                std::unique_lock<std::mutex> lock(sd.mtx);
-                bool stopped = sd.cv.wait_for(lock, std::chrono::seconds(1), [&sd]{
-                    return sd.stopFlag;
-                });
-                lock.unlock();
-                if (stopped) {
-                    break;
-                }
-
+                if (sleeper.sleep(1000)) {
+					break;
+				}
+    
                 if (poll(&pollDescriptor, 1, 0) <= 0)
                     continue;
 
