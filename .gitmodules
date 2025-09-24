@@ -1,0 +1,3 @@
+[submodule "libs/utils/lib/jthread/jthread"]
+	path = libs/utils/lib/jthread/jthread
+	url = https://github.com/josuttis/jthread

@@ -11,7 +11,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 string(REPLACE "libwolv-" "" PROJECT_NAME_SPACE ${PROJECT_NAME})
 add_library(wolv::${PROJECT_NAME_SPACE} ALIAS ${PROJECT_NAME})
 
-target_link_libraries(libwolv INTERFACE ${PROJECT_NAME})
+add_subdirectory(lib/jthread)
+target_link_libraries(libwolv INTERFACE ${PROJECT_NAME} jthread)
+
 
 if (WIN32)
     set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
