@@ -108,7 +108,7 @@ namespace wolv::io {
     class StoppableSleep {
     public:
         StoppableSleep(const std::stop_token &st) : m_st(st) {}
-        bool sleep(int dur);
+        bool sleep(u32 duration);
         bool shouldStop() {
             return m_st.stop_requested();
         }
@@ -122,7 +122,7 @@ namespace wolv::io {
     class ChangeTracker {
     public:
         ChangeTracker() = default;
-        explicit ChangeTracker(std::fs::path path) : m_path(std::move(path)) { };
+        explicit ChangeTracker(std::fs::path path) : m_path(std::move(path)) { }
         explicit ChangeTracker(const File &file) : m_path(file.getPath()) { }
         ~ChangeTracker() { this->stopTracking(); }
 

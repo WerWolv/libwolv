@@ -123,7 +123,7 @@ namespace wolv::io {
         return writeBufferAtomic(address, reinterpret_cast<const u8*>(string.data()), string.size());
     }
 
-    bool StoppableSleep::sleep(int dur) {
+    bool StoppableSleep::sleep(u32 duration) {
         std::unique_lock lk(m_mtx);
         bool shouldStop = false;
 
@@ -132,7 +132,7 @@ namespace wolv::io {
             shouldStop = true;
         });
 
-        m_cv.wait_for(lk, std::chrono::milliseconds(dur), [&]{return shouldStop;});
+        m_cv.wait_for(lk, std::chrono::milliseconds(duration), [&]{return shouldStop;});
 
         return shouldStop;
     }
