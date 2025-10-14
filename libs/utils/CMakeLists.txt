@@ -21,6 +21,11 @@ if (WIN32)
     set_target_properties(${PROJECT_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 endif()
 
+# Enable the experimental libc++ library features on clang to get access to a properly functioning std::jthread
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(${PROJECT_NAME} PUBLIC -fexperimental-library)
+endif()
+
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     target_compile_options(${PROJECT_NAME} PRIVATE /EHsc)
 endif()

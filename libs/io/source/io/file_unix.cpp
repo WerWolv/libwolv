@@ -277,7 +277,7 @@ namespace wolv::io {
 
         }
     #else
-        void ChangeTracker::trackImpl(const bool &, const std::fs::path &, const std::function<void()> &) {}
+        void ChangeTracker::trackImpl(std::stop_token st, const std::fs::path &, const std::function<void()> &) {}
     #endif
 
 }
