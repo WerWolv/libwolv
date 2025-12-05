@@ -8,7 +8,7 @@ namespace wolv::util {
     [[nodiscard]] std::optional<T> from_chars(std::string_view string, int base = 0) {
         T value;
         auto [ptr, ec] = std::from_chars(string.data(), string.data() + string.size(), value, base);
-        if (ec != std::errc() || ptr != string.data() + string.size())
+        if (ec != std::errc())
             return std::nullopt;
         return value;
     }
@@ -18,7 +18,7 @@ namespace wolv::util {
         T value;
         if constexpr (requires { std::from_chars(string.data(), string.data() + string.size(), value, format); }) {
             auto [ptr, ec] = std::from_chars(string.data(), string.data() + string.size(), value, format);
-            if (ec != std::errc() || ptr != string.data() + string.size())
+            if (ec != std::errc())
                 return std::nullopt;
             return value;
         } else {
