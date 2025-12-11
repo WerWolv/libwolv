@@ -161,7 +161,14 @@ namespace wolv::io {
         }
 
         const auto currOffset = lseek(m_handle, 0, SEEK_CUR);
-        m_fileSize = lseek(m_handle, 0, SEEK_END);
+        auto result = lseek(m_handle, 0, SEEK_END);
+        if (result < 0) {
+            m_fileSize = 0;
+            return;
+        }
+
+        m_fileSize = result;
+
         lseek(m_handle, currOffset, SEEK_SET);
         m_sizeValid = true;
     }
