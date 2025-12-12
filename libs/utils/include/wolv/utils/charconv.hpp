@@ -1,11 +1,29 @@
 #pragma once
 
 #include <charconv>
+#include <wolv/utils/string.hpp>
 
 namespace wolv::util {
 
     template<std::integral T>
     [[nodiscard]] std::optional<T> from_chars(std::string_view string, int base = 0) {
+        if (base == 0) {
+            const auto trimmed = trim(string);
+            if (trimmed.starts_with("0x") || trimmed.starts_with("0X")) {
+                base = 16;
+                string = trimmed.substr(2);
+            } else if (trimmed.starts_with("0o") || trimmed.starts_with("0O")) {
+                base = 8;
+                string = trimmed.substr(2);
+            }  else if (trimmed.starts_with("0b") || trimmed.starts_with("0B")) {
+                base = 2;
+                string = trimmed.substr(2);
+            } else {
+                base = 10;
+                string = trimmed;
+            }
+        }
+
         T value;
         auto [ptr, ec] = std::from_chars(string.data(), string.data() + string.size(), value, base);
         if (ec != std::errc())
