@@ -146,6 +146,8 @@ namespace wolv::net {
                 continue;
             }
 
+            const auto receiveResult = errno;
+
             if (!data.empty()) {
 
                 // Callback with the data
@@ -163,7 +165,7 @@ namespace wolv::net {
             }
 
             // Check if the client is still connected
-            if (receivedByteCount < 0 && errno == EAGAIN)
+            if (receivedByteCount < 0 && (receiveResult == EAGAIN))
                 // We need to continue, because the client is still connected
                 continue;
 
@@ -205,4 +207,7 @@ namespace wolv::net {
         this->m_socket = SocketNone;
     }
 
+    void SocketServer::disconnectClients() {
+        this->m_threadPool.stopTasks();
+    }
 }
