@@ -34,6 +34,7 @@ namespace wolv::net {
         [[nodiscard]] std::string readString(size_t size = 0x1000) const;
         [[nodiscard]] std::vector<u8> readBytes(size_t size = 0x1000) const;
         [[nodiscard]] int readBytes(u8 *buffer, size_t size) const;
+        [[nodiscard]] std::vector<u8> readBytesUntil(u8 delimiter) const;
 
         void writeString(const std::string &string) const;
         void writeBytes(const std::vector<u8> &bytes) const;

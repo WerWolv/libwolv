@@ -182,7 +182,12 @@ namespace wolv::net {
         }
 
         this->m_threadPool.enqueue([this, clientSocket, callback, closeCallback, keepAlive](const auto &shouldStop) {
-            this->handleClient(clientSocket, keepAlive, shouldStop, callback);
+            try {
+                this->handleClient(clientSocket, keepAlive, shouldStop, callback);
+            } catch (...) {
+                // Ignore exception and just close the socket gracefully
+            }
+
             if (closeCallback)
                 closeCallback(clientSocket);
             closeSocket(clientSocket);

@@ -79,6 +79,24 @@ namespace wolv::net {
         return result;
     }
 
+    std::vector<u8> SocketClient::readBytesUntil(u8 delimiter) const {
+        std::vector<u8> result;
+
+        while (this->isConnected()) {
+            u8 byte;
+            auto readSize = this->readBytes(&byte, 1);
+            if (readSize <= 0)
+                break;
+
+            if (byte == delimiter)
+                break;
+
+            result.push_back(byte);
+        }
+
+        return result;
+    }
+
 
     std::string SocketClient::readString(size_t size) const {
         auto bytes = readBytes(size);
