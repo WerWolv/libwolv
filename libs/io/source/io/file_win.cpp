@@ -120,7 +120,7 @@ namespace wolv::io {
         this->m_map = nullptr;
     }
 
-    ssize_t File::readBuffer(u8 *buffer, size_t size) {
+    File::Result File::readBuffer(u8 *buffer, size_t size) {
         if (!isValid()) return -1;
 
         DWORD bytesRead = 0;
@@ -130,7 +130,7 @@ namespace wolv::io {
         return bytesRead;
     }
 
-    ssize_t File::readBufferAtomic(u64 address, u8 *buffer, size_t size) {
+    File::Result File::readBufferAtomic(u64 address, u8 *buffer, size_t size) {
         if (!isValid()) return -1;
 
         OVERLAPPED overlapped = { };
@@ -151,7 +151,7 @@ namespace wolv::io {
         }
     }
 
-    ssize_t File::writeBuffer(const u8 *buffer, size_t size) {
+    File::Result File::writeBuffer(const u8 *buffer, size_t size) {
         if (!isValid())
             return -1;
 
@@ -164,7 +164,7 @@ namespace wolv::io {
         return bytesWritten;
     }
 
-    ssize_t File::writeBufferAtomic(u64 address, const u8 *buffer, size_t size) {
+    File::Result File::writeBufferAtomic(u64 address, const u8 *buffer, size_t size) {
         if (!isValid())
             return -1;
 

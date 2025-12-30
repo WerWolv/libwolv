@@ -111,27 +111,27 @@ namespace wolv::io {
         return { cString, util::strnlen(reinterpret_cast<const char*>(bytes.data()), bytes.size()) };
     }
 
-    ssize_t File::writeVector(const std::vector<u8> &bytes) {
+    File::Result File::writeVector(const std::vector<u8> &bytes) {
         return writeBuffer(bytes.data(), bytes.size());
     }
 
-    ssize_t File::writeString(const std::string &string) {
+    File::Result File::writeString(const std::string &string) {
         return writeBuffer(reinterpret_cast<const u8*>(string.data()), string.size());
     }
 
-    ssize_t File::writeU8String(const std::u8string &string) {
+    File::Result File::writeU8String(const std::u8string &string) {
         return writeBuffer(reinterpret_cast<const u8*>(string.data()), string.size());
     }
 
-    ssize_t File::writeVectorAtomic(u64 address, const std::vector<u8> &bytes) {
+    File::Result File::writeVectorAtomic(u64 address, const std::vector<u8> &bytes) {
         return writeBufferAtomic(address, bytes.data(), bytes.size());
     }
 
-    ssize_t File::writeStringAtomic(u64 address, const std::string &string) {
+    File::Result File::writeStringAtomic(u64 address, const std::string &string) {
         return writeBufferAtomic(address, reinterpret_cast<const u8*>(string.data()), string.size());
     }
 
-    ssize_t File::writeU8StringAtomic(u64 address, const std::u8string &string) {
+    File::Result File::writeU8StringAtomic(u64 address, const std::u8string &string) {
         return writeBufferAtomic(address, reinterpret_cast<const u8*>(string.data()), string.size());
     }
 
