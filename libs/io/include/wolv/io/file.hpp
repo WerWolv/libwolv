@@ -55,25 +55,25 @@ namespace wolv::io {
         void unmap();
         [[nodiscard]] u8* getMapping() const { return this->m_map; }
 
-        size_t readBuffer(u8 *buffer, size_t size);
+        ssize_t readBuffer(u8 *buffer, size_t size);
         [[nodiscard]] std::vector<u8> readVector(size_t numBytes = 0);
         [[nodiscard]] std::string readString(size_t numBytes = 0);
         [[nodiscard]] std::u8string readU8String(size_t numBytes = 0);
 
-        size_t readBufferAtomic(u64 address, u8 *buffer, size_t size);
+        ssize_t readBufferAtomic(u64 address, u8 *buffer, size_t size);
         [[nodiscard]] std::vector<u8> readVectorAtomic(u64 address, size_t numBytes);
         [[nodiscard]] std::string readStringAtomic(u64 address, size_t numBytes);
         [[nodiscard]] std::u8string readU8StringAtomic(u64 address, size_t numBytes);
 
-        size_t writeBuffer(const u8 *buffer, size_t size);
-        size_t writeVector(const std::vector<u8> &bytes);
-        size_t writeString(const std::string &string);
-        size_t writeU8String(const std::u8string &string);
+        ssize_t writeBuffer(const u8 *buffer, size_t size);
+        ssize_t writeVector(const std::vector<u8> &bytes);
+        ssize_t writeString(const std::string &string);
+        ssize_t writeU8String(const std::u8string &string);
 
-        size_t writeBufferAtomic(u64 address, const u8 *buffer, size_t size);
-        size_t writeVectorAtomic(u64 address, const std::vector<u8> &bytes);
-        size_t writeStringAtomic(u64 address, const std::string &string);
-        size_t writeU8StringAtomic(u64 address, const std::u8string &string);
+        ssize_t writeBufferAtomic(u64 address, const u8 *buffer, size_t size);
+        ssize_t writeVectorAtomic(u64 address, const std::vector<u8> &bytes);
+        ssize_t writeStringAtomic(u64 address, const std::string &string);
+        ssize_t writeU8StringAtomic(u64 address, const std::u8string &string);
 
         [[nodiscard]] size_t getSize() const;
         void setSize(u64 size);

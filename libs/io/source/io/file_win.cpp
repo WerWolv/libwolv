@@ -120,17 +120,18 @@ namespace wolv::io {
         this->m_map = nullptr;
     }
 
-    size_t File::readBuffer(u8 *buffer, size_t size) {
-        if (!isValid()) return 0;
+    ssize_t File::readBuffer(u8 *buffer, size_t size) {
+        if (!isValid()) return -1;
 
         DWORD bytesRead = 0;
-        ::ReadFile(m_handle, buffer, size, &bytesRead, nullptr);
+        if (::ReadFile(m_handle, buffer, size, &bytesRead, nullptr) != TRUE)
+            return -1;
 
         return bytesRead;
     }
 
-    size_t File::readBufferAtomic(u64 address, u8 *buffer, size_t size) {
-        if (!isValid()) return 0;
+    ssize_t File::readBufferAtomic(u64 address, u8 *buffer, size_t size) {
+        if (!isValid()) return -1;
 
         OVERLAPPED overlapped = { };
         overlapped.Offset = static_cast<DWORD>(address);
@@ -145,24 +146,27 @@ namespace wolv::io {
                 ::GetOverlappedResult(m_handle, &overlapped, &bytesRead, TRUE);
                 return bytesRead;
             } else {
-                return 0;
+                return -1;
             }
         }
     }
 
-    size_t File::writeBuffer(const u8 *buffer, size_t size) {
-        if (!isValid()) return 0;
+    ssize_t File::writeBuffer(const u8 *buffer, size_t size) {
+        if (!isValid())
+            return -1;
 
         m_sizeValid = false;
 
         DWORD bytesWritten = 0;
-        ::WriteFile(m_handle, buffer, size, &bytesWritten, nullptr);
+        if (::WriteFile(m_handle, buffer, size, &bytesWritten, nullptr) != TRUE)
+            return -1;
 
         return bytesWritten;
     }
 
-    size_t File::writeBufferAtomic(u64 address, const u8 *buffer, size_t size) {
-        if (!isValid()) return 0;
+    ssize_t File::writeBufferAtomic(u64 address, const u8 *buffer, size_t size) {
+        if (!isValid())
+            return -1;
 
         thread_local OVERLAPPED overlapped = { };
         overlapped.Offset = static_cast<DWORD>(address);
@@ -178,7 +182,7 @@ namespace wolv::io {
                 ::GetOverlappedResult(m_handle, &overlapped, &bytesRead, TRUE);
                 return bytesRead;
             } else {
-                return 0;
+                return -1;
             }
         }
     }

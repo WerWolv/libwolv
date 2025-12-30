@@ -24,13 +24,17 @@ namespace wolv::io {
     }
 
     std::vector<u8> File::readVector(size_t numBytes) {
-        if (!isValid()) return {};
+        if (!isValid())
+            return {};
 
         auto size = numBytes == 0 ? getSize() : numBytes;
-        if (size == 0) return {};
+        if (size == 0)
+            return {};
 
         std::vector<u8> bytes(size);
         auto bytesRead = readBuffer(bytes.data(), bytes.size());
+        if (bytesRead < 0)
+            return {};
 
         bytes.resize(bytesRead);
 
@@ -38,7 +42,8 @@ namespace wolv::io {
     }
 
     std::string File::readString(size_t numBytes) {
-        if (!isValid()) return {};
+        if (!isValid())
+            return {};
 
         auto bytes = this->readVector(numBytes);
 
@@ -50,7 +55,8 @@ namespace wolv::io {
     }
 
     std::u8string File::readU8String(size_t numBytes) {
-        if (!isValid()) return {};
+        if (!isValid())
+            return {};
 
         auto bytes = this->readVector(numBytes);
 
@@ -62,13 +68,17 @@ namespace wolv::io {
     }
 
     std::vector<u8> File::readVectorAtomic(u64 address, size_t numBytes) {
-        if (!isValid()) return {};
+        if (!isValid())
+            return {};
 
         auto size = numBytes == 0 ? getSize() : numBytes;
-        if (size == 0) return {};
+        if (size == 0)
+            return {};
 
         std::vector<u8> bytes(size);
         auto bytesRead = readBufferAtomic(address, bytes.data(), bytes.size());
+        if (bytesRead < 0)
+            return {};
 
         bytes.resize(bytesRead);
 
@@ -76,7 +86,8 @@ namespace wolv::io {
     }
 
     std::string File::readStringAtomic(u64 address, size_t numBytes) {
-        if (!isValid()) return {};
+        if (!isValid())
+            return {};
 
         auto bytes = this->readVectorAtomic(address, numBytes);
 
@@ -88,7 +99,8 @@ namespace wolv::io {
     }
 
     std::u8string File::readU8StringAtomic(u64 address, size_t numBytes) {
-        if (!isValid()) return {};
+        if (!isValid())
+            return {};
 
         auto bytes = this->readVectorAtomic(address, numBytes);
 
@@ -99,27 +111,27 @@ namespace wolv::io {
         return { cString, util::strnlen(reinterpret_cast<const char*>(bytes.data()), bytes.size()) };
     }
 
-    size_t File::writeVector(const std::vector<u8> &bytes) {
+    ssize_t File::writeVector(const std::vector<u8> &bytes) {
         return writeBuffer(bytes.data(), bytes.size());
     }
 
-    size_t File::writeString(const std::string &string) {
+    ssize_t File::writeString(const std::string &string) {
         return writeBuffer(reinterpret_cast<const u8*>(string.data()), string.size());
     }
 
-    size_t File::writeU8String(const std::u8string &string) {
+    ssize_t File::writeU8String(const std::u8string &string) {
         return writeBuffer(reinterpret_cast<const u8*>(string.data()), string.size());
     }
 
-    size_t File::writeVectorAtomic(u64 address, const std::vector<u8> &bytes) {
+    ssize_t File::writeVectorAtomic(u64 address, const std::vector<u8> &bytes) {
         return writeBufferAtomic(address, bytes.data(), bytes.size());
     }
 
-    size_t File::writeStringAtomic(u64 address, const std::string &string) {
+    ssize_t File::writeStringAtomic(u64 address, const std::string &string) {
         return writeBufferAtomic(address, reinterpret_cast<const u8*>(string.data()), string.size());
     }
 
-    size_t File::writeU8StringAtomic(u64 address, const std::u8string &string) {
+    ssize_t File::writeU8StringAtomic(u64 address, const std::u8string &string) {
         return writeBufferAtomic(address, reinterpret_cast<const u8*>(string.data()), string.size());
     }
 

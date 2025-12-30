@@ -115,31 +115,32 @@ namespace wolv::io {
         m_map = nullptr;
     }
 
-    size_t File::readBuffer(u8 *buffer, size_t size) {
+    ssize_t File::readBuffer(u8 *buffer, size_t size) {
         if (!isValid())
-            return 0;
+            return -1;
 
         return read(m_handle, buffer, size);
     }
 
-    size_t File::readBufferAtomic(u64 address, u8 *buffer, size_t size) {
+    ssize_t File::readBufferAtomic(u64 address, u8 *buffer, size_t size) {
         if (!isValid())
-            return 0;
+            return -1;
 
         return pread(m_handle, buffer, size, address);
     }
 
 
-    size_t File::writeBuffer(const u8 *buffer, size_t size) {
-        if (!isValid()) return 0;
+    ssize_t File::writeBuffer(const u8 *buffer, size_t size) {
+        if (!isValid())
+            return -1;
 
         m_sizeValid = false;
         return write(m_handle, buffer, size);
     }
 
-    size_t File::writeBufferAtomic(u64 address, const u8 *buffer, size_t size) {
+    ssize_t File::writeBufferAtomic(u64 address, const u8 *buffer, size_t size) {
         if (!isValid())
-            return 0;
+            return -1;
 
         m_sizeValid = false;
         return pwrite(m_handle, buffer, size, address);
