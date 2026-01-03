@@ -84,6 +84,7 @@ namespace wolv::io {
         bool remove();
 
         [[nodiscard]] FILE* getHandle() const;
+        [[nodiscard]] NativeHandle getNativeHandle() const { return m_handle; }
         [[nodiscard]] const std::fs::path &getPath() const { return this->m_path; }
 
         void disableBuffering();
