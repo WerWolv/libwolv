@@ -39,7 +39,9 @@ namespace wolv::net {
         if (!this->isConnected()) return;
         if (size == 0) return;
 
-        ::send(this->m_socket, reinterpret_cast<const char *>(buffer), size, 0);
+        if (::send(this->m_socket, reinterpret_cast<const char *>(buffer), size, 0) < 0) {
+            m_connected = false;
+        }
     }
 
     void SocketClient::writeString(const std::string &string) const {
@@ -71,8 +73,10 @@ namespace wolv::net {
         std::vector<u8> result(size);
 
         auto readSize = this->readBytes(result.data(), size);
-        if (readSize <= 0)
+        if (readSize <= 0) {
+            m_connected = false;
             return { };
+        }
 
         result.resize(readSize);
 
@@ -85,8 +89,10 @@ namespace wolv::net {
         while (this->isConnected()) {
             u8 byte;
             auto readSize = this->readBytes(&byte, 1);
-            if (readSize <= 0)
+            if (readSize <= 0) {
+                m_connected = false;
                 break;
+            }
 
             if (byte == delimiter)
                 break;

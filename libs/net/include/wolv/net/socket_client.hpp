@@ -41,7 +41,7 @@ namespace wolv::net {
         void writeBytes(const u8 *buffer, size_t size) const;
 
     private:
-        bool m_connected = false;
+        mutable bool m_connected = false;
         Type m_type = Type::TCP;
         bool m_blocking = false;
 

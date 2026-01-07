@@ -44,8 +44,6 @@ namespace wolv::net {
         constexpr int reuse = true;
         #if defined (OS_WINDOWS)
             setsockopt(this->m_socket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<const char *>(&reuse), sizeof(reuse));
-            setsockopt(this->m_socket, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, reinterpret_cast<const char *>(&reuse), sizeof(reuse));
-
             u_long mode = 1;
             ::ioctlsocket(this->m_socket, FIONBIO, &mode);
         #else
@@ -127,26 +125,32 @@ namespace wolv::net {
         std::vector<u8> buffer(m_bufferSize);
         std::vector<u8> data;
 
+        // Set socket to blocking mode with timeout
+        setSocketTimeout(clientSocket, 100);
+
+        #if defined(OS_WINDOWS)
+            u_long mode = 0;  // 0 = blocking mode
+            ::ioctlsocket(clientSocket, FIONBIO, &mode);
+        #else
+            // Remove O_NONBLOCK flag to set blocking mode
+            int flags = ::fcntl(clientSocket, F_GETFL, 0);
+            ::fcntl(clientSocket, F_SETFL, flags & ~O_NONBLOCK);
+        #endif
+
         while (!shouldStop) {
-            setSocketTimeout(clientSocket, 100);
-
-            bool reuse = true;
-            ::setsockopt(clientSocket, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&reuse), sizeof(reuse));
-
-            #if defined(OS_WINDOWS)
-                u_long mode = 1;
-                ::ioctlsocket(clientSocket, FIONBIO, &mode);
-            #else
-                ::fcntl(clientSocket, F_SETFL, ::fcntl(clientSocket, F_GETFL, 0) | O_NONBLOCK);
-            #endif
-
             int receivedByteCount = ::recv(clientSocket, reinterpret_cast<char*>(buffer.data()), buffer.size(), 0);
             if (receivedByteCount > 0) {
                 std::copy_n(buffer.begin(), receivedByteCount, std::back_inserter(data));
                 continue;
             }
 
-            const auto receiveResult = errno;
+            #if defined(OS_WINDOWS)
+                const auto receiveResult = WSAGetLastError();
+                const bool wouldBlock = (receiveResult == WSAEWOULDBLOCK || receiveResult == WSAETIMEDOUT);
+            #else
+                const auto receiveResult = errno;
+                const bool wouldBlock = (receiveResult == EAGAIN || receiveResult == EWOULDBLOCK);
+            #endif
 
             if (!data.empty()) {
 
@@ -154,23 +158,17 @@ namespace wolv::net {
                 auto result = callback(clientSocket, data);
                 if (!result.empty())
                     ::send(clientSocket, reinterpret_cast<const char *>(result.data()), result.size(), 0);
-
-                // Clear the data
                 data.clear();
 
-                // If we're not keeping the connection alive, break
                 if (!keepAlive)
                     break;
-
             }
 
             // Check if the client is still connected
-            if (receivedByteCount < 0 && (receiveResult == EAGAIN))
-                // We need to continue, because the client is still connected
+            if (receivedByteCount < 0 && wouldBlock)
+                // Timeout occurred, but client is still connected
                 continue;
 
-            // If the client is not connected, break
-            closeSocket(clientSocket);
             break;
         }
     }
