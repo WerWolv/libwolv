@@ -216,7 +216,7 @@ namespace wolv::util {
         return output;
     }
 
-    std::optional<std::u32string> utf8ToUtf32(const std::string& input) {
+    std::optional<std::u32string> utf8ToUtf32(const std::string& input, bool allowInvalid) {
         std::u32string output;
         size_t i = 0;
         while (i < input.size()) {
@@ -234,7 +234,11 @@ namespace wolv::util {
                 codepoint = ((byte & 0x07) << 18) | ((input[i + 1] & 0x3F) << 12) | ((input[i + 2] & 0x3F) << 6) | (input[i + 3] & 0x3F);
                 i += 3;
             } else {
-                return std::nullopt;
+                if (allowInvalid) {
+                    codepoint = byte;
+                } else {
+                    return std::nullopt;
+                }
             }
             output.push_back(codepoint);
             i += 1;
