@@ -74,7 +74,6 @@ namespace wolv::net {
 
         auto readSize = this->readBytes(result.data(), size);
         if (readSize <= 0) {
-            m_connected = false;
             return { };
         }
 
@@ -89,10 +88,12 @@ namespace wolv::net {
         while (this->isConnected()) {
             u8 byte;
             auto readSize = this->readBytes(&byte, 1);
-            if (readSize <= 0) {
+            if (readSize < 0) {
                 m_connected = false;
                 break;
             }
+            if (readSize == 0)
+                continue;
 
             if (byte == delimiter)
                 break;
@@ -136,9 +137,8 @@ namespace wolv::net {
     void SocketClient::disconnect() {
         if (this->m_socket != SocketNone) {
             closeSocket(this->m_socket);
+            this->m_connected = false;
         }
-
-        this->m_connected = false;
     }
 
 }
