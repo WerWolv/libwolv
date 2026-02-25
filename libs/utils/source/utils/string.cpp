@@ -7,6 +7,9 @@
 namespace wolv::util {
 
     std::vector<std::string> splitString(const std::string &string, const std::string &delimiter, bool removeEmpty) {
+      if (string.empty() || delimiter.empty()) {
+        return {string};
+      }
       auto notEmpty = [removeEmpty](auto &&s){return !removeEmpty || s.size() != 0; };
       auto splitted = std::ranges::split_view(string, delimiter) |
                       std::views::filter(notEmpty) |
