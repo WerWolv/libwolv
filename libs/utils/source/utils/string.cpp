@@ -26,13 +26,10 @@ namespace wolv::util {
         if (search.empty())
             return string;
 
-        std::size_t pos = 0;
-        while ((pos = string.find(search, pos)) != std::string::npos) {
-            string.replace(pos, search.size(), replace);
-            pos += replace.size();
-        }
-
-        return string;
+        auto replaced = std::ranges::split_view(string, search) |
+                        std::views::join_with(replace);
+        auto common_replaced = std::ranges::common_view(std::move(replaced));
+        return std::string(common_replaced.begin(), common_replaced.end());
     }
 
     std::string preprocessText(const std::string& code) {
