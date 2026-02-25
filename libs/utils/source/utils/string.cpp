@@ -15,13 +15,8 @@ namespace wolv::util {
     }
 
     std::string combineStrings(const std::vector<std::string> &strings, const std::string &delimiter) {
-        std::string result;
-        for (const auto &string : strings) {
-            result += string;
-            result += delimiter;
-        }
-
-        return result.substr(0, result.length() - delimiter.length());
+      auto joined = std::ranges::join_with_view(strings, delimiter);
+      return std::string(joined.begin(), joined.end());
     }
 
     std::string replaceStrings(std::string string, const std::string &search, const std::string &replace) {
