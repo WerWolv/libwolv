@@ -1,58 +1,35 @@
 #include <wolv/utils/string.hpp>
 
 #include <locale>
+#include <ranges>
 #include <wolv/concepts.hpp>
 
 namespace wolv::util {
 
     std::vector<std::string> splitString(const std::string &string, const std::string &delimiter, bool removeEmpty) {
-        if (delimiter.empty() || string.empty()) {
-            return { string };
-        }
-
-        std::vector<std::string> result;
-
-        size_t start = 0, end = 0;
-        while ((end = string.find(delimiter, start)) != std::string::npos) {
-            size_t size = end - start;
-            if (start + size > string.length())
-                break;
-
-            auto token = string.substr(start, end - start);
-            start = end + delimiter.length();
-            result.emplace_back(std::move(token));
-        }
-
-        if (start <= string.size())
-            result.emplace_back(string.substr(start));
-
-        if (removeEmpty)
-            std::erase_if(result, [](const auto &string) { return string.empty(); });
-
-        return result;
+      if (string.empty() || delimiter.empty()) {
+        return {string};
+      }
+      auto notEmpty = [removeEmpty](auto &&s){return !removeEmpty || s.size() != 0; };
+      auto splitted = std::ranges::split_view(string, delimiter) |
+                      std::views::filter(notEmpty) |
+                      std::views::transform([](auto &&s) { return std::string(s.begin(), s.end());});
+      return std::vector(splitted.begin(), splitted.end());
     }
 
     std::string combineStrings(const std::vector<std::string> &strings, const std::string &delimiter) {
-        std::string result;
-        for (const auto &string : strings) {
-            result += string;
-            result += delimiter;
-        }
-
-        return result.substr(0, result.length() - delimiter.length());
+      auto joined = std::ranges::join_with_view(strings, delimiter);
+      return std::string(joined.begin(), joined.end());
     }
 
     std::string replaceStrings(std::string string, const std::string &search, const std::string &replace) {
         if (search.empty())
             return string;
 
-        std::size_t pos = 0;
-        while ((pos = string.find(search, pos)) != std::string::npos) {
-            string.replace(pos, search.size(), replace);
-            pos += replace.size();
-        }
-
-        return string;
+        auto replaced = std::ranges::split_view(string, search) |
+                        std::views::join_with(replace);
+        auto common_replaced = std::ranges::common_view(std::move(replaced));
+        return std::string(common_replaced.begin(), common_replaced.end());
     }
 
     std::string preprocessText(const std::string& code) {
