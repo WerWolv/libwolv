@@ -3,6 +3,7 @@ project(libwolv-utils)
 # Add library
 add_library(${PROJECT_NAME} STATIC
         source/utils/string.cpp
+        source/utils/date_time_format.cpp
 )
 
 add_subdirectory(lib/jthread)
