@@ -1,6 +1,7 @@
 // date_time_format.cpp
 
 #include <wolv/utils/date_time_format.hpp>
+#include <wolv/utils/soo_buffer.hpp>
 
 namespace wolv::util {
 
@@ -66,6 +67,97 @@ std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(std::int64_t t, bool bits64) {
     }
 
     return st;
+}
+
+std::optional<std::string> formatDateFromSYSTEMTIME(LPCWSTR lc, const SYSTEMTIME* pss, bool bTime) {
+    constexpr size_t datebuflen = 48;
+    constexpr size_t timebuflen = 24;
+    constexpr WCHAR dtsep[] = L" ";
+    constexpr size_t dtsep_strlen = sizeof(dtsep)/sizeof(dtsep[0])-1;
+    constexpr size_t dt_strlen = datebuflen + dtsep_strlen + timebuflen;
+
+    wolv::util::SOOBuffer<WCHAR, datebuflen + dtsep_strlen + timebuflen + 1, true> date;
+
+    int gdfLen = GetDateFormatEx(
+        lc, DATE_LONGDATE, pss, NULL, date, static_cast<int>(date.size()), NULL);
+    if (gdfLen == 0) {
+        if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+            // Our stack buffer was too small. Measure, alloc and convert.
+            gdfLen = GetDateFormatEx(
+                lc, DATE_LONGDATE, pss, NULL, NULL, 0, NULL);
+            if (gdfLen == 0) {
+                return std::nullopt;
+            }
+            date.grow(gdfLen-1 + (bTime ? dtsep_strlen+timebuflen : 0) + 1);
+            gdfLen = GetDateFormatEx(
+                lc, DATE_LONGDATE, pss, NULL, date, static_cast<int>(date.size()), NULL);
+            if (gdfLen == 0) {
+                return std::nullopt;
+            }
+        }
+        else {
+            return std::nullopt;
+        }
+    }
+
+    if (bTime) {
+        date.grow(gdfLen-1 + dtsep_strlen + timebuflen + 1);
+        memcpy(date+gdfLen-1, dtsep, sizeof(dtsep));
+
+        WCHAR* pTime = date + gdfLen-1 + dtsep_strlen;
+        size_t time_sz = date.size()-(pTime-date);
+
+        int gtfLen = GetTimeFormatEx(lc, 0, pss, NULL, pTime, static_cast<int>(time_sz));
+        if (gtfLen == 0) {
+            if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+                // Our stack buffer was too small. Measure, alloc and convert.
+                gtfLen = GetTimeFormatEx(lc, 0, pss, NULL, NULL, 0);
+                if (gtfLen == 0) {
+                    return std::nullopt;
+                }
+
+                date.grow(gdfLen-1 + dtsep_strlen + gtfLen-1 + 1);
+
+                pTime = date + gdfLen - 1 + dtsep_strlen;
+                time_sz = date.size() - (pTime - date);
+
+                gtfLen = GetTimeFormatEx(
+                    lc, 0, pss, NULL, pTime, static_cast<int>(gtfLen-1 + 1));
+                if (gtfLen == 0) {
+                    return std::nullopt;
+                }
+            }
+            else {
+                return std::nullopt;
+            }
+        }
+    }
+
+    std::string out;
+    out.resize(dt_strlen);
+
+    int res = WideCharToMultiByte(CP_UTF8, 0, date, -1, &out[0], dt_strlen, NULL, NULL);
+    if (res == 0) {
+        if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+            // Our buffer was too small. Measure, alloc and convert.
+            res = WideCharToMultiByte(CP_UTF8, 0, date, -1, NULL, 0, NULL, NULL);
+            if (res == 0) {
+                return std::nullopt;
+            }
+
+            out.resize(res);
+
+            res = WideCharToMultiByte(CP_UTF8, 0, date, -1, &out[0], res, NULL, NULL);
+            if (res == 0) {
+                return std::nullopt;
+            }
+        }
+        else {
+            return std::nullopt;
+        }
+    }
+
+    return out;
 }
 
 } // namespace wolv::util
