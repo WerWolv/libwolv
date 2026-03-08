@@ -70,6 +70,14 @@ std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(std::int64_t t, bool bits64) {
 }
 
 std::optional<std::string> formatDateFromSYSTEMTIME(LPCWSTR lc, const SYSTEMTIME* pss, bool bTime) {
+    // We try to minimize heap allocations by preferring stack-based buffers.
+    // If the data exceeds the stack buffer size, we fall back to the heap.
+    // Functions like GetDateFormatEx and WideCharToMultiByte are somewhat
+    // awkward: they can either calculate the required buffer size or write
+    // into a supplied buffer, but not both at the same time. Our approach is
+    // to start with a stack buffer and, if it proves too small, query the API
+    // for the required size and retry using a suitably sized buffer.
+    // These constants are guesses at reasonably sized stack-based buffers.
     constexpr size_t datebuflen = 48;
     constexpr size_t timebuflen = 24;
     constexpr WCHAR dtsep[] = L" ";
