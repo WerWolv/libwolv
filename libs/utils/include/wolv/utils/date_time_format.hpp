@@ -3,8 +3,8 @@
 
 #if defined(OS_WINDOWS)
 # include <windows.h>
+# include <wolv/types.hpp>
 # include <optional>
-# include <cstdint>
 # include <string>
 #endif // #if defined(OS_WINDOWS)
 
@@ -13,10 +13,13 @@
 namespace wolv::util {
 
 #if defined(OS_WINDOWS)
-    std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(std::int64_t t, bool bits64=true);
+    std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64, bool bits64=true);
     std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME* pss, bool bTime = true);
-    std::optional<std::string> formatTT(const char *lang, std::int64_t t, bool bits64=true);
-    std::optional<std::string> formatTTPOSIX(const char *lang, std::int64_t t, bool bits64=true);
+
+    std::optional<std::string> formatTT(const char *lang, i64, bool bits64=true);
+    std::optional<std::string> formatTTPOSIX(const char *lang, i64, bool bits64=true);
+
+
 #endif
 
 } // namespace wolv::util

@@ -15,7 +15,7 @@
 
 namespace wolv::util {
 
-std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(std::int64_t t, bool bits64) {
+std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64 t, bool bits64) {
     // *** The types ***
     //
     //  /----------------------------------------------------------------------------\
@@ -28,8 +28,8 @@ std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(std::int64_t t, bool bits64) {
     //
     //  time_t_epoch - FILETIME_epoch (seconds):   11644473600
     //  In 100 nanoseconds:                        116444736000000000
-    constexpr std::int64_t s_to_100ns = 10000000LL; // conversion factor from seconds to nanoseconds
-    constexpr std::int64_t ediff_100ns = 116444736000000000LL; // epoch differene in 100 nanoseconds
+    constexpr i64 s_to_100ns = 10000000LL; // conversion factor from seconds to nanoseconds
+    constexpr i64 ediff_100ns = 116444736000000000LL; // epoch differene in 100 nanoseconds
 
     // *** We convert a time_t to a FILETIME like this ***
     //
@@ -49,8 +49,8 @@ std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(std::int64_t t, bool bits64) {
     //    tt*s_to_100ns <= (2^64-1) - ediff_100ns
     //    tt <= ((2^64-1) - ediff_100ns) / s_to_100ns
     if (bits64) {
-        constexpr std::int64_t first_conv = -ediff_100ns / s_to_100ns;
-        constexpr std::int64_t last_conv = (static_cast<std::uint64_t>(-1) - ediff_100ns) / s_to_100ns;
+        constexpr i64 first_conv = -ediff_100ns / s_to_100ns;
+        constexpr i64 last_conv = (static_cast<u64>(-1) - ediff_100ns) / s_to_100ns;
 
         if (t<first_conv || t>last_conv) {
             return std::nullopt;
@@ -58,11 +58,11 @@ std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(std::int64_t t, bool bits64) {
     }
     else {
         assert(
-            t >= std::numeric_limits<std::int32_t>::min() &&
-            t <= std::numeric_limits<std::int32_t>::max()  );
+            t >= std::numeric_limits<i32>::min() &&
+            t <= std::numeric_limits<i32>::max()  );
     }
 
-    std::uint64_t inFT = (t * s_to_100ns) + ediff_100ns;
+    u64 inFT = (t * s_to_100ns) + ediff_100ns;
 
     FILETIME ft;
     ft.dwLowDateTime = inFT & ((1ULL << 32) - 1);
@@ -184,7 +184,7 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME*
     return out;
 }
 
-std::optional<std::string> formatTT(const char *lang, std::int64_t t, bool bits64) {
+std::optional<std::string> formatTT(const char *lang, i64 t, bool bits64) {
     auto st = time_t_to_SYSTEMTIME(t, bits64);
     if (!st) {
         return std::nullopt;
@@ -198,7 +198,7 @@ std::optional<std::string> formatTT(const char *lang, std::int64_t t, bool bits6
     return dt.value();
 }
 
-std::optional<std::string> formatTTPOSIX(const char *lang, std::int64_t t, bool bits64) {
+std::optional<std::string> formatTTPOSIX(const char *lang, i64 t, bool bits64) {
     char buf[64];
 
     time_t tt = (time_t)t;
