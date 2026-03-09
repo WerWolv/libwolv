@@ -12,12 +12,23 @@
 
 namespace wolv::util {
 
+    enum class TTSz {
+        _64, // 64-bits
+        _32  // 32-bits
+    };
+
+    enum class DTOpts {
+        D, // date
+        T, // time
+        Dt // date and time
+    };
+
 #if defined(OS_WINDOWS)
-    std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64, bool bits64=true);
+    std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64 t, TTSz sz=TTSz::_64);
     std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME* pss, bool bTime = true);
 
-    std::optional<std::string> formatTT(const char *lang, i64, bool bits64=true);
-    std::optional<std::string> formatTTPOSIX(const char *lang, i64, bool bits64=true);
+    std::optional<std::string> formatTT(const char *lang, i64 t, TTSz sz=TTSz::_64);
+    std::optional<std::string> formatTTPOSIX(const char *lang, i64 t, TTSz sz=TTSz::_64);
 
 
 #endif
