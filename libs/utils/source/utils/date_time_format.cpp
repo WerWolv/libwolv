@@ -69,7 +69,7 @@ std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(std::int64_t t, bool bits64) {
     return st;
 }
 
-std::optional<std::string> formatDateFromSYSTEMTIME(LPCWSTR lc, const SYSTEMTIME* pss, bool bTime) {
+std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME* pss, bool bTime) {
     // We try to minimize heap allocations by preferring stack-based buffers.
     // If the data exceeds the stack buffer size, we fall back to the heap.
     // Functions like GetDateFormatEx and WideCharToMultiByte are somewhat
@@ -84,21 +84,30 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCWSTR lc, const SYSTEMTIME
     constexpr size_t dtsep_strlen = sizeof(dtsep)/sizeof(dtsep[0])-1;
     constexpr size_t dt_strlen = datebuflen + dtsep_strlen + timebuflen;
 
+    WCHAR wLocale[LOCALE_NAME_MAX_LENGTH];
+    for (size_t i=0; i<LOCALE_NAME_MAX_LENGTH; ++i) {
+        wLocale[i] = lc[i];
+        if (!lc[i]) {
+            break;
+        }
+    }
+    wLocale[LOCALE_NAME_MAX_LENGTH-1] = 0;
+
     wolv::util::SOOBuffer<WCHAR, datebuflen + dtsep_strlen + timebuflen + 1, true> date;
 
     int gdfLen = GetDateFormatEx(
-        lc, DATE_LONGDATE, pss, NULL, date, static_cast<int>(date.size()), NULL);
+        wLocale, DATE_LONGDATE, pss, NULL, date, static_cast<int>(date.size()), NULL);
     if (gdfLen == 0) {
         if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
             // Our stack buffer was too small. Measure, alloc and convert.
             gdfLen = GetDateFormatEx(
-                lc, DATE_LONGDATE, pss, NULL, NULL, 0, NULL);
+                wLocale, DATE_LONGDATE, pss, NULL, NULL, 0, NULL);
             if (gdfLen == 0) {
                 return std::nullopt;
             }
             date.grow(gdfLen-1 + (bTime ? dtsep_strlen+timebuflen : 0) + 1);
             gdfLen = GetDateFormatEx(
-                lc, DATE_LONGDATE, pss, NULL, date, static_cast<int>(date.size()), NULL);
+                wLocale, DATE_LONGDATE, pss, NULL, date, static_cast<int>(date.size()), NULL);
             if (gdfLen == 0) {
                 return std::nullopt;
             }
@@ -115,11 +124,11 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCWSTR lc, const SYSTEMTIME
         WCHAR* pTime = date + gdfLen-1 + dtsep_strlen;
         size_t time_sz = date.size()-(pTime-date);
 
-        int gtfLen = GetTimeFormatEx(lc, 0, pss, NULL, pTime, static_cast<int>(time_sz));
+        int gtfLen = GetTimeFormatEx(wLocale, 0, pss, NULL, pTime, static_cast<int>(time_sz));
         if (gtfLen == 0) {
             if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
                 // Our stack buffer was too small. Measure, alloc and convert.
-                gtfLen = GetTimeFormatEx(lc, 0, pss, NULL, NULL, 0);
+                gtfLen = GetTimeFormatEx(wLocale, 0, pss, NULL, NULL, 0);
                 if (gtfLen == 0) {
                     return std::nullopt;
                 }
@@ -130,7 +139,7 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCWSTR lc, const SYSTEMTIME
                 time_sz = date.size() - (pTime - date);
 
                 gtfLen = GetTimeFormatEx(
-                    lc, 0, pss, NULL, pTime, static_cast<int>(gtfLen-1 + 1));
+                    wLocale, 0, pss, NULL, pTime, static_cast<int>(gtfLen-1 + 1));
                 if (gtfLen == 0) {
                     return std::nullopt;
                 }
