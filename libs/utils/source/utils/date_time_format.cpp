@@ -1,5 +1,8 @@
 // date_time_format.cpp
 
+#include <limits>
+#include <cassert>
+
 #include <wolv/utils/date_time_format.hpp>
 #include <wolv/utils/soo_buffer.hpp>
 
@@ -47,12 +50,9 @@ std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(std::int64_t t, bool bits64) {
         }
     }
     else {
-        constexpr std::int64_t first_conv = -ediff_100ns / s_to_100ns;
-        constexpr std::int64_t last_conv = (static_cast<std::uint32_t>(-1) - ediff_100ns) / s_to_100ns;
-
-         if (t<first_conv || t>last_conv) {
-            return std::nullopt;
-        }
+        assert(
+            t >= std::numeric_limits<std::int32_t>::min() &&
+            t <= std::numeric_limits<std::int32_t>::max()  );
     }
 
     std::uint64_t inFT = (t * s_to_100ns) + ediff_100ns;
