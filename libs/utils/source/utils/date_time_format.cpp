@@ -184,7 +184,7 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME*
     return out;
 }
 
-std::string formatDT(const char *lang, std::int64_t t, bool bits64) {
+std::string formatTT(const char *lang, std::int64_t t, bool bits64) {
     auto st = time_t_to_SYSTEMTIME(t, bits64);
     if (!st) {
         return "Invalid"; // This is a bad description!
@@ -198,7 +198,7 @@ std::string formatDT(const char *lang, std::int64_t t, bool bits64) {
     return dt.value();
 }
 
-std::string formatDTPOSIX(const char *lang, std::int64_t t, bool bits64) {
+std::string formatTTPOSIX(const char *lang, std::int64_t t, bool bits64) {
     char buf[64];
 
     time_t tt = (time_t)t;
