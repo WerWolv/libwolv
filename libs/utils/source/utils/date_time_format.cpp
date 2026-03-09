@@ -204,7 +204,7 @@ std::optional<std::string> formatTTPOSIX(const char *lang, std::int64_t t, bool 
     time_t tt = (time_t)t;
     struct tm tm;
 
-#if defined(_WIN32)
+#ifdef OS_WINDOWS
     if (gmtime_s(&tm, &tt) != 0)
         return std::nullopt;
 #else
@@ -212,7 +212,7 @@ std::optional<std::string> formatTTPOSIX(const char *lang, std::int64_t t, bool 
         return std::nullopt;
 #endif
 
-    if (strftime(buf, sizeof(buf), "%a, %d.%m.%Y %H:%M:%S", &tm) == 0)
+    if (strftime(buf, sizeof(buf), "%d/%m/%Y %H:%M:%S", &tm) == 0)
         return std::nullopt;
 
     return buf;
