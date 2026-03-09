@@ -184,21 +184,21 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME*
     return out;
 }
 
-std::string formatTT(const char *lang, std::int64_t t, bool bits64) {
+std::optional<std::string> formatTT(const char *lang, std::int64_t t, bool bits64) {
     auto st = time_t_to_SYSTEMTIME(t, bits64);
     if (!st) {
-        return "Invalid"; // This is a bad description!
+        return std::nullopt;
     }
 
     auto dt = formatDateFromSYSTEMTIME(lang, &st.value());
     if (!dt) {
-        return "Invalid"; // This is a bad description!
+        return std::nullopt;
     }
 
     return dt.value();
 }
 
-std::string formatTTPOSIX(const char *lang, std::int64_t t, bool bits64) {
+std::optional<std::string> formatTTPOSIX(const char *lang, std::int64_t t, bool bits64) {
     char buf[64];
 
     time_t tt = (time_t)t;
@@ -206,14 +206,14 @@ std::string formatTTPOSIX(const char *lang, std::int64_t t, bool bits64) {
 
 #if defined(_WIN32)
     if (gmtime_s(&tm, &tt) != 0)
-        return "Invalid";
+        return std::nullopt;
 #else
     if (gmtime_r(&tt, &tm) == NULL)
-        return "Invalid";
+        return std::nullopt;
 #endif
 
     if (strftime(buf, sizeof(buf), "%a, %d.%m.%Y %H:%M:%S", &tm) == 0)
-        return "Invalid";
+        return std::nullopt;
 
     return buf;
 }
