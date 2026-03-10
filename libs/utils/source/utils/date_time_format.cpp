@@ -75,7 +75,7 @@ std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64 t, DTOpts sz) {
     return st;
 }
 
-std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME* pss, bool bTime) {
+std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME* pss, DTOpts opts) {
     // We try to minimize heap allocations by preferring stack-based buffers.
     // If the data exceeds the stack buffer size, we fall back to the heap.
     // Functions like GetDateFormatEx and WideCharToMultiByte are somewhat
@@ -101,19 +101,18 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME*
 
     wolv::util::SOOBuffer<WCHAR, datebuflen + dtsep_strlen + timebuflen + 1, true> date;
 
-    int gdfLen = GetDateFormatEx(
-        wLocale, DATE_LONGDATE, pss, NULL, date, static_cast<int>(date.size()), NULL);
+    DWORD dateFlags = ((opts & DTOpts::DateFmtMask) == DTOpts::LongDate) ? DATE_LONGDATE : 0;
+
+    int gdfLen = GetDateFormatEx(wLocale, dateFlags, pss, NULL, date, static_cast<int>(date.size()), NULL);
     if (gdfLen == 0) {
         if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
             // Our stack buffer was too small. Measure, alloc and convert.
-            gdfLen = GetDateFormatEx(
-                wLocale, DATE_LONGDATE, pss, NULL, NULL, 0, NULL);
+            gdfLen = GetDateFormatEx(wLocale, dateFlags, pss, NULL, NULL, 0, NULL);
             if (gdfLen == 0) {
                 return std::nullopt;
             }
-            date.grow(gdfLen-1 + (bTime ? dtsep_strlen+timebuflen : 0) + 1);
-            gdfLen = GetDateFormatEx(
-                wLocale, DATE_LONGDATE, pss, NULL, date, static_cast<int>(date.size()), NULL);
+            date.grow(gdfLen-1 + ((opts & DTOpts::T) == DTOpts::T ? dtsep_strlen+timebuflen : 0) + 1);
+            gdfLen = GetDateFormatEx(wLocale, dateFlags, pss, NULL, date, static_cast<int>(date.size()), NULL);
             if (gdfLen == 0) {
                 return std::nullopt;
             }
@@ -123,7 +122,7 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME*
         }
     }
 
-    if (bTime) {
+    if ((opts & DTOpts::T) == DTOpts::T) {
         date.grow(gdfLen-1 + dtsep_strlen + timebuflen + 1);
         memcpy(date+gdfLen-1, dtsep, sizeof(dtsep));
 
@@ -189,7 +188,7 @@ std::optional<std::string> formatTT(const char *lang, i64 t, DTOpts opts) {
         return std::nullopt;
     }
 
-    auto dt = formatDateFromSYSTEMTIME(lang, &st.value());
+    auto dt = formatDateFromSYSTEMTIME(lang, &st.value(), opts);
     if (!dt) {
         return std::nullopt;
     }

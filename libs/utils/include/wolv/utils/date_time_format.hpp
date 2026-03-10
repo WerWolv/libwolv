@@ -1,27 +1,31 @@
 #pragma once
 // date_time_format.hpp
 
-#if defined(OS_WINDOWS)
-# include <windows.h>
-# include <wolv/types.hpp>
-# include <optional>
-# include <string>
-# include <type_traits>
-#endif // #if defined(OS_WINDOWS)
+#include <optional>
+#include <string>
+#include <type_traits>
 
-#include <wolv/utils/date_time_format.hpp>
+#include <wolv/types.hpp>
+
+#if defined(OS_WINDOWS)
+#include <windows.h>
+#endif // #if defined(OS_WINDOWS)
 
 namespace wolv::util {
 
     enum class DTOpts {
-        TT32 =       0b000,  // 32-bits
-        TT64 =       0b001,  // 64-bits
-        TTMask =  0b001,
+        TT32        = 0b0000,  // 32-bits
+        TT64        = 0b0001,  // 64-bits
+        TTMask      = 0b0001,
 
-        DandT =     0b110,  // date and time
-        D =         0b100,  // date
-        T =         0b010,  // time
-        DTMask =    0b110
+        DandT       = 0b0110,  // date and time
+        D           = 0b0100,  // date
+        T           = 0b0010,  // time
+        DTMask      = 0b0110,
+
+        ShortDate   = 0b0000,
+        LongDate    = 0b1000,
+        DateFmtMask = 0b1000
     };
 
     constexpr DTOpts operator|(DTOpts a, DTOpts b) noexcept {
@@ -36,10 +40,14 @@ namespace wolv::util {
 
 #if defined(OS_WINDOWS)
     std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64 t, DTOpts sz = DTOpts::TT64);
-    std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME* pss, bool bTime = true);
+    std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME* pss, DTOpts opts = DTOpts::LongDate);
 
-    std::optional<std::string> formatTT(const char *lang, i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT);
-    std::optional<std::string> formatTTPOSIX(const char *lang, i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT);
+    std::optional<std::string> formatTT(const char *lang, i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT|DTOpts::LongDate);
+
+    // Just here for !!!DEBUGGING!!!
+    std::optional<std::string> formatTTPOSIX(const char *lang, i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT|DTOpts::LongDate);
+#else
+    std::optional<std::string> formatTTPOSIX(const char *lang, i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT|DTOpts::LongDate);
 #endif
 
 } // namespace wolv::util
