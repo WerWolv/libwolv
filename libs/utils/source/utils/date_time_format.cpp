@@ -8,7 +8,6 @@
 # include <wolv/utils/soo_buffer.hpp>
 
 # include <ctime> // POSIX
-# include <fmt/chrono.h> // POSIX
 #endif // #if defined(OS_WINDOWS)
 
 namespace wolv::util {
