@@ -128,9 +128,11 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME*
     }
 
     if ((opts & DTOpts::T) == DTOpts::T) {
-        date.grow(gdfLen-1 + dtsep_strlen + timebuflen + 1, {&pCursor});
-        memcpy(pCursor, dtsep, sizeof(dtsep));
-        pCursor += dtsep_strlen;
+        if ((opts & DTOpts::D) == DTOpts::D) {
+            date.grow(gdfLen-1 + dtsep_strlen + timebuflen + 1, {&pCursor});
+            memcpy(pCursor, dtsep, sizeof(dtsep));
+            pCursor += dtsep_strlen;
+        }
     
         size_t time_sz = date.size()-(pCursor-date);
 
