@@ -15,7 +15,7 @@
 
 namespace wolv::util {
 
-std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64 t, TTSz sz) {
+std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64 t, DTOpts sz) {
     // *** The types ***
     //
     //  /----------------------------------------------------------------------------\
@@ -48,7 +48,7 @@ std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64 t, TTSz sz) {
     //    (tt * s_to_100ns) + ediff_100ns <= 2^64-1
     //    tt*s_to_100ns <= (2^64-1) - ediff_100ns
     //    tt <= ((2^64-1) - ediff_100ns) / s_to_100ns
-    if (sz == TTSz::_64) {
+    if ((sz&DTOpts::SizeMask) == DTOpts::_64) {
         constexpr i64 first_conv = -ediff_100ns / s_to_100ns;
         constexpr i64 last_conv = (static_cast<u64>(-1) - ediff_100ns) / s_to_100ns;
 
@@ -184,8 +184,8 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME*
     return out;
 }
 
-std::optional<std::string> formatTT(const char *lang, i64 t, TTSz sz) {
-    auto st = time_t_to_SYSTEMTIME(t, sz);
+std::optional<std::string> formatTT(const char *lang, i64 t, DTOpts opts) {
+    auto st = time_t_to_SYSTEMTIME(t, opts);
     if (!st) {
         return std::nullopt;
     }
@@ -198,7 +198,7 @@ std::optional<std::string> formatTT(const char *lang, i64 t, TTSz sz) {
     return dt.value();
 }
 
-std::optional<std::string> formatTTPOSIX(const char *lang, i64 t, TTSz sz) {
+std::optional<std::string> formatTTPOSIX(const char *lang, i64 t, DTOpts opts) {
     char buf[64];
 
     time_t tt = (time_t)t;

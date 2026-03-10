@@ -12,7 +12,8 @@
 #include <cstddef>
 #include <type_traits>
 #include <memory.h>
-
+#include <initializer_list>
+		
 namespace {
 
     template <typename T>
@@ -115,19 +116,37 @@ namespace wolv::util {
 
         void grow(size_t sz) {
             if (sz > m_size) { // we never get smaller
-                if (is_small()) {
-                    T *pHeap = ALLOC::alloc(NULL, sz);
-                    ALLOC::copy(pHeap, m_small, SZ);
-                    m_heap = pHeap;
-                }
-                else {
-                    m_heap = ALLOC::alloc(m_heap, sz);
-                }
-                m_size = sz;
+               _grow(sz);
+            }
+        }
+
+        void grow(size_t sz, std::initializer_list<T**> ptrs) {
+            if (sz <= m_size) { // we never get smaller
+                return;
+            }
+            
+            const T *pOldBase = data();
+            _grow(sz);
+            const T *pNewBase = data();
+
+            for (T** p : ptrs) {
+                *p = (*p - pOldBase) + pNewBase;
             }
         }
 
     private:
+        void _grow(size_t sz) {
+            if (is_small()) {
+                T *pHeap = ALLOC::alloc(NULL, sz);
+                ALLOC::copy(pHeap, m_small, SZ);
+                m_heap = pHeap;
+            }
+            else {
+                m_heap = ALLOC::alloc(m_heap, sz);
+            }
+            m_size = sz;
+        }
+
         size_t m_size = 0;
 
         union {
