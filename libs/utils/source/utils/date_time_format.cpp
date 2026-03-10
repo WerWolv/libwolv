@@ -115,7 +115,7 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME*
                     return std::nullopt;
                 }
                 date.grow(gdfLen-1 + ((opts & DTOpts::T)==DTOpts::T ? dtsep_strlen+timebuflen : 0)+1, {&pCursor});
-                gdfLen = GetDateFormatEx(wLocale, dateFlags, pss, NULL, date, static_cast<int>(date.size()), NULL);
+                gdfLen = GetDateFormatEx(wLocale, dateFlags, pss, NULL, pCursor, static_cast<int>(date.size()), NULL);
                 if (gdfLen == 0) {
                     return std::nullopt;
                 }
