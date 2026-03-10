@@ -125,9 +125,9 @@ namespace wolv::util {
                 return;
             }
             
-            const T *pOldBase = data();
+            T *pOldBase = data();
             _grow(sz);
-            const T *pNewBase = data();
+            T *pNewBase = data();
 
             for (T** p : ptrs) {
                 *p = (*p - pOldBase) + pNewBase;

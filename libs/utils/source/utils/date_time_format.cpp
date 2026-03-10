@@ -100,36 +100,41 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME*
     wLocale[LOCALE_NAME_MAX_LENGTH-1] = 0;
 
     wolv::util::SOOBuffer<WCHAR, datebuflen + dtsep_strlen + timebuflen + 1, true> date;
+    LPWSTR pCursor = date; 
 
     DWORD dateFlags = ((opts & DTOpts::DateFmtMask) == DTOpts::LongDate) ? DATE_LONGDATE : 0;
 
-    int gdfLen = GetDateFormatEx(wLocale, dateFlags, pss, NULL, date, static_cast<int>(date.size()), NULL);
-    if (gdfLen == 0) {
-        if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-            // Our stack buffer was too small. Measure, alloc and convert.
-            gdfLen = GetDateFormatEx(wLocale, dateFlags, pss, NULL, NULL, 0, NULL);
-            if (gdfLen == 0) {
-                return std::nullopt;
+    int gdfLen = 0;
+    if ((opts & DTOpts::D) == DTOpts::D) {
+        gdfLen = GetDateFormatEx(wLocale, dateFlags, pss, NULL, pCursor, static_cast<int>(date.size()), NULL);
+        if (gdfLen == 0) {
+            if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+                // Our stack buffer was too small. Measure, alloc and convert.
+                gdfLen = GetDateFormatEx(wLocale, dateFlags, pss, NULL, NULL, 0, NULL);
+                if (gdfLen == 0) {
+                    return std::nullopt;
+                }
+                date.grow(gdfLen-1 + ((opts & DTOpts::T)==DTOpts::T ? dtsep_strlen+timebuflen : 0)+1, {&pCursor});
+                gdfLen = GetDateFormatEx(wLocale, dateFlags, pss, NULL, date, static_cast<int>(date.size()), NULL);
+                if (gdfLen == 0) {
+                    return std::nullopt;
+                }
             }
-            date.grow(gdfLen-1 + ((opts & DTOpts::T) == DTOpts::T ? dtsep_strlen+timebuflen : 0) + 1);
-            gdfLen = GetDateFormatEx(wLocale, dateFlags, pss, NULL, date, static_cast<int>(date.size()), NULL);
-            if (gdfLen == 0) {
+            else {
                 return std::nullopt;
             }
         }
-        else {
-            return std::nullopt;
-        }
+        pCursor += gdfLen-1;
     }
 
     if ((opts & DTOpts::T) == DTOpts::T) {
-        date.grow(gdfLen-1 + dtsep_strlen + timebuflen + 1);
-        memcpy(date+gdfLen-1, dtsep, sizeof(dtsep));
+        date.grow(gdfLen-1 + dtsep_strlen + timebuflen + 1, {&pCursor});
+        memcpy(pCursor, dtsep, sizeof(dtsep));
+        pCursor += dtsep_strlen;
+    
+        size_t time_sz = date.size()-(pCursor-date);
 
-        WCHAR* pTime = date + gdfLen-1 + dtsep_strlen;
-        size_t time_sz = date.size()-(pTime-date);
-
-        int gtfLen = GetTimeFormatEx(wLocale, 0, pss, NULL, pTime, static_cast<int>(time_sz));
+        int gtfLen = GetTimeFormatEx(wLocale, 0, pss, NULL, pCursor, static_cast<int>(time_sz));
         if (gtfLen == 0) {
             if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
                 // Our stack buffer was too small. Measure, alloc and convert.
@@ -138,13 +143,12 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME*
                     return std::nullopt;
                 }
 
-                date.grow(gdfLen-1 + dtsep_strlen + gtfLen-1 + 1);
+                date.grow(gdfLen-1 + dtsep_strlen + gtfLen-1 + 1, {&pCursor});
 
-                pTime = date + gdfLen - 1 + dtsep_strlen;
-                time_sz = date.size() - (pTime - date);
+                time_sz = date.size() - (pCursor - date);
 
                 gtfLen = GetTimeFormatEx(
-                    wLocale, 0, pss, NULL, pTime, static_cast<int>(gtfLen-1 + 1));
+                    wLocale, 0, pss, NULL, pCursor, static_cast<int>(gtfLen-1 + 1));
                 if (gtfLen == 0) {
                     return std::nullopt;
                 }
