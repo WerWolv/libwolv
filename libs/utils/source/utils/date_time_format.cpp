@@ -11,9 +11,9 @@
 # include <fmt/chrono.h> // POSIX
 #endif // #if defined(OS_WINDOWS)
 
-#if defined(OS_WINDOWS)
-
 namespace wolv::util {
+
+#if defined(OS_WINDOWS)
 
 std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64 t, DTOpts sz) {
     // *** The types ***
