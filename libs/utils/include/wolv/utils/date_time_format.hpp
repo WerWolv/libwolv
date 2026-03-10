@@ -14,9 +14,9 @@
 namespace wolv::util {
 
     enum class DTOpts {
-        _32 =       0b000,  // 32-bits
-        _64 =       0b001,  // 64-bits
-        SizeMask =  0b001,
+        TT32 =       0b000,  // 32-bits
+        TT64 =       0b001,  // 64-bits
+        TTMask =  0b001,
 
         DandT =     0b110,  // date and time
         D =         0b100,  // date
@@ -35,11 +35,11 @@ namespace wolv::util {
     }
 
 #if defined(OS_WINDOWS)
-    std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64 t, DTOpts sz = DTOpts::_64);
+    std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64 t, DTOpts sz = DTOpts::TT64);
     std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME* pss, bool bTime = true);
 
-    std::optional<std::string> formatTT(const char *lang, i64 t, DTOpts opts = DTOpts::_64|DTOpts::DandT);
-    std::optional<std::string> formatTTPOSIX(const char *lang, i64 t, DTOpts opts = DTOpts::_64|DTOpts::DandT);
+    std::optional<std::string> formatTT(const char *lang, i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT);
+    std::optional<std::string> formatTTPOSIX(const char *lang, i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT);
 #endif
 
 } // namespace wolv::util

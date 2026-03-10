@@ -47,7 +47,7 @@ std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64 t, DTOpts sz) {
     //    (tt * s_to_100ns) + ediff_100ns <= 2^64-1
     //    tt*s_to_100ns <= (2^64-1) - ediff_100ns
     //    tt <= ((2^64-1) - ediff_100ns) / s_to_100ns
-    if ((sz&DTOpts::SizeMask) == DTOpts::_64) {
+    if ((sz&DTOpts::TTMask) == DTOpts::TT64) {
         constexpr i64 first_conv = -ediff_100ns / s_to_100ns;
         constexpr i64 last_conv = (static_cast<u64>(-1) - ediff_100ns) / s_to_100ns;
 
