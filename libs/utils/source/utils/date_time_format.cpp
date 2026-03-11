@@ -202,6 +202,8 @@ std::optional<std::string> formatTT(const char *lang, i64 t, DTOpts opts) {
     return dt.value();
 }
 
+#else
+
 std::optional<std::string> formatTTPOSIX(const char *lang, i64 t, DTOpts opts) {
     char buf[64];
 

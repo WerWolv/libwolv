@@ -43,11 +43,8 @@ namespace wolv::util {
     std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME* pss, DTOpts opts = DTOpts::LongDate);
 
     std::optional<std::string> formatTT(const char *lang, i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT|DTOpts::LongDate);
-
-    // Just here for !!!DEBUGGING!!!
-    std::optional<std::string> formatTTPOSIX(const char *lang, i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT|DTOpts::LongDate);
 #else
-    std::optional<std::string> formatTTPOSIX(const char *lang, i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT|DTOpts::LongDate);
+    std::optional<std::string> formatTT(const char *lang, i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT|DTOpts::LongDate);
 #endif
 
 } // namespace wolv::util
