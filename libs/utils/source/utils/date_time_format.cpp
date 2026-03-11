@@ -204,7 +204,7 @@ std::optional<std::string> formatTT(const char *lang, i64 t, DTOpts opts) {
 
 #else
 
-std::optional<std::string> formatTTPOSIX(const char *lang, i64 t, DTOpts opts) {
+std::optional<std::string> formatTT(const char *lang, i64 t, DTOpts opts) {
     char buf[64];
 
     time_t tt = (time_t)t;
