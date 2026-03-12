@@ -185,6 +185,7 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME*
             return std::nullopt;
         }
     }
+    out.resize(res-1);
 
     return out;
 }
