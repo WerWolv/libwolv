@@ -28,8 +28,8 @@ std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64 t, DTOpts sz) {
     //
     //  time_t_epoch - FILETIME_epoch (seconds):   11644473600
     //  In 100 nanoseconds:                        116444736000000000
-    constexpr i64 s_to_100ns = 10000000LL; // conversion factor from seconds to nanoseconds
-    constexpr i64 ediff_100ns = 116444736000000000LL; // epoch differene in 100 nanoseconds
+    constexpr wolv::i64 s_to_100ns = 10000000LL; // conversion factor from seconds to nanoseconds
+    constexpr wolv::i64 ediff_100ns = 116444736000000000LL; // epoch differene in 100 nanoseconds
 
     // *** We convert a time_t to a FILETIME like this ***
     //
@@ -58,8 +58,8 @@ std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64 t, DTOpts sz) {
     }
     else {
         assert(
-            t >= std::numeric_limits<i32>::min() &&
-            t <= std::numeric_limits<i32>::max()  );
+            t >= std::numeric_limits<wolv::i32>::min() &&
+            t <= std::numeric_limits<wolv::i32>::max()  );
     }
 
     u64 inFT = (t * s_to_100ns) + ediff_100ns;
@@ -189,7 +189,7 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME*
     return out;
 }
 
-std::optional<std::string> formatTT(const char *lang, i64 t, DTOpts opts) {
+std::optional<std::string> formatTT(const char *lang, wolv::i64 t, DTOpts opts) {
     auto st = time_t_to_SYSTEMTIME(t, opts);
     if (!st) {
         return std::nullopt;
@@ -205,7 +205,7 @@ std::optional<std::string> formatTT(const char *lang, i64 t, DTOpts opts) {
 
 #else
 
-std::optional<std::string> formatTT(const char *lang, i64 t, DTOpts opts) {
+std::optional<std::string> formatTT(const char *lang, wolv::i64 t, DTOpts opts) {
     char buf[64];
 
     time_t tt = (time_t)t;
