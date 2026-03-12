@@ -1,12 +1,13 @@
 // date_time_format.cpp
 
+#include <wolv/utils/date_time_format.hpp>
+
 #if defined(OS_WINDOWS)
 # include <limits>
 # include <cassert>
 
-# include <wolv/utils/date_time_format.hpp>
 # include <wolv/utils/soo_buffer.hpp>
-
+#else
 # include <ctime> // POSIX
 #endif // #if defined(OS_WINDOWS)
 
