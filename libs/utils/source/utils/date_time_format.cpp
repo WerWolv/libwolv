@@ -190,13 +190,13 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME*
     return out;
 }
 
-std::optional<std::string> formatTT(const char *lang, wolv::i64 t, DTOpts opts) {
+std::optional<std::string> formatTT(const locale &lc, wolv::i64 t, DTOpts opts) {
     auto st = time_t_to_SYSTEMTIME(t, opts);
     if (!st) {
         return std::nullopt;
     }
 
-    auto dt = formatDateFromSYSTEMTIME(lang, &st.value(), opts);
+    auto dt = formatDateFromSYSTEMTIME(lc, &st.value(), opts);
     if (!dt) {
         return std::nullopt;
     }
@@ -206,7 +206,7 @@ std::optional<std::string> formatTT(const char *lang, wolv::i64 t, DTOpts opts) 
 
 #else
 
-std::optional<std::string> formatTT(const char *lang, wolv::i64 t, DTOpts opts) {
+std::optional<std::string> formatTT(const locale &lc, wolv::i64 t, DTOpts opts) {
     char buf[64];
 
     time_t tt = (time_t)t;
