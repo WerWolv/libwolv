@@ -62,6 +62,20 @@ namespace wolv::util {
            set(str);
         }
 
+        locale(const locale &copyMe) {
+            freelocale(m_locale);
+            m_locale = duplocale(copyMe);
+        }
+
+        ~locale() {
+            freelocale(m_locale);
+        }
+
+        locale& operator=(const locale &copyMe) {
+            freelocale(m_locale);
+            m_locale = duplocale(copyMe);
+        }
+
         void set(const char *str) {
             m_locale = newlocale(LC_ALL_MASK, str, NULL);
         }
