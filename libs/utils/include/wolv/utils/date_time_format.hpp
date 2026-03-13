@@ -90,16 +90,15 @@ namespace wolv::util {
         }
 
         void set(const char *str) {
-            locale_t newLocale = newlocale(LC_TIME_MASK, str, NULL);
-            if (newLocale) {
-                free();
-                m_locale = newLocale;
+            free();
+            m_locale = newlocale(LC_TIME_MASK, str, NULL);
+            if (m_locale) {
                 m_valid = true;
             }
         }
 
         void set(const std::string &str) {
-            m_locale = set(str.c_str());
+           set(str.c_str());
         }
 
         operator locale_t() const {
