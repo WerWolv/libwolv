@@ -51,33 +51,50 @@ namespace wolv::util {
     class locale {
     public:
         locale() {
-            m_locale = 0;
+            setInvalid();
         }
 
         explicit locale(const char *str) {
-           set(str);
+            setInvalid();
+            set(str);
         }
 
         explicit locale(const std::string &str) {
-           set(str);
+            setInvalid();
+            set(str);
         }
 
         locale(const locale &copyMe) {
-            freelocale(m_locale);
+            setInvalid();
             m_locale = duplocale(copyMe);
+            if (!m_locale) {
+                return;
+            }
+            m_valid = true;
         }
 
         ~locale() {
-            freelocale(m_locale);
+            free();
         }
 
         locale& operator=(const locale &copyMe) {
-            freelocale(m_locale);
-            m_locale = duplocale(copyMe);
+            free();
+            if (copyMe.m_valid) {
+                m_locale = duplocale(copyMe.m_locale);
+                if (m_locale) {
+                    m_valid = true;
+                }
+            }
+
+            return *this;
         }
 
         void set(const char *str) {
-            m_locale = newlocale(LC_ALL_MASK, str, NULL);
+            free();
+            m_locale = newlocale(LC_TIME_MASK, str, NULL);
+            if (m_locale) {
+                m_valid = true;
+            }
         }
 
         void set(const std::string &str) {
@@ -89,6 +106,19 @@ namespace wolv::util {
         }
 
     private:
+        void setInvalid() {
+            m_valid = false;
+            m_locale = 0;
+        }
+    
+        void free() {
+            if (m_valid) {
+                freelocale(m_locale);
+                setInvalid();
+            }
+        }
+
+        bool m_valid;
         locale_t m_locale;
     };
 
