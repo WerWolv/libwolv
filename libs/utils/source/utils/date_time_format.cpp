@@ -5,10 +5,10 @@
 #if defined(OS_WINDOWS)
 # include <limits>
 # include <cassert>
-
 # include <wolv/utils/soo_buffer.hpp>
 #else
-# include <ctime> // POSIX
+# include <time.h>
+# include <locale.h>
 #endif // #if defined(OS_WINDOWS)
 
 namespace wolv::util {
@@ -100,7 +100,7 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME*
     }
     wLocale[LOCALE_NAME_MAX_LENGTH-1] = 0;
 
-    wolv::util::SOOBuffer<WCHAR, datebuflen + dtsep_strlen + timebuflen + 1, true> date;
+    SOOBuffer<WCHAR, datebuflen + dtsep_strlen + timebuflen + 1, true> date;
     LPWSTR pCursor = date; 
 
     DWORD dateFlags = ((opts & DTOpts::DateFmtMask) == DTOpts::LongDate) ? DATE_LONGDATE : 0;
@@ -207,23 +207,23 @@ std::optional<std::string> formatTT(const locale &lc, wolv::i64 t, DTOpts opts) 
 #else
 
 std::optional<std::string> formatTT(const locale &lc, wolv::i64 t, DTOpts opts) {
-    char buf[64];
+    constexpr size_t szMin = 64;
+    constexpr size_t szMax = 1024;
 
-    time_t tt = (time_t)t;
     struct tm tm;
+    gmtime_r(&t, &tm);
 
-#ifdef OS_WINDOWS
-    if (gmtime_s(&tm, &tt) != 0)
-        return std::nullopt;
-#else
-    if (gmtime_r(&tt, &tm) == NULL)
-        return std::nullopt;
-#endif
+    std::string str;
+    for (size_t bsz=szMin; bsz<=szMax; bsz*=2) {
+        str.resize(bsz);
+        size_t sz;
+        if (sz = strftime_l(&str[0], bsz, "%c", &tm, lc)) {
+            str.resize(sz);
+            return str;
+        }
+    }
 
-    if (strftime(buf, sizeof(buf), "%d/%m/%Y %H:%M:%S", &tm) == 0)
-        return std::nullopt;
-
-    return buf;
+    return std::nullopt;
 }
 
 #endif // #if defined(OS_WINDOWS)
