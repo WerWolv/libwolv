@@ -61,7 +61,7 @@ namespace wolv::util {
         free();
     }
 
-    Locale& locale::operator=(const locale &copyMe) {
+    Locale& Locale::operator=(const Locale &copyMe) {
         free();
         if (copyMe.m_valid) {
             m_locale = duplocale(copyMe.m_locale);
@@ -90,10 +90,10 @@ namespace wolv::util {
 
     void Locale::setInvalid() {
         m_valid = false;
-        m_Locale = 0;
+        m_locale = 0;
     }
 
-    void locale::free() {
+    void Locale::free() {
         if (m_valid) {
             freelocale(m_locale);
             setInvalid();

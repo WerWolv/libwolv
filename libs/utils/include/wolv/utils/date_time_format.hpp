@@ -48,9 +48,9 @@ namespace wolv::util {
         explicit Locale(const std::string &str);
         Locale(const Locale &copyMe);
 
-        ~locale();
+        ~Locale();
 
-        locale& operator=(const locale &copyMe);
+        Locale& operator=(const Locale &copyMe);
 
         void set(const char *str);
         void set(const std::string &str);
