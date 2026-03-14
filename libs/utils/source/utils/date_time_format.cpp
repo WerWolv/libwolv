@@ -5,7 +5,7 @@
 #if defined(OS_WINDOWS)
 # include <limits>
 # include <cassert>
-# include <wolv/utils/soo_buffer.hpp>
+# include <wolv/container/soo_buffer.hpp>
 #else
 # include <time.h>
 # include <locale.h>

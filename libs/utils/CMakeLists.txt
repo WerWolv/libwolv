@@ -9,7 +9,12 @@ add_library(${PROJECT_NAME} STATIC
 add_subdirectory(lib/jthread)
 
 target_include_directories(${PROJECT_NAME} PUBLIC include)
-target_link_libraries(${PROJECT_NAME} PUBLIC wolv::types jthread)
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+        wolv::types
+        wolv::containers
+        jthread
+)
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 
 string(REPLACE "libwolv-" "" PROJECT_NAME_SPACE ${PROJECT_NAME})
