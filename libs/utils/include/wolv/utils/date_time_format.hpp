@@ -17,14 +17,16 @@ namespace wolv::util {
 
 #if defined(OS_WINDOWS)
 
-    class locale {
+    class Locale {
     public:
-        locale() = default;
-        explicit locale(const char *str);
-        explicit locale(const std::string &str);
-        ~locale() = default;
+        Locale() = default;
+        explicit Locale(const char *str);
+        explicit Locale(const std::string &str);
+        Locale(const Locale &copyMe) = default;
 
-        locale& operator=(const locale &copyMe);
+        ~Locale() = default;
+
+        Locale& operator=(const Locale &copyMe);
 
         void set(const char *str);
         void set(const std::string &str);
@@ -39,12 +41,12 @@ namespace wolv::util {
 
 #else
 
-    class locale {
+    class Locale {
     public:
-        locale();
-        explicit locale(const char *str);
-        explicit locale(const std::string &str);
-        locale(const locale &copyMe);
+        Locale();
+        explicit Locale(const char *str);
+        explicit Locale(const std::string &str);
+        Locale(const Locale &copyMe);
 
         ~locale();
 
@@ -96,9 +98,9 @@ namespace wolv::util {
     std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64 t, DTOpts sz = DTOpts::TT64);
     std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME* pss, DTOpts opts = DTOpts::LongDate);
 
-    std::optional<std::string> formatTT(const locale &lc, wolv::i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT|DTOpts::LongDate);
+    std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT|DTOpts::LongDate);
 #else
-    std::optional<std::string> formatTT(const locale &lc, wolv::i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT|DTOpts::LongDate);
+    std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT|DTOpts::LongDate);
 #endif
 
 } // namespace wolv::util

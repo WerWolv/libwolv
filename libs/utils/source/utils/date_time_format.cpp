@@ -15,39 +15,39 @@ namespace wolv::util {
 
 #if defined(OS_WINDOWS)
 
-    locale::locale(const char *str) {
+    Locale::Locale(const char *str) {
         set(str);
     }
 
-    locale::locale(const std::string &str) {
+    Locale::Locale(const std::string &str) {
         set(str);
     }
 
-    void locale::set(const char *str) {
+    void Locale::set(const char *str) {
         m_locale = str;
     }
 
-    void locale::set(const std::string &str) {
+    void Locale::set(const std::string &str) {
         m_locale = str;
     }
 
 #else
 
-    locale::locale() {
+    Locale::Locale() {
         setInvalid();
     }
 
-    locale::locale(const char *str) {
+    Locale::Locale(const char *str) {
         setInvalid();
         set(str);
     }
     
-    locale::locale(const std::string &str) {
+    Locale::Locale(const std::string &str) {
         setInvalid();
         set(str);
     }
 
-    locale::locale(const locale &copyMe) {
+    Locale::Locale(const Locale &copyMe) {
         setInvalid();
 
         m_locale = duplocale(copyMe);
@@ -57,11 +57,11 @@ namespace wolv::util {
         m_valid = true;
     }
 
-    locale::~locale() {
+    Locale::~Locale() {
         free();
     }
 
-    locale& locale::operator=(const locale &copyMe) {
+    Locale& locale::operator=(const locale &copyMe) {
         free();
         if (copyMe.m_valid) {
             m_locale = duplocale(copyMe.m_locale);
@@ -73,7 +73,7 @@ namespace wolv::util {
         return *this;
     }
 
-    void locale::set(const char *str) {
+    void Locale::set(const char *str) {
         free();
         m_locale = newlocale(LC_TIME_MASK, str, NULL);
         if (!m_locale) {
@@ -84,13 +84,13 @@ namespace wolv::util {
         }
     }
 
-    void locale::set(const std::string &str) {
+    void Locale::set(const std::string &str) {
         set(str.c_str());
     }
 
-    void locale::setInvalid() {
+    void Locale::setInvalid() {
         m_valid = false;
-        m_locale = 0;
+        m_Locale = 0;
     }
 
     void locale::free() {
@@ -279,7 +279,7 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME*
     return out;
 }
 
-std::optional<std::string> formatTT(const locale &lc, wolv::i64 t, DTOpts opts) {
+std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts) {
     auto st = time_t_to_SYSTEMTIME(t, opts);
     if (!st) {
         return std::nullopt;
@@ -295,7 +295,7 @@ std::optional<std::string> formatTT(const locale &lc, wolv::i64 t, DTOpts opts) 
 
 #else
 
-std::optional<std::string> formatTT(const locale &lc, wolv::i64 t, DTOpts opts) {
+std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts) {
     constexpr size_t szMin = 64;
     constexpr size_t szMax = 1024;
 
