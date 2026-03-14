@@ -19,24 +19,15 @@ namespace wolv::util {
 
     class locale {
     public:
-        locale() {
-        }
-    
-        explicit locale(const char *str) {
-            set(str);
-        }
+        locale() = default;
+        explicit locale(const char *str);
+        explicit locale(const std::string &str);
+        ~locale() = default;
 
-        explicit locale(const std::string &str) {
-            set(str);
-        }
+        locale& operator=(const locale &copyMe);
 
-        void set(const char *str) {
-            m_locale = str;
-        }
-
-        void set(const std::string &str) {
-            m_locale = str;
-        }
+        void set(const char *str);
+        void set(const std::string &str);
 
         operator const char*() const {
             return m_locale.c_str();
@@ -50,76 +41,25 @@ namespace wolv::util {
 
     class locale {
     public:
-        locale() {
-            setInvalid();
-        }
+        locale();
+        explicit locale(const char *str);
+        explicit locale(const std::string &str);
+        locale(const locale &copyMe);
 
-        explicit locale(const char *str) {
-            setInvalid();
-            set(str);
-        }
+        ~locale();
 
-        explicit locale(const std::string &str) {
-            setInvalid();
-            set(str);
-        }
+        locale& operator=(const locale &copyMe);
 
-        locale(const locale &copyMe) {
-            setInvalid();
-            m_locale = duplocale(copyMe);
-            if (!m_locale) {
-                return;
-            }
-            m_valid = true;
-        }
-
-        ~locale() {
-            free();
-        }
-
-        locale& operator=(const locale &copyMe) {
-            free();
-            if (copyMe.m_valid) {
-                m_locale = duplocale(copyMe.m_locale);
-                if (m_locale) {
-                    m_valid = true;
-                }
-            }
-
-            return *this;
-        }
-
-        void set(const char *str) {
-            free();
-            m_locale = newlocale(LC_TIME_MASK, str, NULL);
-            if (!m_locale) {
-                m_locale = duplocale(LC_GLOBAL_LOCALE);
-            }
-            if (m_locale) {
-                m_valid = true;
-            }
-        }
-
-        void set(const std::string &str) {
-           set(str.c_str());
-        }
+        void set(const char *str);
+        void set(const std::string &str); }
 
         operator locale_t() const {
             return m_locale;
         }
 
     private:
-        void setInvalid() {
-            m_valid = false;
-            m_locale = 0;
-        }
-    
-        void free() {
-            if (m_valid) {
-                freelocale(m_locale);
-                setInvalid();
-            }
-        }
+        void setInvalid();
+        void free();
 
         bool m_valid;
         locale_t m_locale;

@@ -15,6 +15,95 @@ namespace wolv::util {
 
 #if defined(OS_WINDOWS)
 
+    locale::locale(const char *str) {
+        set(str);
+    }
+
+    locale::locale(const std::string &str) {
+        set(str);
+    }
+
+    void locale::set(const char *str) {
+        m_locale = str;
+    }
+
+    void locale::set(const std::string &str) {
+        m_locale = str;
+    }
+
+#else
+
+    locale::locale() {
+        setInvalid();
+    }
+
+    locale::locale(const char *str) {
+        setInvalid();
+        set(str);
+    }
+    
+    locale::locale(const std::string &str) {
+        setInvalid();
+        set(str);
+    }
+
+    locale::locale(const locale &copyMe) {
+        setInvalid();
+
+        m_locale = duplocale(copyMe);
+        if (!m_locale) {
+            return;
+        }
+        m_valid = true;
+    }
+
+    locale::::~locale() {
+        free();
+    }
+
+    locale& locale::operator=(const locale &copyMe) {
+        free();
+        if (copyMe.m_valid) {
+            m_locale = duplocale(copyMe.m_locale);
+            if (m_locale) {
+                m_valid = true;
+            }
+        }
+
+        return *this;
+    }
+
+    void locale::set(const char *str) {
+        free();
+        m_locale = newlocale(LC_TIME_MASK, str, NULL);
+        if (!m_locale) {
+            m_locale = duplocale(LC_GLOBAL_LOCALE);
+        }
+        if (m_locale) {
+            m_valid = true;
+        }
+    }
+
+    void locale::set(const std::string &str) {
+        set(str.c_str());
+    }
+
+    void setInvalid() {
+        m_valid = false;
+        m_locale = 0;
+    }
+
+    void free() {
+        if (m_valid) {
+            freelocale(m_locale);
+            setInvalid();
+        }
+    }
+
+#endif
+
+#if defined(OS_WINDOWS)
+
 std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64 t, DTOpts sz) {
     // *** The types ***
     //
