@@ -116,7 +116,7 @@ namespace wolv::util {
 
         void grow(size_t sz) {
             if (sz > m_size) { // we never get smaller
-               _grow(sz);
+               growBuffer(sz);
             }
         }
 
@@ -126,7 +126,7 @@ namespace wolv::util {
             }
             
             T *pOldBase = data();
-            _grow(sz);
+            growBuffer(sz);
             T *pNewBase = data();
 
             for (T** p : ptrs) {
@@ -135,7 +135,7 @@ namespace wolv::util {
         }
 
     private:
-        void _grow(size_t sz) {
+        void growBuffer(size_t sz) {
             if (is_small()) {
                 T *pHeap = ALLOC::alloc(NULL, sz);
                 ALLOC::copy(pHeap, m_small, SZ);
