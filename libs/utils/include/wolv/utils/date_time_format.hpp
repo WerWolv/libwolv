@@ -13,11 +13,6 @@
 # include <locale.h>
 #endif // #if defined(OS_WINDOWS)
 
-// DEBUGGING
-#include <iostream>
-#include <algorithm>
-// END
-
 namespace wolv::util {
 
 #if defined(OS_WINDOWS)
@@ -95,15 +90,8 @@ namespace wolv::util {
         }
 
         void set(const char *str) {
-// DEBUGGING
-            std::string hs(str);
-            std::replace(hs.begin(), hs.end(), '-', '_');
-            hs.append(".utf8");
-            std::cout << "************ " << hs << std::endl;
-// END
-
             free();
-            m_locale = newlocale(LC_TIME_MASK, hs.c_str()/*str*/, NULL);
+            m_locale = newlocale(LC_TIME_MASK, str, NULL);
             if (!m_locale) {
                 m_locale = duplocale(LC_GLOBAL_LOCALE);
             }
