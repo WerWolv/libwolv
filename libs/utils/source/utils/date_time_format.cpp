@@ -75,7 +75,7 @@ namespace wolv::util {
 
     void Locale::set(const char *str) {
         free();
-        m_locale = newidelocale(LC_TIME_MASK, str, NULL);
+        m_locale = newlocale(LC_TIME_MASK, str, NULL);
         if (!m_locale) {
             m_locale = duplocale(LC_GLOBAL_LOCALE);
         }
