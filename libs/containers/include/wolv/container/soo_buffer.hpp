@@ -57,7 +57,7 @@ namespace wolv::util {
         static_assert(std::is_trivially_copyable_v<T>&& std::is_standard_layout_v<T>,
             "SOOBuffer only supports trivial, standard-layout types");
 
-        using ALLOC = std::conditional_t<UseRealloc, RealloceAlloc<T>, NewAlloc<T>>;
+        using Alloc = std::conditional_t<UseRealloc, RealloceAlloc<T>, NewAlloc<T>>;
 
     public:
         using element_type = T;
@@ -74,16 +74,16 @@ namespace wolv::util {
         SOOBuffer& operator=(SOOBuffer&&) = delete;
 
         ~SOOBuffer() {
-            if (!is_small())
-                ALLOC::free(m_heap);
+            if (!isSmall())
+                Alloc::free(m_heap);
         }
 
         T* data() {
-            return is_small() ? m_small : m_heap;
+            return isSmall() ? m_small : m_heap;
         }
 
         const T* data() const {
-            return is_small() ? m_small : m_heap;
+            return isSmall() ? m_small : m_heap;
         }
 
         operator T* () {
@@ -106,7 +106,7 @@ namespace wolv::util {
             return small_size_;
         }
 
-        bool is_small() const {
+        bool isSmall() const {
             return m_size <= SZ;
         }
 
@@ -136,13 +136,13 @@ namespace wolv::util {
 
     private:
         void growBuffer(size_t sz) {
-            if (is_small()) {
-                T *pHeap = ALLOC::alloc(NULL, sz);
-                ALLOC::copy(pHeap, m_small, SZ);
+            if (isSmall()) {
+                T *pHeap = Alloc::alloc(NULL, sz);
+                Alloc::copy(pHeap, m_small, SZ);
                 m_heap = pHeap;
             }
             else {
-                m_heap = ALLOC::alloc(m_heap, sz);
+                m_heap = Alloc::alloc(m_heap, sz);
             }
             m_size = sz;
         }
