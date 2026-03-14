@@ -51,7 +51,7 @@ namespace wolv::util {
         locale& operator=(const locale &copyMe);
 
         void set(const char *str);
-        void set(const std::string &str); }
+        void set(const std::string &str);
 
         operator locale_t() const {
             return m_locale;

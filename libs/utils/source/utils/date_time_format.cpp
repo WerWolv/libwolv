@@ -57,7 +57,7 @@ namespace wolv::util {
         m_valid = true;
     }
 
-    locale::::~locale() {
+    locale::~locale() {
         free();
     }
 
@@ -88,12 +88,12 @@ namespace wolv::util {
         set(str.c_str());
     }
 
-    void setInvalid() {
+    void locale::setInvalid() {
         m_valid = false;
         m_locale = 0;
     }
 
-    void free() {
+    void locale::free() {
         if (m_valid) {
             freelocale(m_locale);
             setInvalid();
