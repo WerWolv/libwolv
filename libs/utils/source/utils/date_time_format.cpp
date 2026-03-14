@@ -100,7 +100,7 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME*
     }
     wLocale[LOCALE_NAME_MAX_LENGTH-1] = 0;
 
-    wolv::util::SOOBuffer<WCHAR, datebuflen + dtsep_strlen + timebuflen + 1, true> date;
+    SOOBuffer<WCHAR, datebuflen + dtsep_strlen + timebuflen + 1, true> date;
     LPWSTR pCursor = date; 
 
     DWORD dateFlags = ((opts & DTOpts::DateFmtMask) == DTOpts::LongDate) ? DATE_LONGDATE : 0;

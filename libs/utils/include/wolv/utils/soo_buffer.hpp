@@ -11,7 +11,7 @@
 
 #include <cstddef>
 #include <type_traits>
-#include <memory.h>
+#include <cstdlib>
 #include <initializer_list>
 		
 namespace {
