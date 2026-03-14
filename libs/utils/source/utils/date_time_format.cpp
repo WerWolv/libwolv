@@ -104,7 +104,7 @@ namespace wolv::util {
 
 #if defined(OS_WINDOWS)
 
-std::optional<SYSTEMTIME> time_t_to_SYSTEMTIME(i64 t, DTOpts sz) {
+std::optional<SYSTEMTIME> timeTToSystemTime(i64 t, DTOpts sz) {
     // *** The types ***
     //
     //  /----------------------------------------------------------------------------\
@@ -280,7 +280,7 @@ std::optional<std::string> formatDateFromSYSTEMTIME(LPCSTR lc, const SYSTEMTIME*
 }
 
 std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts) {
-    auto st = time_t_to_SYSTEMTIME(t, opts);
+    auto st = timeTToSystemTime(t, opts);
     if (!st) {
         return std::nullopt;
     }
