@@ -210,6 +210,25 @@ std::optional<std::string> formatTT(const locale &lc, wolv::i64 t, DTOpts opts) 
     constexpr size_t szMin = 64;
     constexpr size_t szMax = 1024;
 
+    const char *datetime_fs = "%c";
+    const char *date_fs = "%x";
+    const char *time_fs = "%X";
+
+    const char *fs = datetime_fs;
+    switch (opts & DTOpts::DTMask) {
+    case DTOpts::DandT:
+        fs = datetime_fs;
+        break;
+
+    case DTOpts::D:
+        fs = date_fs;
+        break;
+
+    case DTOpts::T:
+        fs = time_fs;
+        break;
+    }
+
     struct tm tm;
     gmtime_r(&t, &tm);
 
@@ -217,7 +236,7 @@ std::optional<std::string> formatTT(const locale &lc, wolv::i64 t, DTOpts opts) 
     for (size_t bsz=szMin; bsz<=szMax; bsz*=2) {
         str.resize(bsz);
         size_t sz;
-        if (sz = strftime_l(&str[0], bsz, "%c", &tm, lc)) {
+        if (sz = strftime_l(&str[0], bsz, fs, &tm, lc)) {
             str.resize(sz);
             return str;
         }
