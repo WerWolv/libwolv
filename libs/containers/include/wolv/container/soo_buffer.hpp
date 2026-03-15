@@ -60,8 +60,8 @@ namespace wolv::util {
         using Alloc = std::conditional_t<UseRealloc, RealloceAlloc<T>, NewAlloc<T>>;
 
     public:
-        using element_type = T;
-        static const size_t small_size_ = SZ;
+        using elementType = T;
+        static const size_t smallSZ = SZ;
 
         SOOBuffer(size_t cap = 0) {
             m_size = SZ;
@@ -103,7 +103,7 @@ namespace wolv::util {
         }
 
         size_t small_size() const {
-            return small_size_;
+            return smallSZ;
         }
 
         bool isSmall() const {
