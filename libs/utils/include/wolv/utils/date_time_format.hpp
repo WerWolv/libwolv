@@ -26,7 +26,7 @@ namespace wolv::util {
 
         ~Locale() = default;
 
-        Locale& operator=(const Locale &copyMe);
+        Locale& operator=(const Locale &copyMe) = default;
 
         void set(const char *str);
         void set(const std::string &str);
