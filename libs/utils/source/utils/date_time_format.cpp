@@ -324,8 +324,8 @@ std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts) 
     std::string str;
     for (size_t bsz=szMin; bsz<=szMax; bsz*=2) {
         str.resize(bsz);
-        size_t sz;
-        if (sz = strftime_l(&str[0], bsz, fs, &tm, lc)) {
+        size_t sz = strftime_l(&str[0], bsz, fs, &tm, lc);
+        if (sz != 0) {
             str.resize(sz);
             return str;
         }
