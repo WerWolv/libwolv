@@ -35,6 +35,7 @@ namespace wolv::util {
 
     Locale::Locale() {
         setInvalid();
+        set(setlocale(LC_TIME_MASK, NULL));
     }
 
     Locale::Locale(const char *str) {
