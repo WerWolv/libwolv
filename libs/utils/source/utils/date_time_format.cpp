@@ -8,6 +8,9 @@
 # include <wolv/container/soo_buffer.hpp>
 #else
 # include <time.h>
+#if defined(OS_MACOS)
+# include <xlocale.h>
+#endif
 # include <locale.h>
 #endif // #if defined(OS_WINDOWS)
 
@@ -320,7 +323,7 @@ std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts) 
     }
 
     struct tm tm;
-    gmtime_r(&t, &tm);
+    gmtime_r(static_cast<time_t*>(&t), &tm);
 
     std::string str;
     for (size_t bsz=szMin; bsz<=szMax; bsz*=2) {
