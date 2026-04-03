@@ -6,6 +6,9 @@
 #include <list>
 #include <functional>
 #include <condition_variable>
+#include <atomic>
+
+#include <wolv/types.hpp>
 
 namespace wolv::util {
 
@@ -141,6 +144,6 @@ namespace wolv::util {
             std::condition_variable m_condition;
             std::atomic<bool> m_stop = false;
             std::atomic<bool> m_stopTasks = false;
-            std::atomic<u32> m_threadsAvailable = 0;
+            std::atomic<wolv::u32> m_threadsAvailable = 0;
         };
 }
