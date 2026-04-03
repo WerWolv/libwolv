@@ -1,6 +1,7 @@
 // date_time_format.cpp
 
 #include <wolv/utils/date_time_format.hpp>
+#include <algorithm>
 
 #if defined(OS_WINDOWS)
 # include <limits>
@@ -295,6 +296,42 @@ std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts) 
     }
 
     return dt.value();
+}
+
+namespace {
+
+BOOL CALLBACK LocaleEnumprocex(LPWSTR name, DWORD flags, LPARAM ud) {
+    auto* locales = reinterpret_cast<std::vector<std::string>*>(ud);
+
+    if (name[0]==0) {
+        return TRUE;
+    }
+
+    char u8LocaleName[LOCALE_NAME_MAX_LENGTH];
+    int res = WideCharToMultiByte(CP_UTF8, 0, name, -1, u8LocaleName, sizeof(u8LocaleName), NULL, NULL);
+    if (res==0) {
+        return TRUE;
+    }
+
+    locales->emplace_back(u8LocaleName);
+
+    return TRUE;
+}
+
+}
+
+std::vector<std::string> enumLocales() {
+    std::vector<std::string> locales;
+
+    EnumSystemLocalesEx(
+        LocaleEnumprocex,
+        LOCALE_WINDOWS | LOCALE_SPECIFICDATA | LOCALE_NEUTRALDATA,
+        reinterpret_cast<LPARAM>(&locales),
+        NULL);
+
+    std::sort(locales.begin(), locales.end());
+
+    return locales;
 }
 
 #else

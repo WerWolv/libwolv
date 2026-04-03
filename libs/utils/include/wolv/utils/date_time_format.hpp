@@ -3,6 +3,7 @@
 
 #include <optional>
 #include <string>
+#include <vector>
 #include <type_traits>
 
 #include <wolv/types.hpp>
@@ -97,6 +98,9 @@ namespace wolv::util {
 #if defined(OS_WINDOWS)
     std::optional<SYSTEMTIME> timeTToSystemTime(i64 t, DTOpts sz = DTOpts::TT64);
     std::optional<std::string> formatSystemTime(LPCSTR lc, const SYSTEMTIME* pss, DTOpts opts = DTOpts::LongDate);
+
+    std::vector<std::string> enumLocales();
+
 #endif
     std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT|DTOpts::LongDate);
 
