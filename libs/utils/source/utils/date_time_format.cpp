@@ -323,7 +323,8 @@ std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts) 
     }
 
     struct tm tm;
-    gmtime_r(static_cast<time_t*>(&t), &tm);
+    time_t tt = static_cast<time_t>(t);
+    gmtime_r(&tgamma), &tm);
 
     std::string str;
     for (size_t bsz=szMin; bsz<=szMax; bsz*=2) {
