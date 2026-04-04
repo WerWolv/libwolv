@@ -100,6 +100,7 @@ namespace wolv::util {
     std::optional<std::string> formatSystemTime(LPCSTR lc, const SYSTEMTIME* pss, DTOpts opts = DTOpts::LongDate);
 
     std::vector<std::string> enumLocales();
+    std::string localeName(const std::string &lc, bool english=true);
 
 #endif
     std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT|DTOpts::LongDate);

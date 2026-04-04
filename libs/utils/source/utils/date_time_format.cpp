@@ -194,7 +194,7 @@ std::optional<std::string> formatSystemTime(LPCSTR lc, const SYSTEMTIME* pss, DT
     }
     wideLocale[LOCALE_NAME_MAX_LENGTH-1] = 0;
 
-    SOOBuffer<WCHAR, dateBufLen + dtSepStrLen + timeBufLen + 1, true> date;
+    SOOBuffer<WCHAR, dtStrLen+1, true> date;
     LPWSTR pCursor = date; 
 
     DWORD dateFlags = ((opts & DTOpts::DateFmtMask) == DTOpts::LongDate) ? DATE_LONGDATE : 0;
@@ -313,6 +313,11 @@ BOOL CALLBACK LocaleEnumprocex(LPWSTR name, DWORD flags, LPARAM ud) {
         return TRUE;
     }
 
+    // DEBUGGING
+    auto p = localeName(u8LocaleName, true);
+    auto p2 = localeName(u8LocaleName, false);
+    //
+
     locales->emplace_back(u8LocaleName);
 
     return TRUE;
@@ -332,6 +337,30 @@ std::vector<std::string> enumLocales() {
     std::sort(locales.begin(), locales.end());
 
     return locales;
+}
+
+std::string localeName(const std::string &lc, bool english) {
+    WCHAR wideLocale[LOCALE_NAME_MAX_LENGTH];
+    {
+        size_t i=0;
+        for (; i<lc.size() && i<LOCALE_NAME_MAX_LENGTH-1; ++i) {
+            wideLocale[i] = lc[i];
+        }
+        wideLocale[i] = 0;
+    }
+
+    LCTYPE tp = english ? LOCALE_SENGLISHDISPLAYNAME : LOCALE_SNATIVEDISPLAYNAME;
+
+    int len = GetLocaleInfoEx(wideLocale, tp, 0, 0);
+    SOOBuffer<WCHAR, 64> wideBuffer(len);
+    len = GetLocaleInfoEx(wideLocale, tp, wideBuffer, wideBuffer.size());
+
+    len = WideCharToMultiByte(CP_UTF8, 0, wideBuffer, -1, 0, 0, NULL, NULL);
+    std::string name;
+    name.resize(len-1);
+    len = WideCharToMultiByte(CP_UTF8, 0, wideBuffer, -1, &name[0], len, NULL, NULL);
+
+    return name;
 }
 
 #else
