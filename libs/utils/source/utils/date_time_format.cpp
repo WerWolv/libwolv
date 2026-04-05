@@ -313,11 +313,6 @@ BOOL CALLBACK LocaleEnumprocex(LPWSTR name, DWORD flags, LPARAM ud) {
         return TRUE;
     }
 
-    // DEBUGGING
-    auto p = localeName(u8LocaleName, true);
-    auto p2 = localeName(u8LocaleName, false);
-    //
-
     locales->emplace_back(u8LocaleName);
 
     return TRUE;
@@ -330,7 +325,7 @@ std::vector<std::string> enumLocales() {
 
     EnumSystemLocalesEx(
         LocaleEnumprocex,
-        LOCALE_WINDOWS | LOCALE_SPECIFICDATA | LOCALE_NEUTRALDATA,
+        LOCALE_WINDOWS,
         reinterpret_cast<LPARAM>(&locales),
         NULL);
 
@@ -357,8 +352,9 @@ std::string localeName(const std::string &lc, bool english) {
 
     len = WideCharToMultiByte(CP_UTF8, 0, wideBuffer, -1, 0, 0, NULL, NULL);
     std::string name;
-    name.resize(len-1);
+    name.resize(len);
     len = WideCharToMultiByte(CP_UTF8, 0, wideBuffer, -1, &name[0], len, NULL, NULL);
+    name.resize(len-1);
 
     return name;
 }
