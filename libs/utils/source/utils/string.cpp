@@ -308,4 +308,40 @@ namespace wolv::util {
         }
     }
 
+    std::string truncateUtf8(std::string_view string, std::size_t max_bytes) {
+        if (string.size() <= max_bytes)
+            return std::string(string);
+
+        // Start reverse iterator at last byte we can include
+        auto rit = std::make_reverse_iterator(string.begin() + max_bytes);
+
+        // Find the first byte of the last code point that fits
+        auto last1stByte = std::find_if(rit, string.rend(), [](unsigned char ch) {
+            return (ch & 0xC0) != 0x80; // lead byte or ASCII
+        });
+
+        if (last1stByte == string.rend())
+            return {}; // should not happen for valid UTF-8
+
+        // How long is this code point?
+        std::size_t cp_len = 0;
+        unsigned char lead = static_cast<unsigned char>(*last1stByte);
+        if ((lead & 0x80) == 0x00) cp_len = 1;
+        else if ((lead & 0xE0) == 0xC0) cp_len = 2;
+        else if ((lead & 0xF0) == 0xE0) cp_len = 3;
+        else if ((lead & 0xF8) == 0xF0) cp_len = 4;
+        else return {}; // invalid UTF-8
+
+        // Convert reverse iterator to forward iterator pointing at the lead byte
+        auto f_it = last1stByte.base() - 1; // points to the lead byte
+
+        // Check if code point fits within max_bytes
+        auto offset = std::distance(string.begin(), f_it);
+        if (offset + cp_len > static_cast<std::ptrdiff_t>(max_bytes)) {
+            return std::string(string.begin(), f_it); // drop partial code point
+        }
+
+        return std::string(string.begin(), f_it + cp_len); // include code point
+}
+
 }

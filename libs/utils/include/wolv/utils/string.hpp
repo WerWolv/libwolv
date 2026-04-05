@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace wolv::util {
@@ -24,6 +25,7 @@ namespace wolv::util {
     [[nodiscard]] std::optional<std::u32string> utf8ToUtf32(const std::string &string, bool allowInvalid = false);
     [[nodiscard]] std::optional<std::string> wstringToUtf8(const std::wstring &string);
     [[nodiscard]] std::optional<std::wstring> utf8ToWstring(const std::string &string);
+    [[nodiscard]] std::string truncateUtf8(std::string_view string, std::size_t max_bytes);
 
     template<typename T>
     concept Char8StringConvertable = requires(T t) { t.u8string(); };
