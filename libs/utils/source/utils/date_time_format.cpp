@@ -19,19 +19,21 @@ namespace wolv::util {
 
 #if defined(OS_WINDOWS)
 
-    Locale::Locale(const char *str) {
-        set(str);
+    Locale::Locale(const char *str, bool longDate) {
+        set(str, longDate);
     }
 
-    Locale::Locale(const std::string &str) {
-        set(str);
+    Locale::Locale(const std::string &str, bool longDate) {
+        set(str, longDate);
     }
 
-    void Locale::set(const char *str) {
+    void Locale::set(const char *str, bool longDate) {
+        m_longDate = longDate;
         m_locale = str;
     }
 
-    void Locale::set(const std::string &str) {
+    void Locale::set(const std::string &str, bool longDate) {
+        m_longDate = longDate;
         m_locale = str;
     }
 
@@ -46,7 +48,7 @@ namespace wolv::util {
         setInvalid();
         set(str);
     }
-    
+
     Locale::Locale(const std::string &str) {
         setInvalid();
         set(str);
@@ -195,9 +197,9 @@ std::optional<std::string> formatSystemTime(LPCSTR lc, const SYSTEMTIME* pss, DT
     wideLocale[LOCALE_NAME_MAX_LENGTH-1] = 0;
 
     SOOBuffer<WCHAR, dtStrLen+1, true> date;
-    LPWSTR pCursor = date; 
+    LPWSTR pCursor = date;
 
-    DWORD dateFlags = ((opts & DTOpts::DateFmtMask) == DTOpts::LongDate) ? DATE_LONGDATE : 0;
+    DWORD dateFlags = ((opts & DTOpts::DateFmtMask) == DTOpts::LongDate) ? DATE_LONGDATE : DATE_SHORTDATE;
 
     int gdfLen = 0;
     if ((opts & DTOpts::D) == DTOpts::D) {
@@ -228,7 +230,7 @@ std::optional<std::string> formatSystemTime(LPCSTR lc, const SYSTEMTIME* pss, DT
             memcpy(pCursor, dtSep, sizeof(dtSep));
             pCursor += dtSepStrLen;
         }
-    
+
         size_t time_sz = date.size()-(pCursor-date);
 
         int gtfLen = GetTimeFormatEx(wideLocale, 0, pss, NULL, pCursor, static_cast<int>(time_sz));
@@ -290,7 +292,17 @@ std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts) 
         return std::nullopt;
     }
 
-    auto dt = formatSystemTime(lc, &st.value(), opts);
+    DTOpts massagedOpts = opts & ~DTOpts::DateFmtMask;
+    if ((opts & DTOpts::DateFmtMask)==DTOpts::DefaultDate) {
+        // From the locale
+        massagedOpts |= lc.longDate() ? DTOpts::LongDate : DTOpts::ShortDate;
+    }
+    else {
+        // Explicit flags overide locale
+        massagedOpts |= ((opts & DTOpts::DateFmtMask)==DTOpts::LongDate) ?  DTOpts::LongDate : DTOpts::ShortDate;
+    }
+
+    auto dt = formatSystemTime(lc, &st.value(), massagedOpts);
     if (!dt) {
         return std::nullopt;
     }

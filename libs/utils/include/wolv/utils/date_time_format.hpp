@@ -21,23 +21,28 @@ namespace wolv::util {
     class Locale {
     public:
         Locale() = default;
-        explicit Locale(const char *str);
-        explicit Locale(const std::string &str);
+        explicit Locale(const char *str, bool longDate = false);
+        explicit Locale(const std::string &str, bool longDate = false);
         Locale(const Locale &copyMe) = default;
 
         ~Locale() = default;
 
         Locale& operator=(const Locale &copyMe) = default;
 
-        void set(const char *str);
-        void set(const std::string &str);
+        void set(const char *str, bool longDate = false);
+        void set(const std::string &str, bool longDate = false);
 
         operator const char*() const {
             return m_locale.c_str();
         }
 
+        bool longDate() const {
+            return m_longDate;
+        }
+
     private:
         std::string m_locale;
+        bool m_longDate = false;
     };
 
 #else
@@ -71,18 +76,19 @@ namespace wolv::util {
 #endif
 
     enum class DTOpts {
-        TT32        = 0b0000,  // 32-bits
-        TT64        = 0b0001,  // 64-bits
-        TTMask      = 0b0001,
+        TT32        = 0b00000,  // 32-bits
+        TT64        = 0b00001,  // 64-bits
+        TTMask      = 0b00001,
 
-        DandT       = 0b0110,  // date and time
-        D           = 0b0100,  // date
-        T           = 0b0010,  // time
-        DTMask      = 0b0110,
+        DandT       = 0b00110,  // date and time
+        D           = 0b00100,  // date
+        T           = 0b00010,  // time
+        DTMask      = 0b00110,
 
-        ShortDate   = 0b0000,
-        LongDate    = 0b1000,
-        DateFmtMask = 0b1000
+        DefaultDate = 0b00000,  // Date length defined by locale
+        ShortDate   = 0b01000,
+        LongDate    = 0b10000,
+        DateFmtMask = 0b11000
     };
 
     constexpr DTOpts operator|(DTOpts a, DTOpts b) noexcept {
@@ -93,6 +99,23 @@ namespace wolv::util {
     constexpr DTOpts operator&(DTOpts a, DTOpts b) noexcept {
         using T = std::underlying_type_t<DTOpts>;
         return static_cast<DTOpts>(static_cast<T>(a) & static_cast<T>(b));
+    }
+
+    constexpr DTOpts operator~(DTOpts a) noexcept {
+        using T = std::underlying_type_t<DTOpts>;
+        return static_cast<DTOpts>(~static_cast<T>(a));
+    }
+
+    constexpr DTOpts& operator&=(DTOpts& a, DTOpts b) noexcept {
+        using T = std::underlying_type_t<DTOpts>;
+        a = static_cast<DTOpts>(static_cast<T>(a) & static_cast<T>(b));
+        return a;
+    }
+
+    constexpr DTOpts& operator|=(DTOpts& a, DTOpts b) noexcept {
+        using T = std::underlying_type_t<DTOpts>;
+        a = static_cast<DTOpts>(static_cast<T>(a) | static_cast<T>(b));
+        return a;
     }
 
 #if defined(OS_WINDOWS)
