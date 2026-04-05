@@ -325,7 +325,7 @@ std::vector<std::string> enumLocales() {
 
     EnumSystemLocalesEx(
         LocaleEnumprocex,
-        LOCALE_WINDOWS,
+        LOCALE_WINDOWS | LOCALE_SUPPLEMENTAL,
         reinterpret_cast<LPARAM>(&locales),
         NULL);
 
