@@ -2,6 +2,7 @@
 
 #include <wolv/utils/date_time_format.hpp>
 #include <algorithm>
+#include <utility>
 
 #if defined(OS_WINDOWS)
 # include <limits>
@@ -319,13 +320,19 @@ BOOL CALLBACK LocaleEnumprocex(LPWSTR name, DWORD flags, LPARAM ud) {
         return TRUE;
     }
 
-    char u8LocaleName[LOCALE_NAME_MAX_LENGTH];
-    int res = WideCharToMultiByte(CP_UTF8, 0, name, -1, u8LocaleName, sizeof(u8LocaleName), NULL, NULL);
+    std::string u8Name;
+    int res = WideCharToMultiByte(CP_UTF8, 0, name, -1, NULL, 0, NULL, NULL);
     if (res==0) {
         return TRUE;
     }
+    u8Name.resize(res);
+    res = WideCharToMultiByte(CP_UTF8, 0, name, -1, &u8Name[0], u8Name.size(), NULL, NULL);
+    if (res==0) {
+        return TRUE;
+    }
+    u8Name.resize(res-1); // We don't need the \0
 
-    locales->emplace_back(u8LocaleName);
+    locales->push_back(std::move(u8Name));
 
     return TRUE;
 }
@@ -359,13 +366,25 @@ std::string localeName(const std::string &lc, bool english) {
     LCTYPE tp = english ? LOCALE_SENGLISHDISPLAYNAME : LOCALE_SNATIVEDISPLAYNAME;
 
     int len = GetLocaleInfoEx(wideLocale, tp, 0, 0);
+    if (len == 0) {
+        return {};
+    }
     SOOBuffer<WCHAR, 64> wideBuffer(len);
     len = GetLocaleInfoEx(wideLocale, tp, wideBuffer, wideBuffer.size());
+    if (len == 0) {
+        return {};
+    }
 
     len = WideCharToMultiByte(CP_UTF8, 0, wideBuffer, -1, 0, 0, NULL, NULL);
+    if (len == 0) {
+        return {};
+    }
     std::string name;
     name.resize(len);
     len = WideCharToMultiByte(CP_UTF8, 0, wideBuffer, -1, &name[0], len, NULL, NULL);
+    if (len == 0) {
+        return {};
+    }
     name.resize(len-1);
 
     return name;
