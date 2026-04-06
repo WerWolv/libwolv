@@ -40,6 +40,59 @@ namespace wolv::util {
         m_locale = str;
     }
 
+    LocaleName::LocaleName(const std::string &lc) {
+        WCHAR wideLocale[LOCALE_NAME_MAX_LENGTH];
+        {
+            size_t i=0;
+            for (; i<lc.size() && i<LOCALE_NAME_MAX_LENGTH-1; ++i) {
+                wideLocale[i] = lc[i];
+            }
+            wideLocale[i] = 0;
+        }
+
+        SOOBuffer<WCHAR, 64> wideBuffer;
+
+        int len = GetLocaleInfoEx(wideLocale, LOCALE_SNATIVEDISPLAYNAME, 0, 0);
+        if (len != 0) {
+            wideBuffer.grow(len);
+            len = GetLocaleInfoEx(wideLocale, LOCALE_SNATIVEDISPLAYNAME, wideBuffer, wideBuffer.size());
+            if (len != 0) {
+                len = WideCharToMultiByte(CP_UTF8, 0, wideBuffer, -1, 0, 0, NULL, NULL);
+                if (len != 0) {
+                    m_nativeName.resize(len);
+                    len = WideCharToMultiByte(CP_UTF8, 0, wideBuffer, -1, &m_nativeName[0], len, NULL, NULL);
+                    if (len != 0) {
+                        m_nativeName.resize(len-1);
+                    }
+                }
+            }
+        }
+
+        len = GetLocaleInfoEx(wideLocale, LOCALE_SENGLISHDISPLAYNAME, 0, 0);
+        if (len != 0) {
+            len = GetLocaleInfoEx(wideLocale, LOCALE_SENGLISHDISPLAYNAME, wideBuffer, wideBuffer.size());
+            if (len != 0) {
+                wideBuffer.grow(len);
+                len = WideCharToMultiByte(CP_UTF8, 0, wideBuffer, -1, 0, 0, NULL, NULL);
+                if (len != 0) {
+                    m_englishName.resize(len);
+                    len = WideCharToMultiByte(CP_UTF8, 0, wideBuffer, -1, &m_englishName[0], len, NULL, NULL);
+                    if (len != 0) {
+                        m_englishName.resize(len-1);
+                    }
+                }
+            }
+        }
+    }
+
+    std::string  LocaleName::displayName() const {
+        if (m_nativeName == m_englishName) {
+            return m_nativeName;
+        }
+        return m_nativeName + " [" + m_englishName + "]";
+    }
+
+
 #else
 
     Locale::Locale() {
@@ -356,43 +409,6 @@ std::vector<std::string> enumLocales() {
     std::sort(locales.begin(), locales.end());
 
     return locales;
-}
-
-std::string localeName(const std::string &lc, bool english) {
-    WCHAR wideLocale[LOCALE_NAME_MAX_LENGTH];
-    {
-        size_t i=0;
-        for (; i<lc.size() && i<LOCALE_NAME_MAX_LENGTH-1; ++i) {
-            wideLocale[i] = lc[i];
-        }
-        wideLocale[i] = 0;
-    }
-
-    LCTYPE tp = english ? LOCALE_SENGLISHDISPLAYNAME : LOCALE_SNATIVEDISPLAYNAME;
-
-    int len = GetLocaleInfoEx(wideLocale, tp, 0, 0);
-    if (len == 0) {
-        return {};
-    }
-    SOOBuffer<WCHAR, 64> wideBuffer(len);
-    len = GetLocaleInfoEx(wideLocale, tp, wideBuffer, wideBuffer.size());
-    if (len == 0) {
-        return {};
-    }
-
-    len = WideCharToMultiByte(CP_UTF8, 0, wideBuffer, -1, 0, 0, NULL, NULL);
-    if (len == 0) {
-        return {};
-    }
-    std::string name;
-    name.resize(len);
-    len = WideCharToMultiByte(CP_UTF8, 0, wideBuffer, -1, &name[0], len, NULL, NULL);
-    if (len == 0) {
-        return {};
-    }
-    name.resize(len-1);
-
-    return name;
 }
 
 #else

@@ -88,12 +88,16 @@ namespace wolv::util {
         LocaleName& operator=(const LocaleName &) = default;
         LocaleName& operator=(LocaleName &&) = default;
 
+        operator std::string() const {
+            return displayName();
+        }
+
         std::string displayName() const;
-    
+
         std::string nativeName() const {
             return m_nativeName;
         }
-    
+
         std::string englishName() const {
             return m_englishName;
         }
@@ -153,6 +157,5 @@ namespace wolv::util {
 
     std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT|DTOpts::LongDate);
     std::vector<std::string> enumLocales();
-    std::string localeName(const std::string &lc, bool english=true);
 
 } // namespace wolv::util
