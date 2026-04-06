@@ -16,6 +16,7 @@
 # include <locale.h>
 # include <langinfo.h>
 # include <ranges>
+# include <String_view>
 #endif // #if defined(OS_WINDOWS)
 
 namespace wolv::util {
@@ -462,10 +463,14 @@ std::vector<std::string> enumLocales() {
     }
     pclose(pipe);
 
+    const std::string_view suffix = ".utf8";
+
     std::vector<std::string> locales;
-    for (auto&& r : output | std::views::split('\n')) {
-        if (!r.empty())
-            locales.emplace_back(r.begin(), r.end());
+    for (auto&& i : output | std::views::split('\n')) {
+        if (!i.empty() && i.ends_with(suffix)) {
+            i.substr(0, i.length() - suffix.length());
+            locales.pop_back(toBCP47(i));
+        }
     }
 
     return locales;
