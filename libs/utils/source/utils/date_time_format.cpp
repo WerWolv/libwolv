@@ -14,6 +14,8 @@
 # include <xlocale.h>
 #endif
 # include <locale.h>
+# include <langinfo.h>
+# include <ranges>
 #endif // #if defined(OS_WINDOWS)
 
 namespace wolv::util {
@@ -45,12 +47,14 @@ namespace wolv::util {
         set(setlocale(LC_TIME_MASK, NULL));
     }
 
-    Locale::Locale(const char *str) {
+    Locale::Locale(const char *str, bool longDate) {
+        (void)longDate; // TODO: add long date support
         setInvalid();
         set(str);
     }
 
-    Locale::Locale(const std::string &str) {
+    Locale::Locale(const std::string &str, bool longDate) {
+        (void)longDate; // TODO: add long date support
         setInvalid();
         set(str);
     }
@@ -81,7 +85,7 @@ namespace wolv::util {
         return *this;
     }
 
-    void Locale::set(const char *str) {
+    void Locale::set(const char *str, bool longDate) {
         free();
         m_locale = newlocale(LC_TIME_MASK, str, NULL);
         if (!m_locale) {
@@ -92,7 +96,8 @@ namespace wolv::util {
         }
     }
 
-    void Locale::set(const std::string &str) {
+    void Locale::set(const std::string &str, bool longDate) {
+        (void)longDate; // TODO: add long date support
         set(str.c_str());
     }
 
@@ -432,6 +437,35 @@ std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts) 
     return std::nullopt;
 }
 
-#endif // #if defined(OS_WINDOWS)
+std::vector<std::string> enumLocales() {
+    std::string output;
+    FILE* pipe = popen("locale -a", "r");
+    char buffer[32];
+    while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+        output += buffer;
+    }
+    pclose(pipe);
+
+    std::vector<std::string> locales;
+    for (auto&& r : output | std::views::split('\n')) {
+        if (!r.empty())
+            locales.emplace_back(r.begin(), r.end());
+    }
+
+    return locales;
+}
+
+std::string localeName(const std::string &lc, bool english) {
+    locale_t locale = newlocale(LC_IDENTIFICATION_MASK, lc.c_str(), NULL);
+
+    const char *name = nl_langinfo_l(_NL_IDENTIFICATION_TERRITORY, locale);
+    std::string locale_name(name);
+
+    freelocale(locale);
+
+    return locale_name;
+}
+
+#endif
 
 } // namespace wolv::util

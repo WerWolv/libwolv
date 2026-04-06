@@ -50,19 +50,23 @@ namespace wolv::util {
     class Locale {
     public:
         Locale();
-        explicit Locale(const char *str);
-        explicit Locale(const std::string &str);
+        explicit Locale(const char *str, bool longDate = false);
+        explicit Locale(const std::string &str, bool longDate = false);
         Locale(const Locale &copyMe);
 
         ~Locale();
 
         Locale& operator=(const Locale &copyMe);
 
-        void set(const char *str);
-        void set(const std::string &str);
+        void set(const char *str, bool longDate = false);
+        void set(const std::string &str, bool longDate = false);
 
         operator locale_t() const {
             return m_locale;
+        }
+
+        bool longDate() const {
+            return false;
         }
 
     private:
@@ -121,12 +125,10 @@ namespace wolv::util {
 #if defined(OS_WINDOWS)
     std::optional<SYSTEMTIME> timeTToSystemTime(i64 t, DTOpts sz = DTOpts::TT64);
     std::optional<std::string> formatSystemTime(LPCSTR lc, const SYSTEMTIME* pss, DTOpts opts = DTOpts::LongDate);
+#endif
 
+    std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT|DTOpts::LongDate);
     std::vector<std::string> enumLocales();
     std::string localeName(const std::string &lc, bool english=true);
-
-#endif
-    std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts = DTOpts::TT64|DTOpts::DandT|DTOpts::LongDate);
-
 
 } // namespace wolv::util
