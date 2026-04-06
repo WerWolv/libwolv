@@ -458,12 +458,15 @@ std::vector<std::string> enumLocales() {
 std::string localeName(const std::string &lc, bool english) {
     locale_t locale = newlocale(LC_IDENTIFICATION_MASK, lc.c_str(), NULL);
 
-    const char *name = nl_langinfo_l(_NL_IDENTIFICATION_TERRITORY, locale);
-    std::string locale_name(name);
-
+    const char *languageC = nl_langinfo_l(_NL_IDENTIFICATION_LANGUAGE, locale);
+    std::string language(languageC);
+    const char *territoryC = nl_langinfo_l(_NL_IDENTIFICATION_TERRITORY, locale);
+    std::string territory(territoryC);
     freelocale(locale);
 
-    return locale_name;
+    std::string localName = language + " (" + territory + ")";
+
+    return localName;
 }
 
 #endif
