@@ -462,6 +462,7 @@ std::string localeName(const std::string &lc, bool english) {
     std::string language(languageC);
     const char *territoryC = nl_langinfo_l(_NL_IDENTIFICATION_TERRITORY, locale);
     std::string territory(territoryC);
+
     freelocale(locale);
 
     std::string localName = language + " (" + territory + ")";

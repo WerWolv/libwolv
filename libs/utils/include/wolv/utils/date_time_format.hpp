@@ -79,6 +79,30 @@ namespace wolv::util {
 
 #endif
 
+    class LocaleName {
+    public:
+        LocaleName(const std::string &lc);
+        LocaleName(const LocaleName &) = default;
+        LocaleName(LocaleName &&) = default;
+
+        LocaleName& operator=(const LocaleName &) = default;
+        LocaleName& operator=(LocaleName &&) = default;
+
+        std::string displayName() const;
+    
+        std::string nativeName() const {
+            return m_nativeName;
+        }
+    
+        std::string englishName() const {
+            return m_englishName;
+        }
+
+    private:
+        std::string m_nativeName;
+        std::string m_englishName;
+    };
+
     enum class DTOpts {
         TT32        = 0b00000,  // 32-bits
         TT64        = 0b00001,  // 64-bits
