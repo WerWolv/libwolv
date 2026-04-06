@@ -93,7 +93,7 @@ namespace wolv::util {
     }
 
 
-#else
+#else // !defined(OS_WINDOWS)
 
     Locale::Locale() {
         setInvalid();
@@ -411,7 +411,7 @@ std::vector<std::string> enumLocales() {
     return locales;
 }
 
-#else
+#else // !defined(OS_WINDOWS)
 
 std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts) {
     constexpr size_t szMin = 64;
@@ -484,6 +484,17 @@ std::string localeName(const std::string &lc, bool english) {
     std::string localName = language + " (" + territory + ")";
 
     return localName;
+}
+
+std::string toBCP47(const std::string &lc) {
+    using namespace std::ranges;
+
+    std::string out(lc);
+
+    const auto firstDot = find_first(out, ".");
+    replace(out, out.begin(), firstDot, '_', '-"');
+
+    return out;
 }
 
 #endif
