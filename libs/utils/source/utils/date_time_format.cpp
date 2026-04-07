@@ -16,7 +16,7 @@
 # include <locale.h>
 # include <langinfo.h>
 # include <ranges>
-# include <String_view>
+# include <string_view>
 #endif // #if defined(OS_WINDOWS)
 
 namespace wolv::util {
@@ -86,14 +86,6 @@ namespace wolv::util {
         }
     }
 
-    std::string  LocaleName::displayName() const {
-        if (m_nativeName == m_englishName) {
-            return m_nativeName;
-        }
-        return m_nativeName + " [" + m_englishName + "]";
-    }
-
-
 #else // !defined(OS_WINDOWS)
 
     Locale::Locale() {
@@ -152,7 +144,16 @@ namespace wolv::util {
 
     void Locale::set(const std::string &str, bool longDate) {
         (void)longDate; // TODO: add long date support
-        set(str.c_str());
+
+        // TODO: clean this shit up!
+        std::string locale(str);
+        locale.append(".utf8");
+        auto pos = locale.find('-');
+        if (pos != std::string::npos) {
+            locale[pos] = '_';
+        }
+
+        set(locale.c_str());
     }
 
     void Locale::setInvalid() {
@@ -167,7 +168,45 @@ namespace wolv::util {
         }
     }
 
+    LocaleName::LocaleName(const std::string &lc) {
+        // TODO: clean this shit up!
+        std::string name(lc);
+        name.append(".utf8");
+        auto pos = name.find('-');
+        if (pos != std::string::npos) {
+            name[pos] = '_';
+        }
+
+        locale_t locale = newlocale(LC_IDENTIFICATION_MASK, name.c_str(), 0);
+        if (!locale) {
+            return;
+        }
+
+        std::string language;
+        const char *p = nl_langinfo_l(_NL_IDENTIFICATION_LANGUAGE, locale);
+        if (p || *p!=0) {
+            language = p;
+        }
+
+        std::string territory;
+        p = nl_langinfo_l(_NL_IDENTIFICATION_TERRITORY, locale);
+        if (p || *p!=0) {
+            territory = p;
+        }
+
+        m_nativeName = language + " (" + territory + ")";
+
+        freelocale(locale);
+    }
+
 #endif
+
+std::string LocaleName::displayName() const {
+        if (m_englishName.empty() || (m_nativeName == m_englishName)) {
+            return m_nativeName;
+        }
+        return m_nativeName + " [" + m_englishName + "]";
+    }
 
 #if defined(OS_WINDOWS)
 
@@ -463,41 +502,30 @@ std::vector<std::string> enumLocales() {
     }
     pclose(pipe);
 
-    const std::string_view suffix = ".utf8";
+    const std::string suffix = ".utf8";
 
     std::vector<std::string> locales;
     for (auto&& i : output | std::views::split('\n')) {
-        if (!i.empty() && i.ends_with(suffix)) {
-            i.substr(0, i.length() - suffix.length());
-            locales.pop_back(toBCP47(i));
+        std::string_view line(i);
+        if (!line.empty() && line.ends_with(suffix)) {
+            // We're only interested in utf8 locales
+            auto trimmed = line.substr(0, line.length() - suffix.length());
+            locales.push_back(toBCP47(trimmed));
         }
     }
 
     return locales;
 }
 
-std::string localeName(const std::string &lc, bool english) {
-    locale_t locale = newlocale(LC_IDENTIFICATION_MASK, lc.c_str(), NULL);
-
-    const char *languageC = nl_langinfo_l(_NL_IDENTIFICATION_LANGUAGE, locale);
-    std::string language(languageC);
-    const char *territoryC = nl_langinfo_l(_NL_IDENTIFICATION_TERRITORY, locale);
-    std::string territory(territoryC);
-
-    freelocale(locale);
-
-    std::string localName = language + " (" + territory + ")";
-
-    return localName;
-}
-
-std::string toBCP47(const std::string &lc) {
-    using namespace std::ranges;
-
+std::string toBCP47(std::string_view lc) {
     std::string out(lc);
 
-    const auto firstDot = find_first(out, ".");
-    replace(out, out.begin(), firstDot, '_', '-"');
+    auto firstDot = lc.find_first_of('.');
+    std::string_view beforeDot = lc.substr(0, firstDot);
+    auto underScore = beforeDot.find_first_of('_');
+    if (underScore != std::string::npos) {
+        out[underScore] = '-';
+    }
 
     return out;
 }
