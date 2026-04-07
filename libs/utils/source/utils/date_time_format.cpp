@@ -15,6 +15,7 @@
 #endif
 # include <locale.h>
 # include <langinfo.h>
+# include <algorithm>
 # include <ranges>
 # include <string_view>
 #endif // #if defined(OS_WINDOWS)
@@ -145,15 +146,7 @@ namespace wolv::util {
     void Locale::set(const std::string &str, bool longDate) {
         (void)longDate; // TODO: add long date support
 
-        // TODO: clean this shit up!
-        std::string locale(str);
-        locale.append(".utf8");
-        auto pos = locale.find('-');
-        if (pos != std::string::npos) {
-            locale[pos] = '_';
-        }
-
-        set(locale.c_str());
+        set(BCP47LocaleToNative(str).c_str());
     }
 
     void Locale::setInvalid() {
@@ -169,13 +162,7 @@ namespace wolv::util {
     }
 
     LocaleName::LocaleName(const std::string &lc) {
-        // TODO: clean this shit up!
-        std::string name(lc);
-        name.append(".utf8");
-        auto pos = name.find('-');
-        if (pos != std::string::npos) {
-            name[pos] = '_';
-        }
+        std::string name = BCP47LocaleToNative(lc);
 
         locale_t locale = newlocale(LC_IDENTIFICATION_MASK, name.c_str(), 0);
         if (!locale) {
@@ -512,14 +499,14 @@ std::vector<std::string> enumLocales() {
         std::string_view line(i);
         if (!line.empty() && line.ends_with(suffix)) {
             // We're only interested in utf8 locales
-            auto trimmed = line.substr(0, line.length() - suffix.length());
-            locales.push_back(toBCP47(trimmed));
+            locales.push_back(nativeLocaleToBCP47(line));
         }
     }
 
     return locales;
 }
 
+// TODO: THIS IS OLD STUFF!
 std::string toBCP47(std::string_view lc) {
     std::string out(lc);
 
@@ -529,6 +516,41 @@ std::string toBCP47(std::string_view lc) {
     if (underScore != std::string::npos) {
         out[underScore] = '-';
     }
+
+    return out;
+}
+
+std::string nativeLocaleToBCP47(std::string_view lc) {
+    std::string out(lc);
+
+    // Replace all '_' before the first '.' with '-'
+    auto firstDot = lc.find_first_of('.');
+    if (firstDot == std::string::npos) {
+        firstDot = lc.size();
+    }
+    std::replace(out.begin(), out.begin() + firstDot, '_', '-');
+
+    // Remove the ".utf8" suffix
+    const std::string suffix = ".utf8";
+    if (out.ends_with(suffix)) {
+        out = out.substr(0, out.length() - suffix.length());
+    }
+
+    return out;
+}
+
+std::string BCP47LocaleToNative(std::string_view lc) {
+    std::string out(lc);
+
+    // Replace all '-' before the first '.' with '_'
+    auto firstDot = lc.find_first_of('.');
+    if (firstDot == std::string::npos) {
+        firstDot = lc.size();
+    }
+    std::replace(out.begin(), out.begin() + firstDot, '-', '_');
+
+    // Append ".utf8"
+    out.append(".utf8");
 
     return out;
 }
