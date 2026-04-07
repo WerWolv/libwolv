@@ -154,11 +154,11 @@ namespace wolv::util {
     std::optional<SYSTEMTIME> timeTToSystemTime(i64 t, DTOpts sz = DTOpts::TT64);
     std::optional<std::string> formatSystemTime(LPCSTR lc, const SYSTEMTIME* pss, DTOpts opts = DTOpts::LongDate);
     
-    std::string nativeLocaleToBCP47(std::string_view lc) {
+    inline std::string nativeLocaleToBCP47(std::string_view lc) {
         return std::string(lc);
     }
 
-    std::string BCP47LocaleToNative(std::string_view lc) {
+    inline std::string BCP47LocaleToNative(std::string_view lc) {
         return std::string(lc);
     }
 #else
