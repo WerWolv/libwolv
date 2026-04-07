@@ -496,6 +496,9 @@ std::optional<std::string> formatTT(const Locale &lc, wolv::i64 t, DTOpts opts) 
 std::vector<std::string> enumLocales() {
     std::string output;
     FILE* pipe = popen("locale -a", "r");
+    if (!pipe) {
+        return {};
+    }
     char buffer[32];
     while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
         output += buffer;
