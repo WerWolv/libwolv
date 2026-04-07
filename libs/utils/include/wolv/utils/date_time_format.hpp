@@ -154,7 +154,7 @@ namespace wolv::util {
     std::optional<SYSTEMTIME> timeTToSystemTime(i64 t, DTOpts sz = DTOpts::TT64);
     std::optional<std::string> formatSystemTime(LPCSTR lc, const SYSTEMTIME* pss, DTOpts opts = DTOpts::LongDate);
     inline std::string toBCP47(std::string_view lc) {
-        return lc;
+        return std::string(lc);
     }
 #else
     std::string toBCP47(std::string_view lc);
