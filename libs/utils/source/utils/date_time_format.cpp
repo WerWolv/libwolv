@@ -496,7 +496,9 @@ std::vector<std::string> enumLocales() {
 
     std::vector<std::string> locales;
     for (auto&& i : output | std::views::split('\n')) {
-        std::string_view line(i);
+        std::string_view line = i.empty()
+            ? std::string_view{}
+            : std::string_view(&*i.begin(), std::ranges::distance(i));
         if (!line.empty() && line.ends_with(suffix)) {
             // We're only interested in utf8 locales
             locales.push_back(nativeLocaleToBCP47(line));
