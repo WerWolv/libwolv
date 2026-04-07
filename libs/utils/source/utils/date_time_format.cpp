@@ -508,20 +508,6 @@ std::vector<std::string> enumLocales() {
     return locales;
 }
 
-// TODO: THIS IS OLD STUFF!
-std::string toBCP47(std::string_view lc) {
-    std::string out(lc);
-
-    auto firstDot = lc.find_first_of('.');
-    std::string_view beforeDot = lc.substr(0, firstDot);
-    auto underScore = beforeDot.find_first_of('_');
-    if (underScore != std::string::npos) {
-        out[underScore] = '-';
-    }
-
-    return out;
-}
-
 std::string nativeLocaleToBCP47(std::string_view lc) {
     std::string out(lc);
 
