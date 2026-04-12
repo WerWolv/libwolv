@@ -4,7 +4,7 @@
 #include <type_traits>
 #include <cstddef>
 
-namespace pl::hlp {
+namespace wolv::util {
 
 template<typename T, typename Variant>
 struct VariantTypeIndexImpl;
@@ -28,4 +28,4 @@ struct VariantTypeIndexImpl<T, std::variant<Ts...>> {
 template<class T, class Variant>
 inline constexpr std::size_t VariantTypeIndex = VariantTypeIndexImpl<T, Variant>::value;
 
-} // namespace pl::hlp
+}
