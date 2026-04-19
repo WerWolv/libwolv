@@ -308,14 +308,21 @@ namespace wolv::util {
         }
     }
 
-    std::string truncateUtf8(std::string_view string, std::size_t max_bytes) {
-        if (string.size() <= max_bytes)
-            return std::string(string);
+    size_t strlenUtf8(std::string_view s) {
+        size_t count = 0;
+        for (unsigned char c : s)
+            count += (c & 0xC0) != 0x80; // count non-continuation bytes
+        return count;
+    }
+
+    std::string_view truncateUtf8(std::string_view string, std::size_t maxBytes) {
+        if (maxBytes <= string.size() )
+            return string;
 
         // Start reverse iterator at last byte we can include
-        auto rit = std::make_reverse_iterator(string.begin() + max_bytes);
+        auto rit = std::make_reverse_iterator(string.begin() + maxBytes);
 
-        // Find the first byte of the last code point that fits
+        // Find the first byte of the last code unit sequence
         auto last1stByte = std::find_if(rit, string.rend(), [](unsigned char ch) {
             return (ch & 0xC0) != 0x80; // lead byte or ASCII
         });
@@ -323,25 +330,62 @@ namespace wolv::util {
         if (last1stByte == string.rend())
             return {}; // should not happen for valid UTF-8
 
-        // How long is this code point?
-        std::size_t cp_len = 0;
-        unsigned char lead = static_cast<unsigned char>(*last1stByte);
-        if ((lead & 0x80) == 0x00) cp_len = 1;
-        else if ((lead & 0xE0) == 0xC0) cp_len = 2;
-        else if ((lead & 0xF0) == 0xE0) cp_len = 3;
-        else if ((lead & 0xF8) == 0xF0) cp_len = 4;
-        else return {}; // invalid UTF-8
+        // How long is this code unit sequence?
+        std::size_t cp_len = utf8CodeUnitSequenceLength(*last1stByte);
 
         // Convert reverse iterator to forward iterator pointing at the lead byte
         auto f_it = last1stByte.base() - 1; // points to the lead byte
 
-        // Check if code point fits within max_bytes
+        // Check if code unit sequence fits within maxBytes
         auto offset = std::distance(string.begin(), f_it);
-        if (offset + cp_len > static_cast<std::ptrdiff_t>(max_bytes)) {
-            return std::string(string.begin(), f_it); // drop partial code point
+        if (offset + cp_len > static_cast<std::ptrdiff_t>(maxBytes)) {
+            return std::string(string.begin(), f_it); // drop partial code unit sequence
         }
 
-        return std::string(string.begin(), f_it + cp_len); // include code point
-}
+        return std::string_view(string.begin(), f_it + cp_len); // include code unit sequence
+    }
+
+    std::string_view substrUtf8(std::string_view s, size_t pos, size_t count)
+    {
+        const size_t len = s.size();
+
+        size_t byteIndex = 0;   // current byte offset
+        size_t cpIndex   = 0;   // current code point index
+
+        size_t start = std::string_view::npos;
+        size_t end   = std::string_view::npos;
+
+        while (byteIndex < len) {
+            // Mark start when we hit `pos`
+            if (cpIndex == pos)
+                start = byteIndex;
+
+            // Mark end when we hit `pos + count`
+            if (cpIndex == pos + count) {
+                end = byteIndex;
+                break;
+            }
+
+            // Advance to next code point
+            size_t cp_len = utf8CodeUnitSequenceLength(s[byteIndex]);
+
+            // Sanity check
+            if (cp_len == 0 || byteIndex + cp_len > len)
+                return {};
+
+            byteIndex += cp_len;
+            ++cpIndex;
+        }
+
+        // If we never reached `pos`, it's out of range
+        if (start == std::string_view::npos)
+            return {};
+
+        // If we reached end of string before filling `end`
+        if (end == std::string_view::npos)
+            end = len;
+
+        return s.substr(start, end - start);
+    }
 
 }

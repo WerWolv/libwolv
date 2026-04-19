@@ -8,6 +8,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <cassert>
 
 namespace wolv::util {
 
@@ -25,7 +26,23 @@ namespace wolv::util {
     [[nodiscard]] std::optional<std::u32string> utf8ToUtf32(const std::string &string, bool allowInvalid = false);
     [[nodiscard]] std::optional<std::string> wstringToUtf8(const std::wstring &string);
     [[nodiscard]] std::optional<std::wstring> utf8ToWstring(const std::string &string);
-    [[nodiscard]] std::string truncateUtf8(std::string_view string, std::size_t max_bytes);
+
+    [[nodiscard]] inline size_t utf8CodeUnitSequenceLength(char ch) {
+        const unsigned char lead = static_cast<unsigned char>(ch);
+        if ((lead & 0x80) == 0x00) return 1;
+        else if ((lead & 0xE0) == 0xC0) return 2;
+        else if ((lead & 0xF0) == 0xE0) return 3;
+        else if ((lead & 0xF8) == 0xF0) return 4;
+        else {
+            assert(!"Invalid UTF-8");
+            return 0;
+        }
+    }
+
+    [[nodiscard]] size_t strlenUtf8(std::string_view string);
+    [[nodiscard]] std::string_view truncateUtf8(std::string_view string, size_t maxBytes);
+    [[nodiscard]] std::string_view substrUtf8(std::string_view string, size_t pos, size_t count);
+
 
     template<typename T>
     concept Char8StringConvertable = requires(T t) { t.u8string(); };
