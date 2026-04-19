@@ -27,7 +27,7 @@ namespace wolv::util {
     [[nodiscard]] std::optional<std::string> wstringToUtf8(const std::wstring &string);
     [[nodiscard]] std::optional<std::wstring> utf8ToWstring(const std::string &string);
 
-    [[nodiscard]] inline size_t utf8CodeUnitSequenceLength(char ch) {
+    [[nodiscard]] inline size_t utf8CodePointLength(char ch) {
         const unsigned char lead = static_cast<unsigned char>(ch);
         if ((lead & 0x80) == 0x00) return 1;
         else if ((lead & 0xE0) == 0xC0) return 2;

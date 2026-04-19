@@ -322,7 +322,7 @@ namespace wolv::util {
         // Start reverse iterator at last byte we can include
         auto rit = std::make_reverse_iterator(string.begin() + maxBytes);
 
-        // Find the first byte of the last code unit sequence
+        // Find the first byte of the last code point
         auto last1stByte = std::find_if(rit, string.rend(), [](unsigned char ch) {
             return (ch & 0xC0) != 0x80; // lead byte or ASCII
         });
@@ -330,19 +330,19 @@ namespace wolv::util {
         if (last1stByte == string.rend())
             return {}; // should not happen for valid UTF-8
 
-        // How long is this code unit sequence?
-        std::size_t cp_len = utf8CodeUnitSequenceLength(*last1stByte);
+        // How long is this code point?
+        std::size_t cp_len = utf8CodePointLength(*last1stByte);
 
         // Convert reverse iterator to forward iterator pointing at the lead byte
         auto f_it = last1stByte.base() - 1; // points to the lead byte
 
-        // Check if code unit sequence fits within maxBytes
+        // Check if code point fits within maxBytes
         auto offset = std::distance(string.begin(), f_it);
         if (offset + cp_len > static_cast<std::ptrdiff_t>(maxBytes)) {
-            return std::string(string.begin(), f_it); // drop partial code unit sequence
+            return std::string(string.begin(), f_it); // drop partial code point
         }
 
-        return std::string_view(string.begin(), f_it + cp_len); // include code unit sequence
+        return std::string_view(string.begin(), f_it + cp_len); // include code point
     }
 
     std::string_view substrUtf8(std::string_view s, size_t pos, size_t count)
@@ -367,7 +367,7 @@ namespace wolv::util {
             }
 
             // Advance to next code point
-            size_t cp_len = utf8CodeUnitSequenceLength(s[byteIndex]);
+            size_t cp_len = utf8CodePointLength(s[byteIndex]);
 
             // Sanity check
             if (cp_len == 0 || byteIndex + cp_len > len)
