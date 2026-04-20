@@ -26,6 +26,11 @@ namespace wolv::util {
     [[nodiscard]] std::optional<std::string> wstringToUtf8(const std::wstring &string);
     [[nodiscard]] std::optional<std::wstring> utf8ToWstring(const std::string &string);
     [[nodiscard]] std::string truncateUtf8(std::string_view string, std::size_t max_bytes);
+    [[nodiscard]] std::string_view utf8Substr(std::string_view input, size_t start, size_t length);
+    [[nodiscard]] size_t utf8StringLength(const std::string_view &str);
+    [[nodiscard]] bool isCJKGlyph(std::string_view utf8Character);
+    [[nodiscard]] size_t utf8CharLength(u8 c);
+    [[nodiscard]] u32 getCodePoint(std::string_view utf8Character);
 
     template<typename T>
     concept Char8StringConvertable = requires(T t) { t.u8string(); };
