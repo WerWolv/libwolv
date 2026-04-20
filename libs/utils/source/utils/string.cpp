@@ -316,7 +316,7 @@ namespace wolv::util {
     }
 
     std::string_view truncateUtf8(std::string_view string, std::size_t maxBytes) {
-        if (maxBytes <= string.size() )
+        if (string.size() <= maxBytes)
             return string;
 
         // Start reverse iterator at last byte we can include
