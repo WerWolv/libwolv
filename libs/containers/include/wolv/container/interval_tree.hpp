@@ -38,7 +38,7 @@ namespace wolv::container {
             }
 
             bool operator<(const Interval& other) const {
-                return end < other.start;
+                return std::tie(start, end) < std::tie(other.start, other.end);
             }
         };
 
