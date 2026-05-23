@@ -10,6 +10,8 @@
 
 #include <wolv/types.hpp>
 
+#include <wolv/types.hpp>
+
 namespace wolv::util {
 
         class ThreadPool {
