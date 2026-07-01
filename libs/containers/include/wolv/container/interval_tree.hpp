@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <limits>
+#include <numeric>
 #include <optional>
 #include <type_traits>
 #include <concepts>
@@ -25,8 +26,6 @@ namespace wolv::container {
         static_assert(SearchRange > 0, "SearchRange must be greater than 0");
 
         constexpr static bool TriviallyCopyable = std::is_trivially_copyable_v<Type>;
-        constexpr static bool HandleEncompassedIntervals = SearchRange != std::numeric_limits<i64>::max();
-
         using FindType = std::remove_cvref_t<typename std::conditional<TriviallyCopyable, Type, const Type*>::type>;
 
     public:
@@ -69,7 +68,8 @@ namespace wolv::container {
          * @param value Value to insert
          */
         constexpr void insert(const Interval &interval, const Type &value) {
-            this->m_intervals.insert({ interval.start, { interval.end, value } });
+            this->m_intervals.push_back({ interval, value });
+            this->m_indexValid = false;
         }
 
         /**
@@ -78,7 +78,8 @@ namespace wolv::container {
          * @param value Value to insert
          */
         constexpr void emplace(const Interval &interval, Type &&value) {
-            this->m_intervals.insert({ interval.start, { interval.end, std::move(value) } });
+            this->m_intervals.push_back({ interval, std::move(value) });
+            this->m_indexValid = false;
         }
 
         /**
@@ -86,14 +87,17 @@ namespace wolv::container {
          * @param searchIndex Index from which to begin looking for the next interval
          */
         constexpr std::optional<Data> nextInterval(const Scalar searchIndex) const {
-            auto iter = this->m_intervals.upper_bound(searchIndex); // Returns an iterator to the next multimap pair
+            this->ensureIndex();
 
-            if (iter == this->m_intervals.end())
+            auto iter = std::upper_bound(this->m_sortedIntervals.begin(), this->m_sortedIntervals.end(), searchIndex, [this](const Scalar value, const size_t index) {
+                return value < this->m_intervals[index].interval.start;
+            });
+
+            if (iter == this->m_sortedIntervals.end())
                 return std::nullopt;
 
             // Can't simply return it in one line due to std::optional
-            Data d{ { iter->first, iter->second.first }, iter->second.second };
-            return d;
+            return this->toData(this->m_intervals[*iter]);
         }
 
         /**
@@ -101,16 +105,19 @@ namespace wolv::container {
          * @param searchIndex Index from which to begin looking for the previous interval
          */
         constexpr std::optional<Data> prevInterval(const Scalar searchIndex) const {
-            auto iter = this->m_intervals.lower_bound(searchIndex); // Returns the current or next iterator
+            this->ensureIndex();
 
-            if (iter == this->m_intervals.begin())
+            auto iter = std::lower_bound(this->m_sortedIntervals.begin(), this->m_sortedIntervals.end(), searchIndex, [this](const size_t index, const Scalar value) {
+                return this->m_intervals[index].interval.start < value;
+            });
+
+            if (iter == this->m_sortedIntervals.begin())
                 return std::nullopt;
 
             --iter; // We need to go back one to get the previous iterator
 
             // Can't simply return it in one line due to std::optional
-            Data d{ { iter->first, iter->second.first }, iter->second.second };
-            return d;
+            return this->toData(this->m_intervals[*iter]);
         }
 
         /**
@@ -118,6 +125,9 @@ namespace wolv::container {
          */
         constexpr void clear() {
             this->m_intervals.clear();
+            this->m_sortedIntervals.clear();
+            this->m_nodes.clear();
+            this->m_indexValid = true;
         }
 
         /**
@@ -162,44 +172,17 @@ namespace wolv::container {
             if (this->m_intervals.empty())
                 return {};
 
+            this->ensureIndex();
+
             std::vector<Data> result;
+            this->overlapping(0, interval, result);
 
-            // Find the first interval that starts after the given interval
-            auto it = this->m_intervals.upper_bound(interval.end);
-            if (it == this->m_intervals.begin())
-                return {};
+            std::ranges::sort(result, [](const Data &left, const Data &right) {
+                if (left.interval.start != right.interval.start)
+                    return left.interval.start > right.interval.start;
 
-            it--;
-
-            // Iterate through all intervals that overlap with the given interval
-            for (i64 i = 0; i < SearchRange; i++) {
-                const auto &[intervalStart, content] = *it;
-                const auto &[intervalEnd, value] = content;
-
-                if constexpr (!HandleEncompassedIntervals) {
-                    // If we don't care about intervals that encompass smaller intervals, we can stop
-                    if (intervalEnd < interval.start)
-                        break;
-                }
-
-                // If the interval overlaps with the given interval, add it to the result
-                // If we don't care about encompassing intervals, we can skip this check
-                if (!HandleEncompassedIntervals || interval.overlaps({ intervalStart, intervalEnd })) {
-                    if constexpr (TriviallyCopyable)
-                        result.push_back({ { intervalStart, intervalEnd }, value });
-                    else
-                        result.push_back({ { intervalStart, intervalEnd }, std::addressof(value) });
-
-                    i -= 1;
-                }
-
-                // If we've reached the start of the tree, we can stop
-                if (it == this->m_intervals.begin())
-                    break;
-
-                // Move to the previous interval
-                --it;
-            }
+                return left.interval.end < right.interval.end;
+            });
 
             return result;
         }
@@ -213,7 +196,95 @@ namespace wolv::container {
         }
 
     private:
-        std::multimap<Scalar, std::pair<Scalar, Type>> m_intervals;
+        struct StoredInterval {
+            Interval interval;
+            Type value;
+        };
+
+        constexpr static size_t InvalidNode = std::numeric_limits<size_t>::max();
+
+        struct Node {
+            size_t begin = 0;
+            size_t end = 0;
+            size_t left = InvalidNode;
+            size_t right = InvalidNode;
+            Scalar maxEnd = std::numeric_limits<Scalar>::lowest();
+        };
+
+        constexpr Data toData(const StoredInterval &storedInterval) const {
+            if constexpr (TriviallyCopyable)
+                return { storedInterval.interval, storedInterval.value };
+            else
+                return { storedInterval.interval, std::addressof(storedInterval.value) };
+        }
+
+        constexpr void ensureIndex() const {
+            if (this->m_indexValid)
+                return;
+
+            this->m_sortedIntervals.resize(this->m_intervals.size());
+            std::iota(this->m_sortedIntervals.begin(), this->m_sortedIntervals.end(), size_t(0));
+            std::ranges::stable_sort(this->m_sortedIntervals, [this](size_t left, size_t right) {
+                const auto &leftInterval = this->m_intervals[left].interval;
+                const auto &rightInterval = this->m_intervals[right].interval;
+
+                if (leftInterval.start != rightInterval.start)
+                    return leftInterval.start < rightInterval.start;
+
+                return leftInterval.end < rightInterval.end;
+            });
+
+            this->m_nodes.clear();
+            if (!this->m_sortedIntervals.empty())
+                this->buildNode(0, this->m_sortedIntervals.size());
+
+            this->m_indexValid = true;
+        }
+
+        constexpr size_t buildNode(size_t begin, size_t end) const {
+            const auto nodeIndex = this->m_nodes.size();
+            this->m_nodes.push_back({
+                .begin = begin,
+                .end = end,
+            });
+
+            if (end - begin == 1) {
+                this->m_nodes[nodeIndex].maxEnd = this->m_intervals[this->m_sortedIntervals[begin]].interval.end;
+            } else {
+                const auto middle = begin + (end - begin) / 2;
+                const auto left = this->buildNode(begin, middle);
+                const auto right = this->buildNode(middle, end);
+
+                this->m_nodes[nodeIndex].left = left;
+                this->m_nodes[nodeIndex].right = right;
+                this->m_nodes[nodeIndex].maxEnd = std::max(this->m_nodes[left].maxEnd, this->m_nodes[right].maxEnd);
+            }
+
+            return nodeIndex;
+        }
+
+        constexpr void overlapping(size_t nodeIndex, const Interval &interval, std::vector<Data> &result) const {
+            const auto &node = this->m_nodes[nodeIndex];
+            const auto minStart = this->m_intervals[this->m_sortedIntervals[node.begin]].interval.start;
+
+            if (node.maxEnd < interval.start || minStart > interval.end)
+                return;
+
+            if (node.end - node.begin == 1) {
+                const auto &storedInterval = this->m_intervals[this->m_sortedIntervals[node.begin]];
+                if (interval.overlaps(storedInterval.interval))
+                    result.push_back(this->toData(storedInterval));
+                return;
+            }
+
+            this->overlapping(node.left, interval, result);
+            this->overlapping(node.right, interval, result);
+        }
+
+        std::vector<StoredInterval> m_intervals;
+        mutable std::vector<size_t> m_sortedIntervals;
+        mutable std::vector<Node> m_nodes;
+        mutable bool m_indexValid = true;
     };
 
 }
