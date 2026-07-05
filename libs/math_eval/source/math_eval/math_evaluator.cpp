@@ -9,6 +9,7 @@
 #include <cmath>
 #include <optional>
 #include <numbers>
+#include <memory_resource>
 
 namespace wolv::math_eval {
 
@@ -188,8 +189,19 @@ namespace wolv::math_eval {
                         pos++;
 
                         u32 depth = 1;
-                        std::vector<std::string> expressions;
-                        expressions.emplace_back();
+
+                        constexpr size_t expressionsReserve = 32;
+                        constexpr size_t vectorPadding = 64; // Extra space for vector internal data
+                        char expressionBuffer[expressionsReserve * sizeof(std::string) + vectorPadding] = { 0 };
+                        std::pmr::monotonic_buffer_resource expressionAllocator{ expressionBuffer, sizeof(expressionBuffer) };
+
+                        constexpr size_t tempStringReserve = 16;
+                        char stringsBuffer[expressionsReserve * tempStringReserve + vectorPadding] = { 0 };
+                        std::pmr::monotonic_buffer_resource stringAllocator{ stringsBuffer, sizeof(stringsBuffer) };
+
+                        std::pmr::vector<std::pmr::string> expressions{ &expressionAllocator };
+                        expressions.reserve(expressionsReserve);
+                        expressions.push_back(std::pmr::string{ &stringAllocator });
 
                         while (*pos != 0x00) {
                             if (*pos == '(') depth++;
@@ -199,7 +211,7 @@ namespace wolv::math_eval {
                                 break;
 
                             if (depth == 1 && *pos == ',') {
-                                expressions.emplace_back();
+                                expressions.push_back(std::pmr::string{ &stringAllocator });
                                 pos++;
                             }
 
@@ -218,7 +230,7 @@ namespace wolv::math_eval {
                             else if (expression.empty())
                                 break;
 
-                            auto newInputQueue = parseInput(expression);
+                            auto newInputQueue = parseInput(expression.c_str());
                             if (!newInputQueue.has_value())
                                 return std::nullopt;
 
