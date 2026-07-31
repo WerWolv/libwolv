@@ -253,19 +253,29 @@ namespace wolv::io {
 
     void ChangeTracker::trackImpl(std::stop_token st, const std::fs::path &path, const std::function<void()> &callback) {
         bool firstTime = true;
+        bool fileExists = false;
         WIN32_FILE_ATTRIBUTE_DATA previousAttributes = {};
 
         StoppableSleep sleeper(st);
         while (!sleeper.shouldStop()) {
             WIN32_FILE_ATTRIBUTE_DATA currentAttributes;
             if (GetFileAttributesExW(path.c_str(), GetFileExInfoStandard, &currentAttributes) == FALSE) {
-                callback();
-                break;
+                if (fileExists) {
+                    fileExists = false;
+                    firstTime = true;
+                    callback();
+                }
+                sleeper.sleep(1000);
+                continue;
             }
 
             if (firstTime) {
                 previousAttributes = currentAttributes;
                 firstTime = false;
+                if (!fileExists) {
+                    fileExists = true;
+                    callback();
+                }
             }
 
             if (memcmp(&currentAttributes.ftLastWriteTime, &previousAttributes.ftLastWriteTime, sizeof(FILETIME)) != 0) {

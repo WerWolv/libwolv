@@ -230,20 +230,21 @@ namespace wolv::io {
 
     #if defined(OS_MACOS) || defined(OS_FREEBSD)
         void ChangeTracker::trackImpl(std::stop_token st, const std::fs::path &path, const std::function<void()> &callback) {
+            const auto parentPath = path.has_parent_path() ? path.parent_path() : std::fs::path(".");
             int queue = kqueue();
             if (queue == -1)
                 throw std::runtime_error("Failed to open kqueue");
 
             ON_SCOPE_EXIT { close(queue); };
 
-            int fileDescriptor = ::open(path.c_str(), O_RDONLY);
+            int fileDescriptor = ::open(parentPath.c_str(), O_RDONLY);
             if (fileDescriptor == -1)
                 throw std::runtime_error("Failed to open file descriptor");
 
             ON_SCOPE_EXIT { close(fileDescriptor); };
 
             struct kevent eventHandle = { };
-            EV_SET(&eventHandle, fileDescriptor, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR, NOTE_WRITE, 0, nullptr);
+            EV_SET(&eventHandle, fileDescriptor, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR, NOTE_WRITE | NOTE_DELETE | NOTE_RENAME, 0, nullptr);
             if (kevent(queue, &eventHandle, 1, nullptr, 0, nullptr) == -1)
                 throw std::runtime_error("Failed to add event to kqueue");
 
@@ -259,7 +260,7 @@ namespace wolv::io {
                 if (eventCount <= 0)
                     continue;
 
-                if (eventList[0].fflags & NOTE_WRITE) {
+                if (eventList[0].fflags & (NOTE_WRITE | NOTE_DELETE | NOTE_RENAME)) {
                     callback();
                 }
             }
@@ -267,13 +268,15 @@ namespace wolv::io {
         }
     #elif defined(OS_LINUX)
         void ChangeTracker::trackImpl(std::stop_token st, const std::fs::path &path, const std::function<void()> &callback) {
+            const auto parentPath = path.has_parent_path() ? path.parent_path() : std::fs::path(".");
             int fileDescriptor = inotify_init();
             if (fileDescriptor == -1)
                 throw std::runtime_error("Failed to open inotify");
 
             ON_SCOPE_EXIT { close(fileDescriptor); };
 
-            int watchDescriptor = inotify_add_watch(fileDescriptor, path.c_str(), IN_MODIFY);
+            int watchDescriptor = inotify_add_watch(fileDescriptor, parentPath.c_str(),
+                IN_CLOSE_WRITE | IN_CREATE | IN_DELETE | IN_MOVED_FROM | IN_MOVED_TO);
             if (watchDescriptor == -1)
                 throw std::runtime_error("Failed to add watch");
 
@@ -297,7 +300,7 @@ namespace wolv::io {
 
                 for (char *ptr = buffer.data(); ptr < buffer.data() + bytesRead;) {
                     auto *event = reinterpret_cast<inotify_event *>(ptr);
-                    if (event->mask & IN_MODIFY) {
+                    if (event->len > 0 && path.filename() == event->name) {
                         callback();
                     }
 
