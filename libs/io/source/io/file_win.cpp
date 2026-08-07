@@ -272,10 +272,7 @@ namespace wolv::io {
             if (firstTime) {
                 previousAttributes = currentAttributes;
                 firstTime = false;
-                if (!fileExists) {
-                    fileExists = true;
-                    callback();
-                }
+                fileExists = true;
             }
 
             if (memcmp(&currentAttributes.ftLastWriteTime, &previousAttributes.ftLastWriteTime, sizeof(FILETIME)) != 0) {
