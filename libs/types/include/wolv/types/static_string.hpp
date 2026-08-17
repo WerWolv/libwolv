@@ -11,6 +11,8 @@ namespace wolv::type {
             std::copy_n(str, N, this->value.begin());
         }
 
+        constexpr std::string_view get() const { return { value.data(), value.size() - 1 }; }
+
         std::array<char, N> value = {};
     };
 
