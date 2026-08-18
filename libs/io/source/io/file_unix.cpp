@@ -301,7 +301,8 @@ namespace wolv::io {
                 for (char *ptr = buffer.data(); ptr < buffer.data() + bytesRead;) {
                     auto *event = reinterpret_cast<inotify_event *>(ptr);
                     if (event->len > 0 && path.filename() == event->name) {
-                        callback();
+                        if (event->mask & (IN_MODIFY | IN_MOVE | IN_CREATE | IN_DELETE | IN_MOVE_SELF | IN_ATTRIB))
+                            callback();
                     }
 
                     ptr += sizeof(inotify_event) + event->len;
