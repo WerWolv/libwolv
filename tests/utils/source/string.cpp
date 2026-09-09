@@ -89,6 +89,46 @@ TEST_SEQUENCE("String_Replace") {
     TEST_SUCCESS();
 };
 
+// test replaceSpacesWithTabs()
+TEST_SEQUENCE("String_ReplaceSpacesWithTabs") {
+    // 0 occurence
+    {
+        TEST_ASSERT(replaceSpacesWithTabs("house\n\ttree\n\t\tmirror", 4, false) == "house\n\ttree\n\t\tmirror");
+    }
+
+    // mixed a
+    {
+        TEST_ASSERT(replaceSpacesWithTabs("house\n    tree\n    \tmirror", 4, false) == "house\n\ttree\n\t\tmirror");
+    }
+
+    // mixed b
+    {
+        TEST_ASSERT(replaceSpacesWithTabs("house\n    tree\n  \t    mirror", 4, false) == "house\n\ttree\n  \t\tmirror");
+    }
+
+    // mixed c
+    {
+        TEST_ASSERT(replaceSpacesWithTabs("house\n    tree\n  \t  mirror", 4, false) == "house\n\ttree\n  \t  mirror");
+    }
+
+    // all space
+    {
+        TEST_ASSERT(replaceSpacesWithTabs("house\n    tree\n        mirror", 4, false) == "house\n\ttree\n\t\tmirror");
+    }
+
+    // trim whitespace a
+    {
+        TEST_ASSERT(replaceSpacesWithTabs("house\n    tree  \n        mirror  ", 4, true) == "house\n\ttree\n\t\tmirror");
+    }
+
+    // trim whitespace b
+    {
+        TEST_ASSERT(replaceSpacesWithTabs("house\n    tree  \n        mirror    ", 4, true) == "house\n\ttree\n\t\tmirror");
+    }
+
+    TEST_SUCCESS();
+};
+
 // test trim()
 TEST_SEQUENCE("String_Trim") {
     // nothing to trim

@@ -54,16 +54,16 @@ namespace wolv::util {
         return string;
     }
 
-    std::string preprocessText(const std::string& code) {
+    std::string preprocessText(const std::string& code, u32 tabSize) {
         std::string result = replaceStrings(code, "\r\n", "\n");
         result = replaceStrings(result, "\r", "\n");
-        result = replaceTabsWithSpaces(result, 4);
+        result = replaceTabsWithSpaces(result, tabSize);
 
         return result;
     }
 
     std::string replaceTabsWithSpaces(const std::string& string, u32 tabSize) {
-        if (tabSize == 0 || string.empty() || string.find('\t') == std::string::npos)
+        if (tabSize == 0 || string.empty() || !string.contains('\t'))
             return string;
 
         auto stringVector = splitString(string, "\n", false);
@@ -78,6 +78,63 @@ namespace wolv::util {
             result += line + '\n';
         }
         result.pop_back();
+        return result;
+    }
+
+    std::string replaceSpacesWithTabs(const std::string& string, u32 tabSize, bool trimWhitespace) {
+        if (tabSize == 0 || string.empty() || !string.contains(' ')) {
+            return string;
+        }
+
+        std::string result;
+        result.reserve(string.size());
+        u32 col = 0;
+        u32 spaces = 0;
+
+        for (const char c : string) {
+            if (c == ' ') {
+                spaces++;
+                col++;
+                if (col % tabSize == 0 && spaces == tabSize) {
+                    result += '\t';
+                    spaces = 0;
+                }
+            } else if (c == '\n') {
+                if (!trimWhitespace) {
+                    result.append(spaces, ' ');
+                } else {
+                    result.erase(result.find_last_not_of('\t') + 1);
+                }
+
+                result += c;
+                col = 0;
+                spaces = 0;
+            } else if (c == '\t') {
+                result.append(spaces, ' ');
+                result += '\t';
+                col += tabSize - col % tabSize;
+                spaces = 0;
+            } else {
+                // don't insert tabs for a single space
+                if (col > 0 && col % tabSize == 0 && spaces > 1) {
+                    result += '\t';
+                    spaces = 0;
+                } else {
+                    result.append(spaces, ' ');
+                }
+
+                result += c;
+                col = 0;
+                spaces = 0;
+            }
+        }
+
+        if (!trimWhitespace) {
+            result.append(spaces, ' ');
+        } else {
+            result.erase(result.find_last_not_of('\t') + 1);
+        }
+
         return result;
     }
 
