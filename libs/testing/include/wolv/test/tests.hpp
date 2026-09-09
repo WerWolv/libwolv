@@ -7,6 +7,7 @@
 #include <string>
 #include <map>
 #include <functional>
+#include <cstdlib>
 
 #define TEST_SEQUENCE(...) static auto WOLV_ANONYMOUS_VARIABLE(TEST_SEQUENCE) = ::wolv::test::TestSequenceExecutor(__VA_ARGS__) + []() -> int
 #define TEST_FAIL()        return EXIT_FAILURE
@@ -16,8 +17,8 @@
     do {                                                               \
         auto ret = (x);                                                \
         if (!ret) {                                                    \
-            std::printf("Test assert '" #x "' failed at %s:%i\n",      \
-                __FILE__, __LINE__);                                   \
+            std::printf("Test assert '%s' failed at %s:%i\n",          \
+                #x, __FILE__, __LINE__);                               \
             return EXIT_FAILURE;                                       \
         }                                                              \
     } while (0)
