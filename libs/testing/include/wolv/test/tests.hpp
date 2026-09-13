@@ -32,20 +32,19 @@ namespace wolv::test {
 
     class Tests {
     public:
+        static auto &get() noexcept {
+            // s_tests is function local static to avoid initialization order fiasco
+            static std::map<std::string, Test> s_tests;
+            return s_tests;
+        }
+
         static auto addTest(const std::string &name, const std::function<int()> &func, bool shouldFail) noexcept {
-            s_tests.insert({
+            get().insert({
                 name, {func, shouldFail}
             });
 
             return 0;
         }
-
-        static auto &get() noexcept {
-            return s_tests;
-        }
-
-    private:
-        static inline std::map<std::string, Test> s_tests;
     };
 
     template<class F>
