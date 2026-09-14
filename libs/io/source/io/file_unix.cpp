@@ -228,21 +228,28 @@ namespace wolv::io {
 
     #if defined(OS_MACOS) || defined(OS_FREEBSD)
         void ChangeTracker::trackImpl(std::stop_token st, const std::fs::path &path, const std::function<void()> &callback) {
-            const auto parentPath = path.has_parent_path() ? path.parent_path() : std::fs::path(".");
+            if (path.empty()) {
+                return;
+            }
+
             int queue = kqueue();
             if (queue == -1)
                 throw std::runtime_error("Failed to open kqueue");
 
             ON_SCOPE_EXIT { close(queue); };
 
-            int fileDescriptor = ::open(parentPath.c_str(), O_RDONLY);
+            int openFlags = O_RDONLY;
+            #if defined(OS_MACOS)
+                openFlags |= O_EVTONLY;
+            #endif
+            int fileDescriptor = ::open(path.c_str(), openFlags);
             if (fileDescriptor == -1)
                 throw std::runtime_error("Failed to open file descriptor");
 
             ON_SCOPE_EXIT { close(fileDescriptor); };
 
             struct kevent eventHandle = { };
-            EV_SET(&eventHandle, fileDescriptor, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR, NOTE_WRITE | NOTE_DELETE | NOTE_RENAME, 0, nullptr);
+            EV_SET(&eventHandle, fileDescriptor, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR, NOTE_WRITE | NOTE_DELETE | NOTE_RENAME | NOTE_EXTEND, 0, nullptr);
             if (kevent(queue, &eventHandle, 1, nullptr, 0, nullptr) == -1)
                 throw std::runtime_error("Failed to add event to kqueue");
 
@@ -258,7 +265,7 @@ namespace wolv::io {
                 if (eventCount <= 0)
                     continue;
 
-                if (eventList[0].fflags & (NOTE_WRITE | NOTE_DELETE | NOTE_RENAME)) {
+                if (eventList[0].fflags & (NOTE_WRITE | NOTE_DELETE | NOTE_RENAME | NOTE_EXTEND)) {
                     callback();
                 }
             }
