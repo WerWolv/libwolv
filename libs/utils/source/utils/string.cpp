@@ -1,5 +1,6 @@
 #include <wolv/utils/string.hpp>
 
+#include <algorithm>
 #include <cmath>
 
 namespace wolv::util {
@@ -144,13 +145,32 @@ namespace wolv::util {
             return string;
         }
 
+        // Byte length of the UTF-8 sequence starting at index, so a line is never
+        // split inside a character. Invalid lead bytes count as one byte.
+        const auto sequenceLength = [&string](u32 index) -> u32 {
+            const auto lead = static_cast<unsigned char>(string[index]);
+            u32 length = 1;
+            if ((lead & 0xE0) == 0xC0) length = 2;
+            else if ((lead & 0xF0) == 0xE0) length = 3;
+            else if ((lead & 0xF8) == 0xF0) length = 4;
+            return std::min<u32>(length, static_cast<u32>(string.size()) - index);
+        };
+
+        // Number of characters in [from, to), each counting as one charWidth.
+        const auto characterCount = [&](u32 from, u32 to) -> u32 {
+            u32 count = 0;
+            for (u32 i = from; i < to; i += sequenceLength(i))
+                count++;
+            return count;
+        };
+
         std::string result;
 
         u32 startOfLineIndex = 0;
         u32 candidateLineBreakIndex = 0;
         f32 currentWidth = 0;
 
-        for (u32 i = 0; i < string.size(); i++) {
+        for (u32 i = 0; i < string.size(); i += sequenceLength(i)) {
             if (currentWidth + charWidth <= maxWidth) {
                 //Character fits, so increase width.
                 currentWidth += charWidth;
@@ -162,7 +182,7 @@ namespace wolv::util {
                 //Start a new line
                 startOfLineIndex = candidateLineBreakIndex + 1;
                 candidateLineBreakIndex = 0;
-                currentWidth = (i - startOfLineIndex + 1) * charWidth; // NOLINT(*-narrowing-conversions)
+                currentWidth = (characterCount(startOfLineIndex, i) + 1) * charWidth; // NOLINT(*-narrowing-conversions)
             } else {
                 //Character doesn't fit, and there is no candidate for a line-break, so force a word-break instead.
                 result.append(string.substr(startOfLineIndex, i - startOfLineIndex));
@@ -174,7 +194,7 @@ namespace wolv::util {
                 currentWidth = charWidth;
             }
 
-            const auto c = string[i];
+            const auto c = static_cast<unsigned char>(string[i]);
 
             if (std::ispunct(c) != 0 || c == ' ') {
                 //Character is a candidate for a line-break;
