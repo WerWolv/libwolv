@@ -4,7 +4,7 @@
 #include <wolv/utils/core.hpp>
 #include <wolv/utils/guards.hpp>
 
-#include <Windows.h>
+#include <windows.h>
 #include <share.h>
 
 // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/open-osfhandle
