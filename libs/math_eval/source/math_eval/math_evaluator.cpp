@@ -7,6 +7,7 @@
 #include <queue>
 #include <stack>
 #include <cmath>
+#include <cstdlib>
 #include <optional>
 #include <numbers>
 
@@ -146,7 +147,7 @@ namespace wolv::math_eval {
 
                 if (*pos == 'x') {
                     pos--;
-                    number = std::strtoull(pos, &pos, 0);
+                    number = std::strtoull(pos, &pos, 16);
                 }
 
                 inputQueue.push(Token { .type = TokenType::Number, .number = number, .name = "", .arguments = { } });
