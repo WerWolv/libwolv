@@ -22,7 +22,7 @@ if (WIN32)
 endif()
 
 # Enable the experimental libc++ library features on clang to get access to a properly functioning std::jthread
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|AppleClang")
     target_compile_options(${PROJECT_NAME} PUBLIC -fexperimental-library -Wno-c2y-extensions)
 endif()
 
