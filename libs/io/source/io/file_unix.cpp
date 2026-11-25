@@ -241,26 +241,51 @@ namespace wolv::io {
 
             ON_SCOPE_EXIT { close(fileDescriptor); };
 
+            // Keep the directory watch for entry changes such as file replacement.
             struct kevent eventHandle = { };
             EV_SET(&eventHandle, fileDescriptor, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR, NOTE_WRITE | NOTE_DELETE | NOTE_RENAME, 0, nullptr);
             if (kevent(queue, &eventHandle, 1, nullptr, 0, nullptr) == -1)
                 throw std::runtime_error("Failed to add event to kqueue");
 
-            const timespec timeout = { 0, 0 };
-			StoppableSleep sleeper(st);
-            while (true) {
-                if (sleeper.sleep(1000)) {
-					break;
-				}
+            int watchedDescriptor = -1;
+            ON_SCOPE_EXIT {
+                if (watchedDescriptor != -1)
+                    close(watchedDescriptor);
+            };
+            constexpr auto detachedNotes = NOTE_DELETE | NOTE_RENAME | NOTE_REVOKE;
 
-                struct kevent eventList[1] = {};
-                int eventCount = kevent(queue, nullptr, 0, eventList, 1, &timeout);
+            const timespec timeout = { 0, 0 };
+            StoppableSleep sleeper(st);
+            while (true) {
+                // Hack: kqueue doesn't report writes to child files through the directory watch.
+                // Watch the file directly, reopening it by path when it is replaced.
+                if (watchedDescriptor == -1) {
+                    watchedDescriptor = ::open(path.c_str(), O_RDONLY | O_NONBLOCK);
+                    if (watchedDescriptor != -1) {
+                        EV_SET(&eventHandle, watchedDescriptor, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR, NOTE_WRITE | NOTE_EXTEND | detachedNotes, 0, nullptr);
+                        if (kevent(queue, &eventHandle, 1, nullptr, 0, nullptr) == -1)
+                            throw std::runtime_error("Failed to add event to kqueue");
+                    }
+                }
+
+                if (sleeper.sleep(1000))
+                    break;
+
+                struct kevent eventList[2] = {};
+                int eventCount = kevent(queue, nullptr, 0, eventList, 2, &timeout);
                 if (eventCount <= 0)
                     continue;
 
-                if (eventList[0].fflags & (NOTE_WRITE | NOTE_DELETE | NOTE_RENAME)) {
-                    callback();
+                for (int i = 0; i < eventCount; ++i) {
+                    const auto &event = eventList[i];
+                    if (watchedDescriptor != -1 && event.ident == static_cast<uintptr_t>(watchedDescriptor) && (event.fflags & detachedNotes)) {
+                        // The descriptor follows the old file, not the original path.
+                        close(watchedDescriptor);
+                        watchedDescriptor = -1;
+                    }
                 }
+
+                callback();
             }
 
         }
