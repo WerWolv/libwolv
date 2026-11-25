@@ -197,6 +197,13 @@ TEST_SEQUENCE("String_MonoSpaceWrap") {
         TEST_ASSERT(wrapMonospacedString("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse", 1, 10) == "Lorem \nipsum \ndolor sit \namet, \nconsectetu\nr \nadipiscing\n elit. \nSed non \nrisus. \nSuspendiss\ne");
     }
 
+    // multi-byte UTF-8 characters count as one character and are never split
+    { // three Japanese characters, 9 bytes
+        TEST_ASSERT(wrapMonospacedString("\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e", 1, 2) == "\xe6\x97\xa5\xe6\x9c\xac\n\xe8\xaa\x9e");
+        TEST_ASSERT(wrapMonospacedString("\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e", 1, 3) == "\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e");
+        TEST_ASSERT(wrapMonospacedString("a \xc3\xa9t\xc3\xa9 b", 1, 4) == "a \n\xc3\xa9t\xc3\xa9 \nb");
+    }
+
     // an empty string, negative character width or negative max width should return input
     {
         TEST_ASSERT(wrapMonospacedString("", 1, 10).empty());
