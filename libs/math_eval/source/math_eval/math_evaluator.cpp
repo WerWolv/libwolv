@@ -7,6 +7,7 @@
 #include <queue>
 #include <stack>
 #include <cmath>
+#include <cstdlib>
 #include <optional>
 #include <numbers>
 
